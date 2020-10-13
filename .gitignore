@@ -1,0 +1,6 @@
+**/.ipynb_checkpoints
+.pytest_cache
+.idea
+dist/
+build/
+

@@ -9,7 +9,7 @@ from scipy.interpolate import splprep, splev
 class Line:
     def __init__(self, points: np.ndarray = np.zeros(3)):
         self.points = points
-        self.smoothing_parameter = 1.5
+        self.smoothing_parameter = 0.5
 
     @property
     def points(self):
@@ -63,8 +63,6 @@ class Line:
     @property
     def backbone_visualisation(self):
         return self._calculate_smooth_backbone(1000)
-
-
 
 
 @dataclass
