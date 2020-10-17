@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 from scipy.interpolate import splprep, splev
 
+from ntp.linalg import normalise
+
 
 class Line:
     def __init__(self, points: np.ndarray = np.zeros(3)):
@@ -49,20 +51,25 @@ class Line:
     def smoothing_parameter(self, s: float):
         self._smoothing_parameter = float(s)
 
-    def _fit_spline(self):
-        # noinspection PyTupleAssignmentBalance
-        tck, u = splprep([self.x, self.y, self.z], s=self.smoothing_parameter)
-        return tck, u
+    @property
+    def spline(self) -> tuple:
+        return splprep([self.x, self.y, self.z], s=self.smoothing_parameter)
 
     def _calculate_smooth_backbone(self, n_samples):
-        tck, u = self._fit_spline()
-        u_fine = np.linspace(u.min(), u.max(), n_samples, endpoint=True)
-        smooth_backbone = np.column_stack(splev(u_fine, tck))
+        self.spline_tck, self.spline_u = self.spline
+        self.u_fine = np.linspace(self.spline_u.min(), self.spline_u.max(), n_samples, endpoint=True)
+        smooth_backbone = np.column_stack(splev(self.u_fine, self.spline_tck))
         return smooth_backbone
 
     @property
-    def backbone_visualisation(self):
+    def backbone(self):
         return self._calculate_smooth_backbone(1000)
+
+    @property
+    def backbone_vectors(self):
+        backbone_plus_delta = np.column_stack(splev(self.u_fine + 1e-3, self.spline_tck))
+        delta = backbone_plus_delta - self.backbone
+        return normalise(delta)
 
 
 @dataclass
