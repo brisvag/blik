@@ -3,4 +3,5 @@
 .idea
 dist/
 build/
-
+__pycache__/
+*.ipynb
