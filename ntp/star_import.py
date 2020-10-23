@@ -12,8 +12,9 @@ def star_import(starfile_path):
 
     split_micrographs = df.groupby('rlnMicrographName')
 
-    micrographs = []
+    micrographs = {}
     for name, df in split_micrographs:
-        micrographs.append(Micrograph(df, name=Path(name).stem))
+        short_name = Path(name).stem
+        micrographs[short_name] = Micrograph(df, name=short_name)
 
     return micrographs

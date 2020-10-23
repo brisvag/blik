@@ -1,4 +1,5 @@
 import numpy as np
+import napari
 from eulerangles import euler2matrix
 
 
@@ -6,50 +7,71 @@ class Micrograph:
     """
     collects a micrograph and its related data
     """
-    axes = ['x', 'y', 'z']
-
-    def __init__(self, data_frame, name=''):
+    def __init__(self, data_frame, mrc_path=None, name=''):
         self.name = name
-        self.data = data_frame
-        self._orient_matrix = None
+        self._data = data_frame
+        self.mg = None
+        self._coords = self._get_coords()
+        self._orientation_matrix = self._get_orientation_matrix()
+        self._vectors = self._get_orientation_vectors()
+        if mrc_path:
+            self.get_micrograph(mrc_path)
 
-        # add useful columns to the dataframe
-        # x, y and z but normalized
-        for axis in self.axes:
-            self.data[axis] = self.data[f'rlnCoordinate{axis.upper()}'] + self.data.get(f'rlnOrigin{axis.upper()}', 0)
-
-        self._calulate_orient_matrix()
-
-    def coords(self, order='zyx'):
+    def _get_coords(self):
         """
-        return requested coordinates as numpy array
+        extract normalized coords as np array for quicker access
         """
-        if any([ax not in self.axes for ax in order.lower()]):
-            raise Exception # TODO
-        return self.data[[axis for axis in order.lower()]].to_numpy()
+        coords = []
+        for axis in 'XYZ':
+            ax = np.array(self._data[f'rlnCoordinate{axis}'] + self._data.get(f'rlnOrigin{axis}', 0))
+            coords.append(ax)
+        return np.stack(coords, axis=1)
 
-    def _calulate_orient_matrix(self):
+    @staticmethod
+    def _map_axes(axes_str):
+        """
+        return correct index mapping as list from string of axes
+        assuming slicing from array of shape (n,3) in xyz order
+        """
+        if any([ax not in 'xyz' for ax in axes_str.lower()]):
+            raise Exception
+        mapping = {'x': 0, 'y': 1, 'z': 2}
+        return [mapping[ax] for ax in axes_str.lower()]
+
+    def _get_orientation_matrix(self):
         """
         transform orientation of particles from euler angles to rotation matrices
         """
-        # these needs to be stored separately or we lose vectorization
-        # how do we keep these updated? # TODO
-        orient_euler = self.data[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']].to_numpy()
-        self._orient_matrix = euler2matrix(orient_euler, axes='ZYZ', intrinsic=True, positive_ccw=True)
+        orient_euler = self._data[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']].to_numpy()
+        return euler2matrix(orient_euler, axes='ZYZ', intrinsic=True, positive_ccw=True)
 
-    def orient_matrix(self, order='zyx'):
-        # needed because order is xyz from euler2matrix
-        mapping = {'x': 0, 'y': 1, 'z': 2}
-        idx = [mapping[axis] for axis in order]
-        ax1 = self._orient_matrix[:, :, idx[0]]
-        ax2 = self._orient_matrix[:, :, idx[1]]
-        ax3 = self._orient_matrix[:, :, idx[2]]
-        return np.stack((ax1, ax2, ax3), axis=2)
+    def _get_orientation_vectors(self):
+        """
+        transform rotation matrices into an array of unit vectors centered on the origin
+        """
+        return np.einsum('ijk,j->ik', self._orientation_matrix, [0, 0, 1])
 
-    def orient_vectors(self, scale=1, order='zyx'):
+    def get_micrograph(self, mrc_path):
+        self.mg = napari.plugins.io.read_data_with_plugins(mrc_path)[0][0]
+
+    def coords(self, order='zyx'):
+        """
+        return coordinates as numpy array in the requested order
+        """
+        return self._coords[:, self._map_axes(order)]
+
+    def vectors(self, order='zyx'):
         """
         return a napari-compliant array of vectors representing the orientation of particles
         """
-        vectors = np.einsum('ijk,j->ik', self.orient_matrix(), [0, 0, scale])
+        return np.stack([self.coords(order), self._vectors[:, self._map_axes(order)]], axis=1)
 
-        return np.stack([self.coords(order), vectors], axis=1)
+    def view(self, mg_scale=[1,1,1], v_length=20, coords_scale=[1,1,1]):
+        """
+        open napari viewer with everything loaded
+        """
+        v = napari.Viewer(ndisplay=3)
+        v.add_image(self.mg, scale=mg_scale)
+        v.add_points(self.coords(), scale=coords_scale)
+        v.add_vectors(self.vectors(), length=v_length)
+        return v
