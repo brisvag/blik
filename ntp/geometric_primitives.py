@@ -5,13 +5,15 @@ from pathlib import Path
 import numpy as np
 from scipy.interpolate import splprep, splev
 
-from ntp.linalg import normalise
+from .linalg import normalise
 
 
 class Line:
     def __init__(self, points: np.ndarray = np.zeros(3)):
         self.points = points
         self.smoothing_parameter = 0.5
+        self.spline_u = self.spline[0]
+        self.spline_tck = self.spline[1]
 
     @property
     def points(self):
@@ -53,21 +55,29 @@ class Line:
 
     @property
     def spline(self) -> tuple:
-        return splprep([self.x, self.y, self.z], s=self.smoothing_parameter)
+        tck = splprep([self.x, self.y, self.z], s=self.smoothing_parameter)
+        return tck
 
-    def _calculate_smooth_backbone(self, n_samples):
-        self.spline_tck, self.spline_u = self.spline
-        self.u_fine = np.linspace(self.spline_u.min(), self.spline_u.max(), n_samples, endpoint=True)
-        smooth_backbone = np.column_stack(splev(self.u_fine, self.spline_tck))
+    @property
+    def smooth_backbone_samples(self):
+        return 1000
+
+    @property
+    def _spline_u_fine(self):
+        return np.linspace(0, 1, self.smooth_backbone_samples, endpoint=True)
+
+    def _calculate_smooth_backbone(self):
+        spline_tck, _ = self.spline
+        smooth_backbone = np.column_stack(splev(self._spline_u_fine, self.spline_tck))
         return smooth_backbone
 
     @property
     def backbone(self):
-        return self._calculate_smooth_backbone(1000)
+        return self._calculate_smooth_backbone()
 
     @property
     def backbone_vectors(self):
-        backbone_plus_delta = np.column_stack(splev(self.u_fine + 1e-3, self.spline_tck))
+        backbone_plus_delta = np.column_stack(splev(self._spline_u_fine + 1e-3, self.spline_tck))
         delta = backbone_plus_delta - self.backbone
         return normalise(delta)
 
@@ -156,3 +166,9 @@ class Mesh:
     #     dot = np.dot(self.AB, self.AC)
     #     sqrt = np.sqrt((self.ABsq * self.ACsq) - (dot ** 2))
     #     return 0.5 * sqrt
+
+
+
+
+
+

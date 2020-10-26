@@ -102,7 +102,6 @@ class FilamentModel(TomographyModel, ABC):
         self.radius = None
         self.edge_point = None
 
-
     @property
     def backbone(self) -> np.ndarray:
         return self.line.backbone
@@ -132,6 +131,8 @@ class FilamentModel(TomographyModel, ABC):
         if self._check_point(self.edge_point) is not None:
             self.radius, _ = self.backbone_kdtree.query(self.edge_point, k=1)
         return
+
+
 
 
 
