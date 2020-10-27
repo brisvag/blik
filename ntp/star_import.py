@@ -1,7 +1,7 @@
 from pathlib import Path
 import starfile
 
-from micrograph import Micrograph
+from tomo_viewer import TomoViewer
 
 
 def star_import(starfile_path):
@@ -15,6 +15,6 @@ def star_import(starfile_path):
     micrographs = {}
     for name, df in split_micrographs:
         short_name = Path(name).stem
-        micrographs[short_name] = Micrograph(df, name=short_name)
+        micrographs[short_name] = TomoViewer(df, name=short_name)
 
     return micrographs

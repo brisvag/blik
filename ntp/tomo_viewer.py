@@ -3,19 +3,19 @@ import napari
 from eulerangles import euler2matrix
 
 
-class Micrograph:
+class TomoViewer:
     """
-    collects a micrograph and its related data
+    collects an image and its related data
     """
     def __init__(self, data_frame, mrc_path=None, name=''):
         self.name = name
         self._data = data_frame
-        self.mg = None
+        self.image = None
         self._coords = self._get_coords()
         self._orientation_matrix = self._get_orientation_matrix()
         self._vectors = self._get_orientation_vectors()
         if mrc_path:
-            self.get_micrograph(mrc_path)
+            self.get_image(mrc_path)
 
     def _get_coords(self):
         """
@@ -51,27 +51,33 @@ class Micrograph:
         """
         return np.einsum('ijk,j->ik', self._orientation_matrix, [0, 0, 1])
 
-    def get_micrograph(self, mrc_path):
-        self.mg = napari.plugins.io.read_data_with_plugins(mrc_path)[0][0]
+    def get_image(self, mrc_path):
+        self.image = napari.plugins.io.read_data_with_plugins(mrc_path)[0][0]
 
-    def coords(self, order='zyx'):
+    def coords(self, order='zyx', normalize=False):
         """
         return coordinates as numpy array in the requested order
+        if normalize is set, coordinates are assumed to be between 0 and 1 and are
+        multiplied by the shape of the image
         """
-        return self._coords[:, self._map_axes(order)]
+        mapping = self._map_axes(order)
+        dimensions = (1, 1, 1)
+        if normalize and self.image is not None:
+            dimensions = self.image.shape
+        return self._coords[:, mapping] * dimensions
 
-    def vectors(self, order='zyx'):
+    def vectors(self, order='zyx', normalize=False):
         """
         return a napari-compliant array of vectors representing the orientation of particles
         """
-        return np.stack([self.coords(order), self._vectors[:, self._map_axes(order)]], axis=1)
+        return np.stack([self.coords(order, normalize=normalize), self._vectors[:, self._map_axes(order)]], axis=1)
 
-    def view(self, mg_scale=[1,1,1], v_length=20, coords_scale=[1,1,1]):
+    def view(self, image_scale=[1, 1, 1], v_length=20, coords_scale=[1, 1, 1], normalize=False):
         """
         open napari viewer with everything loaded
         """
         v = napari.Viewer(ndisplay=3)
-        v.add_image(self.mg, scale=mg_scale)
-        v.add_points(self.coords(), scale=coords_scale)
-        v.add_vectors(self.vectors(), length=v_length)
+        v.add_image(self.image, scale=image_scale)
+        v.add_points(self.coords(normalize=normalize), scale=coords_scale, size=2)
+        v.add_vectors(self.vectors(normalize=normalize), length=v_length)
         return v
