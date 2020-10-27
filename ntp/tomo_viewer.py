@@ -3,11 +3,84 @@ import napari
 from eulerangles import euler2matrix
 
 
+def tomoviewer_factory(mrc_path=None, star_df=None, viewer=None):
+    image = None
+    if mrc_path is not None:
+        image = Image(mrc_path)
+
+    particles = None
+    if star_df is not None:
+        # get coordinates from dataframe in zyx order
+        coords = []
+        for axis in 'ZYX':
+            ax = np.array(star_df[f'rlnCoordinate{axis}'] + star_df.get(f'rlnOrigin{axis}', 0))
+            coords.append(ax)
+        coords = np.stack(coords, axis=1)
+        # de-normalize if needed
+        if coords.max() <= 1:
+            coords = coords * image.shape
+
+        # get orientations as euler angles and transform it into rotation matrices
+        orient_euler = star_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']].to_numpy()
+        orient_matrices = euler2matrix(orient_euler, axes='ZYZ', intrinsic=True, positive_ccw=True)
+        # get orientations as unit vectors centered on the origin
+        orient_vectors = np.einsum('ijk,j->ik', orient_matrices, [0, 0, 1])
+        # reslice them in zyx order
+        orient_vectors = orient_vectors[:, [2,1,0]]
+
+        particles = Particles(coords, orient_vectors)
+
+    return TomoViewer(image, particles, viewer)
+
+
+class Particles:
+    """
+    represent positions and orientations of particles in a volume
+    coordinates: (n, 3), in napari format zyx
+    orientation_vectors: (n, 3), in napari format zyx centered on the origin
+    """
+    def __init__(self, coordinates, orientation_vectors):
+        self.coords = coordinates
+        self.vectors = np.stack([coordinates, orientation_vectors], axis=1)
+
+
+class Image:
+    """
+    3d image in napari format zyx
+    """
+    def __init__(self, image_path):
+        self.data = napari.plugins.io.read_data_with_plugins(image_path)[0][0]
+        self.shape = self.data.shape
+
+
 class TomoViewer:
+    def __init__(self, image=None, particles=None, viewer=None):
+        self.image = image
+        self.particles = particles
+        self.viewer = viewer
+
+    def show(self, viewer=None):
+        # create a new viewer if none was ever passed
+        if viewer is not None:
+            v = viewer
+        elif self.viewer is None:
+            v = napari.Viewer(ndisplay=3)
+        else:
+            v = self.viewer
+
+        if self.image is not None:
+            v.add_image(self.image.data)
+        if self.particles is not None:
+            v.add_points(self.particles.coords)
+            v.add_vectors(self.particles.vectors)
+        return v
+
+
+class TomoViewerOld:
     """
-    collects an image and its related data
+    base class for handling images and cropping geometries
     """
-    def __init__(self, data_frame, mrc_path=None, name=''):
+    def __init__(self, image, coords, vectors):
         self.name = name
         self._data = data_frame
         self.image = None
