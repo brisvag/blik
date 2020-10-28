@@ -176,3 +176,4 @@ class TWContainer(Viewable):
         v = super().show(*args, **kwargs)
         for tw in self.tws:
             tw.show(viewer=v)
+        return v
