@@ -10,14 +10,14 @@ class Viewable:
     """
     Base class for viewable object in napari
     """
-    def __init__(self, viewer=None, parent=None, name=''):
+    def __init__(self, viewer=None, parent=None, name='', *args, **kwargs):
         self.viewer = viewer
         if parent is None:
             parent = self
         self.parent = parent
         self.name = name
 
-    def show(self, viewer=None):
+    def show(self, viewer=None, *args, **kwargs):
         """
         creates a new napari viewer if not present or given
         shows the contents of the Viewable
@@ -58,9 +58,9 @@ class Image(Viewable):
     3d image in napari format zyx
     image_scale: float or np array of shape (3,)
     """
-    def __init__(self, image_path, *args, image_scale=1, **kwargs):
+    def __init__(self, image_path, image_scale=1, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = napari.plugins.io.read_data_with_plugins(image_path)[0][0]
+        self.data = napari.plugins.io.read_data_with_plugins(Path(image_path).expanduser().resolve())[0][0]
         self.shape = self.data.shape
         self.scale = [1, 1, 1] * np.array(image_scale)
 
@@ -80,7 +80,7 @@ class TomoViewer(Viewable):
         self.particles = None
 
         if mrc_path is not None:
-            self.image = Image(mrc_path, *args, parent=self, **kwargs)
+            self.image = Image(mrc_path, parent=self, *args, **kwargs)
 
         if star_df is not None:
             # get coordinates from dataframe in zyx order
@@ -101,7 +101,7 @@ class TomoViewer(Viewable):
             # reslice them in zyx order
             orient_vectors = orient_vectors[:, [2, 1, 0]]
 
-            self.particles = Particles(coords, orient_vectors, *args, parent=self, **kwargs)
+            self.particles = Particles(coords, orient_vectors, parent=self, *args, **kwargs)
 
     def show(self, *args, **kwargs):
         v = super().show(*args, **kwargs)
@@ -118,24 +118,24 @@ class TWContainer(Viewable):
         if isinstance(mrc_paths, list):
             if isinstance(star_paths, list):
                 for mrc, star in zip(mrc_paths, star_paths):
-                    star_df = starfile.read(star)
+                    star_df = starfile.read(Path(star).expanduser().resolve())
                     name = self._get_name(mrc)
-                    self.tws.append(TomoViewer(mrc, star_df, *args, name=name, **kwargs))
+                    self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
             else:
                 df = starfile.read(star_paths)
                 groups = df.groupby('rlnMicrographName')
                 if len(groups) == len(mrc_paths):
                     for mrc, (mg_name, star_df) in zip(mrc_paths, groups):
                         name = self._get_name(mg_name)
-                        self.tws.append(TomoViewer(mrc, star_df, *args, name=name, **kwargs))
+                        self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
                 else:
                     raise TypeError
         elif isinstance(star_paths, list):
             raise TypeError
         else:
             name = self._get_name(mrc_paths)
-            star_df = starfile.read(star_paths)
-            self.tws.append(TomoViewer(mrc_paths, star_df, *args, name=name, **kwargs))
+            star_df = starfile.read(Path(star_paths).expanduser().resolve())
+            self.tws.append(TomoViewer(mrc_paths, star_df, name=name, *args, **kwargs))
 
     @staticmethod
     def _get_name(string):
@@ -144,7 +144,7 @@ class TWContainer(Viewable):
         return False
 
     @classmethod
-    def from_dirs(cls, mrc_dir, star_dir, *args, mrc_pattern=None, star_pattern=None, **kwargs):
+    def from_dirs(cls, mrc_dir, star_dir, mrc_pattern=None, star_pattern=None, *args, **kwargs):
         mrcd = Path(mrc_dir)
         stard = Path(star_dir)
 
