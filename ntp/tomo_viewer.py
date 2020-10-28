@@ -76,6 +76,62 @@ class TomoViewer:
         return v
 
 
+class TomoViewerWarp(TomoViewer):
+    def __init__(mrc_path=None, star_df=None, viewer=None):
+        image = None
+        if mrc_path is not None:
+            image = Image(mrc_path)
+
+        particles = None
+        if star_df is not None:
+            # get coordinates from dataframe in zyx order
+            coords = []
+            for axis in 'ZYX':
+                ax = np.array(star_df[f'rlnCoordinate{axis}'] + star_df.get(f'rlnOrigin{axis}', 0))
+                coords.append(ax)
+            coords = np.stack(coords, axis=1)
+            # de-normalize if needed
+            if coords.max() <= 1:
+                coords = coords * image.shape
+
+            # get orientations as euler angles and transform it into rotation matrices
+            orient_euler = star_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']].to_numpy()
+            orient_matrices = euler2matrix(orient_euler, axes='ZYZ', intrinsic=True, positive_ccw=True)
+            # get orientations as unit vectors centered on the origin
+            orient_vectors = np.einsum('ijk,j->ik', orient_matrices, [0, 0, 1])
+            # reslice them in zyx order
+            orient_vectors = orient_vectors[:, [2,1,0]]
+
+            particles = Particles(coords, orient_vectors)
+
+        super().__init__(image, particles, viewer)
+
+
+class BatchTomoViewer:
+    def __init__(self, viewer=None):
+        self.viewer = viewer
+        self.tomoviewers = []
+
+    def show(self, viewer=None):
+        if viewer is not None:
+            v = viewer
+        elif self.viewer is None:
+            v = napari.Viewer(ndisplay=3)
+        else:
+            v = self.viewer
+
+        images = np.stack([tw.image.data for tw in self.tomoviewers])
+        coords = np.stack([tw.particles.coords for tw in self.tomoviewers])
+        vectors = np.stack([tw.particles.vectors for tw in self.tomoviewers])
+
+        if images is not None:
+            v.add_image(images)
+        if self.particles is not None:
+            v.add_points(coords)
+            v.add_vectors(vectors)
+        return v
+
+
 class TomoViewerOld:
     """
     base class for handling images and cropping geometries
