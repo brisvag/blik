@@ -6,6 +6,10 @@ import starfile
 from eulerangles import euler2matrix
 
 
+def _path(path):
+    return Path(path).expanduser().resolve()
+
+
 class Viewable:
     """
     Base class for viewable object in napari
@@ -24,12 +28,15 @@ class Viewable:
         """
         # create a new viewer if none was ever passed
         if viewer is not None:
-            v = viewer
+            self.viewer = viewer
         elif self.viewer is None:
-            v = napari.Viewer(ndisplay=3)
-        else:
-            v = self.viewer
-        return v
+            self.viewer = napari.Viewer(ndisplay=3)
+        return self.viewer
+
+    def update(self, *args, **kwargs):
+        """
+        reload data in the viewer
+        """
 
     def __repr__(self):
         return f'{type(self).__name__}-{self.name}'
@@ -52,6 +59,11 @@ class Particles(Viewable):
         v.add_vectors(self.vectors, name=f'{self.parent.name} - particle orientations', length=20)
         return v
 
+    def update(self, *args, **kwargs):
+        self.viewer.layers.remove(f'{self.parent.name} - particle positions')
+        self.viewer.layers.remove(f'{self.parent.name} - particle orientations')
+        self.show()
+
 
 class Image(Viewable):
     """
@@ -60,7 +72,7 @@ class Image(Viewable):
     """
     def __init__(self, image_path, image_scale=1, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = napari.plugins.io.read_data_with_plugins(Path(image_path).expanduser().resolve())[0][0]
+        self.data = napari.plugins.io.read_data_with_plugins(_path(image_path))[0][0]
         self.shape = self.data.shape
         self.scale = [1, 1, 1] * np.array(image_scale)
 
@@ -69,6 +81,9 @@ class Image(Viewable):
         v.add_image(self.data, name=f'{self.parent.name} - image', scale=self.scale)
         return v
 
+    def update(self, *args, **kwargs):
+        self.viewer.layers.remove(f'{self.parent.name} - image')
+        self.show()
 
 class TomoViewer(Viewable):
     """
@@ -80,9 +95,10 @@ class TomoViewer(Viewable):
         self.particles = None
 
         if mrc_path is not None:
-            self.image = Image(mrc_path, parent=self, *args, **kwargs)
+            self.image = Image(mrc_path, parent=self.parent, *args, **kwargs)
 
         if star_df is not None:
+            star_df = self._cutoff_df(star_df, 'rlnAutopickFigureOfMerit', '>', 20)
             # get coordinates from dataframe in zyx order
             coords = []
             for axis in 'ZYX':
@@ -101,7 +117,14 @@ class TomoViewer(Viewable):
             # reslice them in zyx order
             orient_vectors = orient_vectors[:, [2, 1, 0]]
 
-            self.particles = Particles(coords, orient_vectors, parent=self, *args, **kwargs)
+            self.particles = Particles(coords, orient_vectors, parent=self.parent, *args, **kwargs)
+
+    @staticmethod
+    def _cutoff_df(df, column, criterion, cutoff):
+        if criterion == '>':
+            return df[df[column] >= cutoff]
+        elif criterion == '<':
+            return df[df[column] <= cutoff]
 
     def show(self, *args, **kwargs):
         v = super().show(*args, **kwargs)
@@ -109,16 +132,24 @@ class TomoViewer(Viewable):
         self.particles.show(viewer=v)
         return v
 
+    def update(self, *args, **kwargs):
+        self.image.update()
+        self.particles.update()
+
 
 class TWContainer(Viewable):
+    """
+    load and display several volumes and their relative starfile data
+    """
     def __init__(self, mrc_paths=None, star_paths=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.tws = []
         if isinstance(mrc_paths, list):
             if isinstance(star_paths, list):
+                # two lists are found: match them as they are
                 for mrc, star in zip(mrc_paths, star_paths):
-                    star_df = starfile.read(Path(star).expanduser().resolve())
+                    star_df = starfile.read(_path(star))
                     name = self._get_name(mrc)
                     self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
             else:
@@ -129,24 +160,24 @@ class TWContainer(Viewable):
                         name = self._get_name(mg_name)
                         self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
                 else:
-                    raise TypeError
+                    raise ValueError('a different number of .mrc and .star files was found. Aborting...')
         elif isinstance(star_paths, list):
-            raise TypeError
+            raise ValueError('a different number of .mrc and .star files was found. Aborting...')
         else:
             name = self._get_name(mrc_paths)
-            star_df = starfile.read(Path(star_paths).expanduser().resolve())
+            star_df = starfile.read(_path(star_paths))
             self.tws.append(TomoViewer(mrc_paths, star_df, name=name, *args, **kwargs))
 
     @staticmethod
-    def _get_name(string):
-        if match := re.search('TS_\d+', string):
+    def _get_name(path_or_string):
+        if match := re.search('TS_\d+', str(path_or_string)):
             return match.group(0)
         return False
 
     @classmethod
     def from_dirs(cls, mrc_dir, star_dir, mrc_pattern=None, star_pattern=None, *args, **kwargs):
-        mrcd = Path(mrc_dir)
-        stard = Path(star_dir)
+        mrcd = _path(mrc_dir)
+        stard = _path(star_dir)
 
         mrc_list = []
         for path in mrcd.glob('*.mrc'):
@@ -172,8 +203,16 @@ class TWContainer(Viewable):
 
         return cls(mrc_list, star_list, *args, **kwargs)
 
+    @classmethod
+    def from_dir(cls, dir_path, pattern=None, *args, **kwargs):
+        return cls.from_dirs(dir_path, dir_path, mrc_pattern=pattern, star_pattern=pattern, *args, **kwargs)
+
     def show(self, *args, **kwargs):
         v = super().show(*args, **kwargs)
         for tw in self.tws:
             tw.show(viewer=v)
         return v
+
+    def update(self, *args, **kwargs):
+        for tw in self.tws:
+            tw.update()
