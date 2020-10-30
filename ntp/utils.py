@@ -7,22 +7,22 @@ from eulerangles import euler2matrix
 
 
 def _path(path):
+    """
+    clean up a path
+    """
     return Path(path).expanduser().resolve()
 
-def guess_names(thing):
+def guess_name(thing):
     """
     guess an appropriate name based on the input
     thing: string or stringifiable or list containing such
     """
-    names = []
-    if not isinstance(thing, list):
-        thing = [thing]
-    for string in thing:
-        if match := re.search('TS_\d+', str(thing)):
-            names.append(match.group(0))
-        else:
-            names.append('NoName')
-    return names
+    name = 'NoName'
+    if isinstance(thing, list):
+        raise NotImplementedError('no way to guess a name from a list yet')
+    elif match := re.search('TS_\d+', str(thing)):
+        name = match.group(0)
+    return name
 
 def read_images(image_paths):
     data = []
@@ -52,7 +52,7 @@ def read_starfiles(starfile_paths):
     data = []
     for raw_name, star_df in dataframes:
         # guess a name for the data
-        name = guess_names(raw_name)
+        name = guess_name(raw_name)
         # get coordinates from dataframe in zyx order
         coords = []
         for axis in 'ZYX':
