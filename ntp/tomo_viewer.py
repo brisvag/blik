@@ -1,7 +1,7 @@
 import numpy as np
 import napari
 
-from utils import read_images, read_starfiles, guess_name
+from utils import read_images, read_starfiles
 
 
 class Viewable:
@@ -86,16 +86,16 @@ class TomoViewer(Viewable):
     """
     load and diosplay an arbitrary set of images and datasets
     """
-    def __init__(self, mrc_paths=None, star_paths=None, stack=True, *args, **kwargs):
+    def __init__(self, mrc_paths=None, star_paths=None, stack=True, sort=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.items = []
 
-        images = read_images(mrc_paths)
-        star_dfs = read_starfiles(star_paths)
-
+        star_dfs = read_starfiles(star_paths, sort)
         # for now, we can only show a perfect 1:1 ratio of images to starfiles TODO
-        if len(images) != len(star_dfs):
+        # this check must be done after loading starfiles, but better before images to stop early if needed
+        if len(mrc_paths) != len(star_dfs):
             raise NotImplementedError('ratio of images:starfiles different from 1:1 not supported yet')
+        images = read_images(mrc_paths, sort)
 
         # if stack is requested, prepare for that
         if stack:

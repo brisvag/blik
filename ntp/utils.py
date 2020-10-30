@@ -24,10 +24,12 @@ def guess_name(thing):
         name = match.group(0)
     return name
 
-def read_images(image_paths):
+def read_images(image_paths, sort=True):
     data = []
     if not isinstance(image_paths, list):
         image_paths = [image_paths]
+    if sort:
+        image_paths = sorted(image_paths)
     for image in image_paths:
         data.append(napari.plugins.io.read_data_with_plugins(_path(image))[0][0])
     return data
@@ -42,10 +44,12 @@ def _read_starfile(star_path):
         return [(star_path, df)]
 
 
-def read_starfiles(starfile_paths):
+def read_starfiles(starfile_paths, sort=True):
     dataframes = []
     if not isinstance(starfile_paths, list):
         starfile_paths = [starfile_paths]
+    if sort:
+        starfile_paths = sorted(starfile_paths)
     for star in starfile_paths:
         dataframes.extend(_read_starfile(star))
 
