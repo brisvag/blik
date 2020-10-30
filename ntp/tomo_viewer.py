@@ -24,7 +24,7 @@ class Viewable:
         creates a new napari viewer if not present or given
         shows the contents of the Viewable
         """
-        # create a new viewer if none was ever passed
+        # create a new viewer if necessary
         if viewer is not None:
             self.viewer = viewer
         elif self.viewer is None:
@@ -58,7 +58,7 @@ class Particles(Viewable):
     def show(self, *args, **kwargs):
         v = super().show(*args, **kwargs)
         v.add_points(self.coords, name=f'{self.parent.name} - particle positions', size=2)
-        v.add_vectors(self.vectors, name=f'{self.parent.name} - particle orientations', length=20)
+        v.add_vectors(self.vectors, name=f'{self.parent.name} - particle orientations')
         return v
 
     def update(self, *args, **kwargs):
@@ -88,41 +88,73 @@ class Image(Viewable):
         self.show()
 
 
-class TW(Viewable):
-    def __init__(self, mrc_paths=None, star_paths=None, as_stack=True, *args, **kwargs):
+class TomoViewer(Viewable):
+    """
+    load and diosplay an arbitrary set of images and datasets
+    """
+    def __init__(self, mrc_paths=None, star_paths=None, stack=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = {}
+        self.items = []
 
         images = read_images(mrc_paths)
         star_dfs = read_starfiles(star_paths)
 
+        # for now, we can only show a perfect 1:1 ratio of images to starfiles TODO
         if len(images) != len(star_dfs):
-            raise Exception('wrong ratio of images/starfiles')
+            raise NotImplementedError('ratio of images:starfiles different from 1:1 not supported yet')
 
-        if as_stack:
+        # if stack is requested, prepare for that
+        if stack:
             image_4d = np.stack(images)
             coords_4d = []
             vectors_4d = []
-            for idx, (_, coords, vectors) in enumerate(star_dfs):
+
+        # loop through everything
+        for idx, (image, (name, coords, vectors)) in enumerate(zip(images, star_dfs)):
+            # denormalize if necessary (not index column) by multiplying by the shape of images
+            if coords.max() <= 1:
+                coords *= image.shape
+            if stack:
                 n_coords = coords.shape[0]
                 shape = (n_coords, 1)
+                # add a leading, incremental coordinate to points and vectors that indicates the index
+                # of the 4th dimension in which to show that volume
                 coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
                 vectors_4d.append(np.concatenate([np.ones(shape) * idx, vectors], axis=1))
+            else:
+                self.items.append(Image(image, parent=self.parent, *args, **kwargs))
+                self.items.append(Particles(coords, vectors, parent=self.parent, *args, **kwargs))
+        if stack:
             coords_4d = np.concatenate(coords_4d)
             vectors_4d = np.concatenate(vectors_4d)
-            # denormalize if necessary
-            if coords.max() <= 1:
-                coords_4d = coords_4d * image_4d.shape # fix the multiply by 2! TODO
-            self.data['test_image'] = Image(image_4d, parent=self.parent, *args, **kwargs)
-            self.data['test_particles'] = Particles(coords_4d, vectors_4d, parent=self.parent, *args, **kwargs)
-        else:
-            for image, (name, star_dfs) in zip(images, star_dfs):
-                pass
-                # # two lists are found: match them as they are found
-                # for mrc, star in zip(mrc_paths, star_paths):
-                    # star_df = starfile.read(_path(star))
-                    # name = self._get_name(mrc)
-                    # self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
+            self.items.append(Image(image_4d, parent=self.parent, *args, **kwargs))
+            self.items.append(Particles(coords_4d, vectors_4d, parent=self.parent, *args, **kwargs))
+        # if stack:
+            # # show as 4D stack of volumes
+            # image_4d = np.stack(images)
+            # coords_4d = []
+            # vectors_4d = []
+            # for idx, (_, coords, vectors) in enumerate(star_dfs):
+                # n_coords = coords.shape[0]
+                # shape = (n_coords, 1)
+                # # add a leading, incremental coordinate to points and vectors that indicates the index
+                # # of the 4th dimension in which to show that volume
+                # coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
+                # vectors_4d.append(np.concatenate([np.ones(shape) * idx, vectors], axis=1))
+            # # stack them up
+            # coords_4d = np.concatenate(coords_4d)
+            # vectors_4d = np.concatenate(vectors_4d)
+            # # denormalize if necessary (not index column) by multiplying by the shape of images
+            # # TODO: we now assume images are all the same size!
+            # if coords.max() <= 1:
+                # coords_4d[:,1:] *= image_4d.shape[1:]
+            # self.images.append(Image(image_4d, parent=self.parent, *args, **kwargs))
+            # self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, *args, **kwargs))
+        # else:
+            # # create individual particles and images to show as layers
+            # for image, (name, coords, vectors) in zip(images, star_dfs):
+                # self.images.append
+                # self.tws.append(TomoViewer(mrc, star_df, name=name, *args, **kwargs))
             # else:
                 # df = starfile.read(star_paths)
                 # groups = df.groupby('rlnMicrographName')
@@ -141,8 +173,8 @@ class TW(Viewable):
 
     def show(self, *args, **kwargs):
         v = super().show(*args, **kwargs)
-        for name, viewable in self.data.items():
-            viewable.show(viewer=v)
+        for item in self.items:
+            item.show(viewer=v)
         return v
 
 # class TomoViewer(Viewable):
