@@ -44,7 +44,11 @@ def _read_starfile(star_path):
         return [(star_path, df)]
 
 
-def read_starfiles(starfile_paths, sort=True):
+def read_starfiles(starfile_paths, sort=True, additional_columns=None):
+    """
+    read a number of star files and return a list of each dataset found
+    as particle coordinates, orientations and additional data
+    """
     dataframes = []
     if not isinstance(starfile_paths, list):
         starfile_paths = [starfile_paths]
@@ -72,5 +76,11 @@ def read_starfiles(starfile_paths, sort=True):
         # reslice them in zyx order
         orient_vectors = orient_vectors[:, [2, 1, 0]]
 
-        data.append((name, coords, orient_vectors))
+        add_data = {}
+        if additional_columns is None:
+            additional_columns = []
+        for column in additional_columns:
+            add_data[column] = np.array(star_df[column])
+
+        data.append((name, coords, orient_vectors, add_data))
     return data

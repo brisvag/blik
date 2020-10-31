@@ -104,7 +104,7 @@ class TomoViewer(Viewable):
             vectors_4d = []
 
         # loop through everything
-        for idx, (image, (name, coords, vectors)) in enumerate(zip(images, star_dfs)):
+        for idx, (image, (name, coords, vectors, add_data)) in enumerate(zip(images, star_dfs)):
             # denormalize if necessary (not index column) by multiplying by the shape of images
             if coords.max() <= 1:
                 coords *= image.shape
