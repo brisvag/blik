@@ -109,12 +109,15 @@ class TomoViewer(Viewable):
             if coords.max() <= 1:
                 coords *= image.shape
             if stack:
+                # get the length of coords as (n, 1) shape
                 n_coords = coords.shape[0]
                 shape = (n_coords, 1)
-                # add a leading, incremental coordinate to points and vectors that indicates the index
+                # add a leading, incremental coordinate to points that indicates the index
                 # of the 4th dimension in which to show that volume
                 coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
-                vectors_4d.append(np.concatenate([np.ones(shape) * idx, vectors], axis=1))
+                # just zeros for vectors, cause they are projection vectors centered on the origin,
+                # otherwise they would traverse the 4th dimension to another 3D slice
+                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
             else:
                 self.items.append(Image(image, parent=self.parent, name=name, *args, **kwargs))
                 self.items.append(Particles(coords, vectors, parent=self.parent, name=name, *args, **kwargs))
