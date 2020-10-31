@@ -12,6 +12,7 @@ def _path(path):
     """
     return Path(path).expanduser().resolve()
 
+
 def guess_name(thing):
     """
     guess an appropriate name based on the input
@@ -24,7 +25,12 @@ def guess_name(thing):
         name = match.group(0)
     return name
 
+
 def read_images(image_paths, sort=True):
+    """
+    read any number of image files using napari plugins, and return the data
+    as list of numpy array
+    """
     data = []
     if not isinstance(image_paths, list):
         image_paths = [image_paths]
@@ -36,6 +42,10 @@ def read_images(image_paths, sort=True):
 
 
 def _read_starfile(star_path):
+    """
+    read a single star file and return a list containing each dataset
+    found in the file, as a separate (name, dataframe) tuple
+    """
     df = starfile.read(_path(star_path))
     if 'rlnMicrographName' in df.columns:
         groups = df.groupby('rlnMicrographName')
