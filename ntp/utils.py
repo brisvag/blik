@@ -54,7 +54,7 @@ def _read_starfile(star_path):
         return [(star_path, df)]
 
 
-def read_starfiles(starfile_paths, sort=True, additional_columns=None):
+def read_starfiles(starfile_paths, sort=True, data_columns=None):
     """
     read a number of star files and return a list of each dataset found
     as particle coordinates, orientations and additional data
@@ -87,9 +87,9 @@ def read_starfiles(starfile_paths, sort=True, additional_columns=None):
         orient_vectors = orient_vectors[:, [2, 1, 0]]
 
         add_data = {}
-        if additional_columns is None:
-            additional_columns = []
-        for column in additional_columns:
+        if data_columns is None:
+            data_columns = []
+        for column in data_columns:
             add_data[column] = np.array(star_df[column])
 
         data.append((name, coords, orient_vectors, add_data))
