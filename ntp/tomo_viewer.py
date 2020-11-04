@@ -1,8 +1,13 @@
 import numpy as np
 import napari
+import logging
+from itertools import zip_longest
 
 from utils import read_images, read_starfiles
 import gui
+
+
+logging.basicConfig(level=logging.info)
 
 
 class Viewable:
@@ -90,7 +95,7 @@ class TomoViewer(Viewable):
     """
     load and diosplay an arbitrary set of images and datasets
     """
-    def __init__(self, mrc_paths=None, star_paths=None, stack=False, sort=True, data_columns=None, *args, **kwargs):
+    def __init__(self, mrc_paths=None, star_paths=None, sort=True, data_columns=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.images = []
         self.particles = []
@@ -102,7 +107,7 @@ class TomoViewer(Viewable):
             # needed for length check
             mrc_paths = [mrc_paths]
         if len(mrc_paths) != len(star_dfs):
-            raise NotImplementedError('ratio of images:starfiles different from 1:1 not supported yet')
+            logging.warn(f'number of datasets is different between images and starfiles!')
         images = read_images(mrc_paths, sort)
 
         # if stack is requested, prepare for that
@@ -136,7 +141,7 @@ class TomoViewer(Viewable):
             coords_4d = np.concatenate(coords_4d)
             vectors_4d = np.concatenate(vectors_4d)
             self.images.append(Image(image_4d, parent=self.parent, name='stack', *args, **kwargs))
-            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', *args, **kwargs))
+            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data, *args, **kwargs))
 
     def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}):
         v = super().show(viewer=viewer)
@@ -148,3 +153,120 @@ class TomoViewer(Viewable):
     def update(self):
         for item in self.particles + self.images:
             item.update()
+
+
+class StarViewer(Viewable):
+    def __init__(self, star_paths=None, stack=False, sort=True, data_columns=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.particles = []
+
+        star_dfs = read_starfiles(star_paths, sort, data_columns)
+
+        # if stack is requested, prepare for that
+        if stack:
+            coords_4d = []
+            vectors_4d = []
+            add_data_4d = {}
+            # TODO: data in stack mode?
+
+        # loop through everything
+        for idx, (name, coords, vectors, add_data) in enumerate(star_dfs):
+            if stack:
+                # get the length of coords as (n, 1) shape
+                n_coords = coords.shape[0]
+                shape = (n_coords, 1)
+                # add a leading, incremental coordinate to points that indicates the index
+                # of the 4th dimension in which to show that volume
+                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
+                # just zeros for vectors, cause they are projection vectors centered on the origin,
+                # otherwise they would traverse the 4th dimension to another 3D slice
+                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
+                for k, v in add_data.items():
+                    if k not in add_data_4d:
+                        add_data_4d[k] = []
+                    add_data_4d[k].append(v)
+            else:
+                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
+        if stack:
+            # TODO: guess a good name for the whole stack
+            # name = guess_name(mrc_paths)
+            coords_4d = np.concatenate(coords_4d)
+            vectors_4d = np.concatenate(vectors_4d)
+            for k, v in add_data_4d.items():
+                add_data_4d[k] = np.concatenate(v)
+            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d, *args, **kwargs))
+
+    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}):
+        v = super().show(viewer=viewer)
+        for particles in self.particles:
+            particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
+        return v
+
+    def update(self):
+        for item in self.particles + self.images:
+            item.update()
+
+
+
+class TomoViewer2(Viewable):
+    """
+    load and diosplay an arbitrary set of images and datasets
+    """
+    def __init__(self, mrc_paths=None, star_paths=None, sort=True, data_columns=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.images = []
+        self.particles = []
+        self.unmatched = False
+
+        star_dfs = read_starfiles(star_paths, sort, data_columns)
+        # this check must be done after loading starfiles, but better before images
+        if not isinstance(mrc_paths, list):
+            # needed for length check
+            mrc_paths = [mrc_paths]
+        if len(mrc_paths) != len(star_dfs):
+            logging.warn(f'number of datasets is different between images and starfiles!')
+        images = read_images(mrc_paths, sort)
+
+        # if stack is requested, prepare for that
+        if stack:
+            image_4d = np.stack(images)
+            coords_4d = []
+            vectors_4d = []
+
+        # loop through everything
+        for idx, (image, (name, coords, vectors, add_data)) in enumerate(zip(images, star_dfs)):
+            # denormalize if necessary (not index column) by multiplying by the shape of images
+            if coords.max() <= 1:
+                coords *= image.shape
+            if stack:
+                # get the length of coords as (n, 1) shape
+                n_coords = coords.shape[0]
+                shape = (n_coords, 1)
+                # add a leading, incremental coordinate to points that indicates the index
+                # of the 4th dimension in which to show that volume
+                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
+                # just zeros for vectors, cause they are projection vectors centered on the origin,
+                # otherwise they would traverse the 4th dimension to another 3D slice
+                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
+            else:
+                self.images.append(Image(image, parent=self.parent, name=name, *args, **kwargs))
+                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
+        if stack:
+            # TODO: guess a good name for the whole stack
+            # name = guess_name(mrc_paths)
+            coords_4d = np.concatenate(coords_4d)
+            vectors_4d = np.concatenate(vectors_4d)
+            self.images.append(Image(image_4d, parent=self.parent, name='stack', *args, **kwargs))
+            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data, *args, **kwargs))
+
+    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}):
+        v = super().show(viewer=viewer)
+        for image, particles in zip(self.images, self.particles):
+            image.show(viewer=v, image_kwargs=image_kwargs)
+            particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
+        return v
+
+    def update(self):
+        for item in self.particles + self.images:
+            item.update()
+
