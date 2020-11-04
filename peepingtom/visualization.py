@@ -19,6 +19,7 @@ class Viewable:
         self.viewer = viewer
         self.parent = parent
         self.name = name
+        self.layer = None
 
     def show(self, viewer=None):
         """
@@ -32,10 +33,12 @@ class Viewable:
             self.viewer = napari.Viewer(ndisplay=3)
         return self.viewer
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """
         reload data in the viewer
         """
+        self.viewer.layers.remove(self.layer)
+        self.show(*args, **kwargs)
 
     def __repr__(self):
         if not self.name:
@@ -43,6 +46,29 @@ class Viewable:
         else:
             name = self.name
         return f'<{type(self).__name__}-{name}>'
+
+
+class ParticlesPositions(Viewable):
+    def __init__(self, coordinates, properties=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.coords = coordinates
+        self.properties = properties
+
+    def show(self, viewer=None, points_kwargs={}):
+        v = super().show(viewer=viewer)
+        self.layer = v.add_points(self.coords, name=f'{self.name} - particle positions', size=2, properties=self.properties, **points_kwargs)
+        return v
+
+
+class ParticlesOrientations(Viewable):
+    def __init__(self, vectors, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.vectors = vectors
+
+    def show(self, viewer=None, vectors_kwargs={}):
+        v = super().show(viewer=viewer)
+        self.layer = v.add_vectors(self.vectors, name=f'{self.name} - particle orientations', **vectors_kwargs)
+        return v
 
 
 class Particles(Viewable):
@@ -53,24 +79,22 @@ class Particles(Viewable):
     """
     def __init__(self, coordinates, orientation_vectors, properties=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.coords = coordinates
-        self.properties = properties
-        self.vectors = orientation_vectors
+        self.coords = ParticlesPositions(coordinates, properties, parent=self.parent, *args, **kwargs)
+        proj_vectors = np.stack([coordinates, orientation_vectors], axis=1)
+        self.vectors = ParticlesOrientations(proj_vectors, parent=self.parent, *args, **kwargs)
 
     def show(self, viewer=None, points=True, vectors=True, points_kwargs={}, vectors_kwargs={}):
         v = super().show(viewer=viewer)
         if points:
-            v.add_points(self.coords, name=f'{self.name} - particle positions', size=2, properties=self.properties, **points_kwargs)
+            self.coords.show(viewer, points_kwargs)
         if vectors:
-            proj_vectors = np.stack([self.coords, self.vectors], axis=1)
-            v.add_vectors(proj_vectors, name=f'{self.name} - particle orientations', **vectors_kwargs)
+            self.vectors.show(viewer, vectors_kwargs)
         return v
 
     def update(self):
-        self.viewer.layers.remove(f'{self.name} - particle positions')
-        self.viewer.layers.remove(f'{self.name} - particle orientations')
+        for l in [self.coords.layer, self.vectors.layer]:
+            self.viewer.layers.remove(l)
         self.show()
-
 
 
 class Image(Viewable):
@@ -78,31 +102,26 @@ class Image(Viewable):
     ND image of shape (#m, z, y, x), with m additional dimensions
     image_scale: float or np array of shape (m+3,)
     """
-    def __init__(self, data, image_scale=1, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = data
-        self.shape = self.data.shape
-        self.scale = (self.data.ndim * [1]) * np.array(image_scale)
 
     def show(self, viewer=None, image_kwargs={}):
         v = super().show(viewer=viewer)
-        v.add_image(self.data, name=f'{self.name} - image', scale=self.scale, **image_kwargs)
+        self.layer = v.add_image(self.data, name=f'{self.name} - image', **image_kwargs)
         return v
 
-    def update(self):
-        self.viewer.layers.remove(f'{self.name} - image')
-        self.show()
 
-
-class TomoViewer(Viewable):
+class Peeper(Viewable):
     """
-    load and diosplay an arbitrary set of images and datasets
+    load and display an arbitrary set of images and/or datasets
     """
     def __init__(self, mrc_paths=None, star_paths=None, sort=True, data_columns=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.images = []
         self.particles = []
-        self.stack = {}
+        self.stack_image = None
+        self.stack_particles = None
         self.unmatching_data = False
 
         if star_paths is None:
@@ -132,7 +151,7 @@ class TomoViewer(Viewable):
     def _make_stack(self):
         if self.images:
             image_4d = np.stack([img.data for img in self.images])
-            self.stack['images'] = Image(image_4d, parent=self.parent, name='stack')
+            self.stack_image = Image(image_4d, parent=self.parent, name='stack')
         if self.particles:
             coords_4d = []
             vectors_4d = []
@@ -157,17 +176,17 @@ class TomoViewer(Viewable):
             vectors_4d = np.concatenate(vectors_4d)
             for k, v in add_data_4d.items():
                 add_data_4d[k] = np.concatenate(v)
-            self.stack['particles'] = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
+            self.stack_particles = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
     def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}, stack=True):
         v = super().show(viewer=viewer)
         if stack:
-            if not self.stack:
+            if self.stack_image is None and self.stack_particles is None:
                 self._make_stack()
-            if 'images' in self.stack:
-                self.stack['images'].show(viewer=v, image_kwargs=image_kwargs)
-            if 'particles' in self.stack:
-                self.stack['particles'].show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
+            if self.stack_image:
+                self.stack_image.show(viewer=v, image_kwargs=image_kwargs)
+            if self.stack_particles:
+                self.stack_particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
         else:
             for image in self.images:
                 image.show(viewer=v, image_kwargs=image_kwargs)
