@@ -7,6 +7,7 @@ from utils import read_images, read_starfiles
 import gui
 
 
+log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.info)
 
 
@@ -54,20 +55,22 @@ class Particles(Viewable):
         super().__init__(*args, **kwargs)
         self.coords = coordinates
         self.properties = properties
-        self.vectors = np.stack([coordinates, orientation_vectors], axis=1)
+        self.vectors = orientation_vectors
 
     def show(self, viewer=None, points=True, vectors=True, points_kwargs={}, vectors_kwargs={}):
         v = super().show(viewer=viewer)
         if points:
             v.add_points(self.coords, name=f'{self.name} - particle positions', size=2, properties=self.properties, **points_kwargs)
         if vectors:
-            v.add_vectors(self.vectors, name=f'{self.name} - particle orientations', **vectors_kwargs)
+            proj_vectors = np.stack([self.coords, self.vectors], axis=1)
+            v.add_vectors(proj_vectors, name=f'{self.name} - particle orientations', **vectors_kwargs)
         return v
 
     def update(self):
         self.viewer.layers.remove(f'{self.name} - particle positions')
         self.viewer.layers.remove(f'{self.name} - particle orientations')
         self.show()
+
 
 
 class Image(Viewable):
@@ -99,174 +102,79 @@ class TomoViewer(Viewable):
         super().__init__(*args, **kwargs)
         self.images = []
         self.particles = []
+        self.stack = {}
+        self.unmatching_data = False
 
-        star_dfs = read_starfiles(star_paths, sort, data_columns)
-        # for now, we can only show a perfect 1:1 ratio of images to starfiles TODO
-        # this check must be done after loading starfiles, but better before images to stop early if needed
-        if not isinstance(mrc_paths, list):
-            # needed for length check
-            mrc_paths = [mrc_paths]
-        if len(mrc_paths) != len(star_dfs):
-            logging.warn(f'number of datasets is different between images and starfiles!')
-        images = read_images(mrc_paths, sort)
-
-        # if stack is requested, prepare for that
-        if stack:
-            image_4d = np.stack(images)
-            coords_4d = []
-            vectors_4d = []
-            # TODO: data in stack mode?
-
-        # loop through everything
-        for idx, (image, (name, coords, vectors, add_data)) in enumerate(zip(images, star_dfs)):
-            # denormalize if necessary (not index column) by multiplying by the shape of images
-            if coords.max() <= 1:
-                coords *= image.shape
-            if stack:
-                # get the length of coords as (n, 1) shape
-                n_coords = coords.shape[0]
-                shape = (n_coords, 1)
-                # add a leading, incremental coordinate to points that indicates the index
-                # of the 4th dimension in which to show that volume
-                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
-                # just zeros for vectors, cause they are projection vectors centered on the origin,
-                # otherwise they would traverse the 4th dimension to another 3D slice
-                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
-            else:
-                self.images.append(Image(image, parent=self.parent, name=name, *args, **kwargs))
-                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
-        if stack:
-            # TODO: guess a good name for the whole stack
-            # name = guess_name(mrc_paths)
-            coords_4d = np.concatenate(coords_4d)
-            vectors_4d = np.concatenate(vectors_4d)
-            self.images.append(Image(image_4d, parent=self.parent, name='stack', *args, **kwargs))
-            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data, *args, **kwargs))
-
-    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}):
-        v = super().show(viewer=viewer)
-        for image, particles in zip(self.images, self.particles):
-            image.show(viewer=v, image_kwargs=image_kwargs)
-            particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
-        return v
-
-    def update(self):
-        for item in self.particles + self.images:
-            item.update()
-
-
-class StarViewer(Viewable):
-    def __init__(self, star_paths=None, stack=False, sort=True, data_columns=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.particles = []
-
-        star_dfs = read_starfiles(star_paths, sort, data_columns)
-
-        # if stack is requested, prepare for that
-        if stack:
-            coords_4d = []
-            vectors_4d = []
-            add_data_4d = {}
-            # TODO: data in stack mode?
-
-        # loop through everything
-        for idx, (name, coords, vectors, add_data) in enumerate(star_dfs):
-            if stack:
-                # get the length of coords as (n, 1) shape
-                n_coords = coords.shape[0]
-                shape = (n_coords, 1)
-                # add a leading, incremental coordinate to points that indicates the index
-                # of the 4th dimension in which to show that volume
-                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
-                # just zeros for vectors, cause they are projection vectors centered on the origin,
-                # otherwise they would traverse the 4th dimension to another 3D slice
-                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
-                for k, v in add_data.items():
-                    if k not in add_data_4d:
-                        add_data_4d[k] = []
-                    add_data_4d[k].append(v)
-            else:
-                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
-        if stack:
-            # TODO: guess a good name for the whole stack
-            # name = guess_name(mrc_paths)
-            coords_4d = np.concatenate(coords_4d)
-            vectors_4d = np.concatenate(vectors_4d)
-            for k, v in add_data_4d.items():
-                add_data_4d[k] = np.concatenate(v)
-            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d, *args, **kwargs))
-
-    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}):
-        v = super().show(viewer=viewer)
-        for particles in self.particles:
-            particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
-        return v
-
-    def update(self):
-        for item in self.particles + self.images:
-            item.update()
-
-
-
-class TomoViewer2(Viewable):
-    """
-    load and diosplay an arbitrary set of images and datasets
-    """
-    def __init__(self, mrc_paths=None, star_paths=None, sort=True, data_columns=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.images = []
-        self.particles = []
-        self.unmatched = False
-
+        if star_paths is None:
+            star_paths = []
+        if mrc_paths is None:
+            mrc_paths = []
         star_dfs = read_starfiles(star_paths, sort, data_columns)
         # this check must be done after loading starfiles, but better before images
         if not isinstance(mrc_paths, list):
             # needed for length check
             mrc_paths = [mrc_paths]
         if len(mrc_paths) != len(star_dfs):
-            logging.warn(f'number of datasets is different between images and starfiles!')
+            logging.warn('Number of datasets is different between images and starfiles!')
+            self.unmatching_data = True
         images = read_images(mrc_paths, sort)
 
-        # if stack is requested, prepare for that
-        if stack:
-            image_4d = np.stack(images)
+        # loop through everything
+        for image, (name, coords, vectors, add_data) in zip_longest(images, star_dfs):
+            if image is not None:
+                self.images.append(Image(image, parent=self.parent, name=name, *args, **kwargs))
+            # denormalize if necessary (not index column) by multiplying by the shape of images
+            if coords is not None:
+                if coords.max() <= 1 and self.unmatching_data:
+                    coords *= image.shape
+                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
+
+    def _make_stack(self):
+        if self.images:
+            image_4d = np.stack([img.data for img in self.images])
+            self.stack['images'] = Image(image_4d, parent=self.parent, name='stack')
+        if self.particles:
             coords_4d = []
             vectors_4d = []
-
-        # loop through everything
-        for idx, (image, (name, coords, vectors, add_data)) in enumerate(zip(images, star_dfs)):
-            # denormalize if necessary (not index column) by multiplying by the shape of images
-            if coords.max() <= 1:
-                coords *= image.shape
-            if stack:
+            add_data_4d = {}
+            for idx, prt in enumerate(self.particles):
                 # get the length of coords as (n, 1) shape
-                n_coords = coords.shape[0]
+                n_coords = prt.coords.shape[0]
                 shape = (n_coords, 1)
                 # add a leading, incremental coordinate to points that indicates the index
                 # of the 4th dimension in which to show that volume
-                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
+                coords_4d.append(np.concatenate([np.ones(shape) * idx, prt.coords], axis=1))
                 # just zeros for vectors, cause they are projection vectors centered on the origin,
                 # otherwise they would traverse the 4th dimension to another 3D slice
-                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
-            else:
-                self.images.append(Image(image, parent=self.parent, name=name, *args, **kwargs))
-                self.particles.append(Particles(coords, vectors, parent=self.parent, name=name, properties=add_data, *args, **kwargs))
-        if stack:
-            # TODO: guess a good name for the whole stack
-            # name = guess_name(mrc_paths)
+                vectors_4d.append(np.concatenate([np.zeros(shape), prt.vectors], axis=1))
+                # loop through properties to stack them
+                for k, v in prt.properties.items():
+                    if k not in add_data_4d:
+                        add_data_4d[k] = []
+                    add_data_4d[k].append(v)
+            # concatenate in one big array
             coords_4d = np.concatenate(coords_4d)
             vectors_4d = np.concatenate(vectors_4d)
-            self.images.append(Image(image_4d, parent=self.parent, name='stack', *args, **kwargs))
-            self.particles.append(Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data, *args, **kwargs))
+            for k, v in add_data_4d.items():
+                add_data_4d[k] = np.concatenate(v)
+            self.stack['particles'] = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
-    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}):
+    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, image_kwargs={}, stack=True):
         v = super().show(viewer=viewer)
-        for image, particles in zip(self.images, self.particles):
-            image.show(viewer=v, image_kwargs=image_kwargs)
-            particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
+        if stack:
+            if not self.stack:
+                self._make_stack()
+            if 'images' in self.stack:
+                self.stack['images'].show(viewer=v, image_kwargs=image_kwargs)
+            if 'particles' in self.stack:
+                self.stack['particles'].show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
+        else:
+            for image in self.images:
+                image.show(viewer=v, image_kwargs=image_kwargs)
+            for particles in self.particles:
+                particles.show(viewer=v, points_kwargs=points_kwargs, vectors_kwargs=vectors_kwargs)
         return v
 
     def update(self):
         for item in self.particles + self.images:
             item.update()
-
