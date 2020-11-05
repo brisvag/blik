@@ -1,115 +1,7 @@
-import numpy as np
-import napari
-import logging
 from itertools import zip_longest
-
 from utils import read_images, read_starfiles
-import gui
 
-
-log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
-
-class Viewable:
-    """
-    Base class for viewable object in napari
-    """
-    def __init__(self, viewer=None, parent=None, name=''):
-        self.viewer = viewer
-        self.parent = parent
-        self.name = name
-        self.layer = None
-
-    def show(self, viewer=None):
-        """
-        creates a new napari viewer if not present or given
-        shows the contents of the Viewable
-        """
-        # create a new viewer if necessary
-        if viewer is not None:
-            self.viewer = viewer
-        elif self.viewer is None:
-            self.viewer = napari.Viewer(ndisplay=3)
-        return self.viewer
-
-    def update(self, *args, **kwargs):
-        """
-        reload data in the viewer
-        """
-        self.viewer.layers.remove(self.layer)
-        self.show(*args, **kwargs)
-
-    def __repr__(self):
-        if not self.name:
-            name = 'NoName'
-        else:
-            name = self.name
-        return f'<{type(self).__name__}-{name}>'
-
-
-class ParticlePositions(Viewable):
-    def __init__(self, coordinates, properties=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.coords = coordinates
-        self.properties = properties
-
-    def show(self, viewer=None, points_kwargs={}):
-        v = super().show(viewer=viewer)
-        self.layer = v.add_points(self.coords, name=f'{self.name} - particle positions', size=2, properties=self.properties, **points_kwargs)
-        return v
-
-
-class ParticleOrientations(Viewable):
-    def __init__(self, vectors, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.vectors = vectors
-
-    def show(self, viewer=None, vectors_kwargs={}):
-        v = super().show(viewer=viewer)
-        self.layer = v.add_vectors(self.vectors, name=f'{self.name} - particle orientations', **vectors_kwargs)
-        return v
-
-
-class Particles(Viewable):
-    """
-    represent positions and orientations of particles in a volume
-    coordinates: (n, m+3), with m=additional spatial dimensions. Last 3 are in order zyx
-    orientation_vectors: (n, m+3) as above, centered on the origin
-    """
-    def __init__(self, coordinates, orientation_vectors, properties=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.coords = ParticlePositions(coordinates, properties, *args, **kwargs)
-        proj_vectors = np.stack([coordinates, orientation_vectors], axis=1)
-        self.vectors = ParticleOrientations(proj_vectors, *args, **kwargs)
-
-    def show(self, viewer=None, points=True, vectors=True, points_kwargs={}, vectors_kwargs={}):
-        v = super().show(viewer=viewer)
-        if points:
-            self.coords.show(viewer, points_kwargs)
-        if vectors:
-            self.vectors.show(viewer, vectors_kwargs)
-        return v
-
-    def update(self):
-        for l in [self.coords.layer, self.vectors.layer]:
-            self.viewer.layers.remove(l)
-        self.show()
-
-
-class Image(Viewable):
-    """
-    ND image of shape (#m, z, y, x), with m additional dimensions
-    image_scale: float or np array of shape (m+3,)
-    """
-    def __init__(self, data, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.data = data
-
-    def show(self, viewer=None, image_kwargs={}):
-        v = super().show(viewer=viewer)
-        self.layer = v.add_image(self.data, name=f'{self.name} - image', **image_kwargs)
-        return v
+from visualization import Viewable, ParticleViewer, ImageViewer
 
 
 class Peeper(Viewable):
@@ -117,9 +9,7 @@ class Peeper(Viewable):
     load and display an arbitrary set of images and/or datasets
     """
     def __init__(self, mrc_paths=None, star_paths=None, sort=True, data_columns=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.images = []
-        self.particles = []
+        self.volumes = []
         self.stack_image = None
         self.stack_particles = None
         self.unmatching_data = False

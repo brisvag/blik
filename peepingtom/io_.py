@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 import numpy as np
-import napari
+import mrcfile
 import starfile
 from eulerangles import euler2matrix
 
@@ -28,8 +28,7 @@ def guess_name(thing):
 
 def read_images(image_paths, sort=True):
     """
-    read any number of image files using napari plugins, and return the data
-    as list of numpy array
+    read any number of mrc files and return the data as list of numpy arrays
     """
     data = []
     if not isinstance(image_paths, list):
@@ -37,7 +36,7 @@ def read_images(image_paths, sort=True):
     if sort:
         image_paths = sorted(image_paths)
     for image in image_paths:
-        data.append(napari.plugins.io.read_data_with_plugins(_path(image))[0][0])
+        data.append(mrcfile.open(_path(image))[0][0])
     return data
 
 
@@ -81,16 +80,15 @@ def read_starfiles(starfile_paths, sort=True, data_columns=None):
         # get orientations as euler angles and transform it into rotation matrices
         orient_euler = star_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']].to_numpy()
         orient_matrices = euler2matrix(orient_euler, axes='ZYZ', intrinsic=True, positive_ccw=True)
-        # get orientations as unit vectors centered on the origin
-        orient_vectors = np.einsum('ijk,j->ik', orient_matrices, [0, 0, 1])
-        # reslice them in zyx order
-        orient_vectors = orient_vectors[:, [2, 1, 0]]
 
-        add_data = {}
         if data_columns is None:
             data_columns = []
-        for column in data_columns:
-            add_data[column] = np.array(star_df[column])
+        columns = [col for col in data_columns if col in star_df.columns]
+        properties = star_df[columns]
 
-        data.append((name, coords, orient_vectors, add_data))
+        data.append((name, coords, orient_matrices, properties))
     return data
+
+
+def read_combined(mrc_paths=None, star_paths=None, sort=True):
+    pass
