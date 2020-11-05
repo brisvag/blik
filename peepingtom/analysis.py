@@ -4,10 +4,10 @@ from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
 
-def classify(dataset, max_r=50, n_shells=100, n_classes=5, convolve=False, std=5):
+def classify(peeper, max_r=50, n_shells=100, n_classes=5, convolve=True, cv_window=20, std=5, rerun=False):
     shell_thickness = max_r / n_shells
     binned = []
-    for particles in dataset.particles:
+    for particles in peeper.particles:
         tree = cKDTree(particles.coords)
         adj_matrix = tree.sparse_distance_matrix(tree, max_r).toarray()
         shells = [np.sum((adj_matrix > i * shell_thickness) & (adj_matrix <= (i + 1) * shell_thickness), axis=1)

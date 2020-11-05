@@ -48,7 +48,7 @@ class Viewable:
         return f'<{type(self).__name__}-{name}>'
 
 
-class ParticlesPositions(Viewable):
+class ParticlePositions(Viewable):
     def __init__(self, coordinates, properties=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.coords = coordinates
@@ -60,7 +60,7 @@ class ParticlesPositions(Viewable):
         return v
 
 
-class ParticlesOrientations(Viewable):
+class ParticleOrientations(Viewable):
     def __init__(self, vectors, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vectors = vectors
@@ -79,9 +79,9 @@ class Particles(Viewable):
     """
     def __init__(self, coordinates, orientation_vectors, properties=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.coords = ParticlesPositions(coordinates, properties, parent=self.parent, *args, **kwargs)
+        self.coords = ParticlePositions(coordinates, properties, parent=self.parent, *args, **kwargs)
         proj_vectors = np.stack([coordinates, orientation_vectors], axis=1)
-        self.vectors = ParticlesOrientations(proj_vectors, parent=self.parent, *args, **kwargs)
+        self.vectors = ParticleOrientations(proj_vectors, parent=self.parent, *args, **kwargs)
 
     def show(self, viewer=None, points=True, vectors=True, points_kwargs={}, vectors_kwargs={}):
         v = super().show(viewer=viewer)
