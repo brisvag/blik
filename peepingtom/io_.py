@@ -5,6 +5,8 @@ import mrcfile
 import starfile
 from eulerangles import euler2matrix
 
+from data import Particles, Image, DataBlock
+
 
 def _path(path):
     """
@@ -90,5 +92,29 @@ def read_starfiles(starfile_paths, sort=True, data_columns=None):
     return data
 
 
-def read_combined(mrc_paths=None, star_paths=None, sort=True):
-    pass
+def zip_data_to_blocks(mrc_paths=[], star_paths=[], sort=True, data_columns=None):
+    """
+    reads n mrc files and starfiles assuming they contain data relating to the same 3D volumes
+    returns n data_blocks
+    """
+    star_dfs = read_starfiles(star_paths, sort, data_columns)
+    # this check must be done after loading starfiles, but better before images
+    if not isinstance(mrc_paths, list):
+        # needed for length check
+        mrc_paths = [mrc_paths]
+    if len(mrc_paths) != len(star_dfs):
+        raise ValueError(f'number of images ({len(mrc_paths)}) is different from starfile datasets ({len(star_dfs)})')
+    images = read_images(mrc_paths, sort)
+
+    blocks = []
+    # loop through everything
+    for image, (name, coords, ori_matrix, properties) in zip(images, star_dfs):
+        data_block = DataBlock()
+        data_block.append(Image(image))
+        # denormalize if necessary (not index column) by multiplying by the shape of images
+        if coords.max() <= 1:
+            coords *= image.shape
+        data_block.append(Particles(coords, ori_matrix, properties=properties))
+        blocks.append(data_block)
+
+    return blocks

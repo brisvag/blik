@@ -82,7 +82,7 @@ class VolumeViewer(Viewable):
 
     @property
     def images(self):
-        return [p for p in self.data_block if isinstance(p, Image)]
+        return [i for i in self.data_block if isinstance(i, Image)]
 
     @property
     def image_data(self):
@@ -92,12 +92,12 @@ class VolumeViewer(Viewable):
     def image_shapes(self):
         return [i.shape for i in self.image_data]
 
-    def show(self, viewer=None, points_kwargs={}, vectors_kwargs={}, images_kwargs={}):
+    def show(self, viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}):
         super().show(viewer=viewer)
 
-        pkwargs = {'size': 3}.update(points_kwargs)
-        vkwargs = {'length': 10}.update(vectors_kwargs)
-        ikwargs = {}.update(images_kwargs)
+        pkwargs = {'size': 3}.update(point_kwargs)
+        vkwargs = {'length': 10}.update(vector_kwargs)
+        ikwargs = {}.update(image_kwargs)
 
         for particles in self.particles:
             layer = self.viewer.add_points(particles.coords,
