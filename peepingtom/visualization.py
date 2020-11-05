@@ -8,7 +8,7 @@ import gui
 
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.info)
+logging.basicConfig(level=logging.INFO)
 
 
 class Viewable:
@@ -79,9 +79,9 @@ class Particles(Viewable):
     """
     def __init__(self, coordinates, orientation_vectors, properties=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.coords = ParticlePositions(coordinates, properties, parent=self.parent, *args, **kwargs)
+        self.coords = ParticlePositions(coordinates, properties, *args, **kwargs)
         proj_vectors = np.stack([coordinates, orientation_vectors], axis=1)
-        self.vectors = ParticleOrientations(proj_vectors, parent=self.parent, *args, **kwargs)
+        self.vectors = ParticleOrientations(proj_vectors, *args, **kwargs)
 
     def show(self, viewer=None, points=True, vectors=True, points_kwargs={}, vectors_kwargs={}):
         v = super().show(viewer=viewer)
@@ -157,17 +157,20 @@ class Peeper(Viewable):
             vectors_4d = []
             add_data_4d = {}
             for idx, prt in enumerate(self.particles):
+                coords = prt.coords.coords
+                vectors = prt.vectors.vectors
+                properties = prt.coords.properties
                 # get the length of coords as (n, 1) shape
-                n_coords = prt.coords.shape[0]
+                n_coords = coords.shape[0]
                 shape = (n_coords, 1)
                 # add a leading, incremental coordinate to points that indicates the index
                 # of the 4th dimension in which to show that volume
-                coords_4d.append(np.concatenate([np.ones(shape) * idx, prt.coords], axis=1))
+                coords_4d.append(np.concatenate([np.ones(shape) * idx, coords], axis=1))
                 # just zeros for vectors, cause they are projection vectors centered on the origin,
                 # otherwise they would traverse the 4th dimension to another 3D slice
-                vectors_4d.append(np.concatenate([np.zeros(shape), prt.vectors], axis=1))
+                vectors_4d.append(np.concatenate([np.zeros(shape), vectors], axis=1))
                 # loop through properties to stack them
-                for k, v in prt.properties.items():
+                for k, v in properties.items():
                     if k not in add_data_4d:
                         add_data_4d[k] = []
                     add_data_4d[k].append(v)
