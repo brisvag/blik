@@ -2,7 +2,9 @@ import pandas as pd
 
 
 class BaseData:
-    pass
+    """
+    base class for all datasets
+    """
 
 
 class Particles(BaseData):
