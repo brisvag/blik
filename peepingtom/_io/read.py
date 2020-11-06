@@ -4,7 +4,7 @@ import starfile
 from eulerangles import euler2matrix
 
 from peepingtom.data import Particles, Image, DataBlock
-from peepingtom.utils import _path, guess_name
+from peepingtom._io.utils import _path, guess_name
 
 
 def read_images(image_paths, sort=True):
@@ -17,7 +17,7 @@ def read_images(image_paths, sort=True):
     if sort:
         image_paths = sorted(image_paths)
     for image in image_paths:
-        data.append(mrcfile.open(_path(image))[0][0])
+        data.append(mrcfile.open(_path(image)).data)
     return data
 
 

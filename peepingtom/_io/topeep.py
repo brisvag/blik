@@ -1,4 +1,4 @@
-from read import zip_data_to_blocks
+from peepingtom._io.read import zip_data_to_blocks
 from peepingtom.viewable import VolumeViewer
 from peepingtom.peeper import Peeper
 

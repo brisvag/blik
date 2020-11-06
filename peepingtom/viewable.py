@@ -80,7 +80,10 @@ class VolumeViewer(Viewable):
 
     @property
     def particle_vectors_napari(self):
-        return np.stack([self.particle_positions, self.particle_vectors], axis=1)
+        stacked = []
+        for coords, vectors in zip(self.particle_positions, self.particle_vectors):
+            stacked.append(np.stack([coords, vectors], axis=1))
+        return stacked
 
     @property
     def images(self):
@@ -97,9 +100,13 @@ class VolumeViewer(Viewable):
     def show(self, viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}):
         super().show(viewer=viewer)
 
-        pkwargs = {'size': 3}.update(point_kwargs)
-        vkwargs = {'length': 10}.update(vector_kwargs)
-        ikwargs = {}.update(image_kwargs)
+        pkwargs = {'size': 3}
+        vkwargs = {'length': 10}
+        ikwargs = {}
+
+        pkwargs.update(point_kwargs)
+        vkwargs.update(vector_kwargs)
+        ikwargs.update(image_kwargs)
 
         for particles in self.particles:
             layer = self.viewer.add_points(particles.coords,
