@@ -14,6 +14,15 @@ class ImageType(Enum):
     cross_correlation_volume = 5
 
 
+class ModelType(Enum):
+    particle = 0
+    dipole = 1
+    vesicle = 2
+    filament = 3
+    surface = 4
+    crystal = 5
+
+
 class SmartList():
     """
     typed list that can be indexed n-dimensionally, also with properties of the elements

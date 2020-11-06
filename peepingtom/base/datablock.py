@@ -5,8 +5,8 @@ class DataBlock:
     """
     Base class for all classes which can be put into Crates
     """
-    def __init__(self):
-        self.parent = None
+    def __init__(self, parent=None):
+        self.parent = parent
 
 
 class Particles(DataBlock):
@@ -49,8 +49,8 @@ class Image(DataBlock):
     """
     n-dimensional image
     """
-    def __init__(self, data, pixel_size=None):
-        super().__init__()
+    def __init__(self, data, pixel_size=None, **kwargs):
+        super().__init__(**kwargs)
         self.data = data
         self.pixel_size = pixel_size
 
@@ -60,7 +60,15 @@ class Image(DataBlock):
 
     @pixel_size.setter
     def pixel_size(self, value):
-        return float(value)
+        self._pixel_size = float(value)
+
+
+class Model(DataBlock):
+    """
+    An object representing an underlying geometrical support in an object in an image
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 
