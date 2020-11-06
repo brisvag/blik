@@ -1,10 +1,15 @@
+"""
+Gui elements for interfacing peeper and napari
+"""
+
+from enum import Enum
+from math import floor, ceil
+
+import numpy as np
+import napari
 from magicgui import magicgui
 from magicgui._qt.widgets import QDoubleSlider, QDataComboBox
 from napari.layers import Layer, Image, Points
-import napari
-import numpy as np
-from enum import Enum
-from math import floor, ceil
 
 colors = {
     'transparent': [0, 0, 0, 0],
@@ -41,6 +46,7 @@ class Axis(Enum):
     y = 1
     x = 2
 
+zeros = []
 
 @magicgui(auto_call=True,
           slice_coord={'widget_type': QDoubleSlider, 'fixedWidth': 400, 'maximum': 1},
@@ -79,4 +85,4 @@ def add_widgets(viewer):
     viewer.window.add_dock_widget(widget)
     viewer.layers.events.changed.connect(lambda x: widget.refresh_choices('image'))
     layer_selection_widget = widget.findChild(QDataComboBox, 'image')
-    layer_selection_widget.currentTextChanged.connect(update_image)
+    layer_selection_widget.currentTextChanged.connect()

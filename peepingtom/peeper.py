@@ -1,12 +1,18 @@
-from visualization import Viewable, VolumeViewer
+"""
+main class that interfaces visualization, analysis and data manipulation
+"""
+
+from peepingtom.viewable import Viewable, VolumeViewer
 
 
 class Peeper(Viewable):
     """
-    load and display an arbitrary set of images and/or datasets
+    collect and display an arbitrary set of images and/or datasets
+    expose the datasets to visualization and analysis tools
     """
     def __init__(self, data_blocks):
-        self.volumes = [VolumeViewer(db) for db in data_blocks]
+        super().__init__()
+        self.volumes = [VolumeViewer(db, parent=self) for db in data_blocks]
 
     def _make_stack(self):
         pass
@@ -42,11 +48,19 @@ class Peeper(Viewable):
                 # add_data_4d[k] = np.concatenate(v)
             # self.stack_particles = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
-    def show(self, viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}, stack=True):
+    def show(self, volumes='all', viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}, stack=True):
         super().show(viewer=viewer)
-        for volume in self.volumes:
+        if volumes == 'all':
+            volumes = self.volumes
+        for volume in volumes:
             volume.show(viewer=self.viewer, point_kwargs=point_kwargs,
                         vector_kwargs=vector_kwargs, image_kwargs=image_kwargs)
+
+    def hide(self, volumes='all'):
+        if volumes == 'all':
+            volumes = self.volumes
+        for volume in volumes:
+            volume.hide()
 
     def update(self):
         for volume in self.volumes:

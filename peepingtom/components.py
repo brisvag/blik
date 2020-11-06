@@ -1,3 +1,8 @@
+"""
+Basic data structures and components
+"""
+
+
 class SmartList():
     """
     typed list that can be indexed n-dimensionally, also with properties of the elements

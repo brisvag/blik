@@ -1,12 +1,14 @@
+"""
+Viewable interfaces data classes to napari
+"""
+
+import logging
+
 import numpy as np
 import napari
 from napari.components.layerlist import LayerList
-import logging
 
-from data import Particles, Image
-
-
-log = logging.getLogger(__name__)
+from peepingtom.data import Particles, Image
 
 
 class Viewable:

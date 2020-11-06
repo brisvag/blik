@@ -1,31 +1,10 @@
-import re
-from pathlib import Path
 import numpy as np
 import mrcfile
 import starfile
 from eulerangles import euler2matrix
 
-from data import Particles, Image, DataBlock
-
-
-def _path(path):
-    """
-    clean up a path
-    """
-    return Path(path).expanduser().resolve()
-
-
-def guess_name(thing):
-    """
-    guess an appropriate name based on the input
-    thing: string or stringifiable or list containing such
-    """
-    name = 'NoName'
-    if isinstance(thing, list):
-        raise NotImplementedError('no way to guess a name from a list yet')
-    elif match := re.search('TS_\d+', str(thing)):
-        name = match.group(0)
-    return name
+from peepingtom.data import Particles, Image, DataBlock
+from peepingtom.utils import _path, guess_name
 
 
 def read_images(image_paths, sort=True):
