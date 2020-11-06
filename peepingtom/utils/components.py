@@ -1,6 +1,14 @@
 """
-Basic data structures and components
+Basic data structures and base
 """
+
+from enum import Enum
+
+
+class ImageType(Enum):
+
+    tomogram = 0
+    classification = 1
 
 
 class SmartList():

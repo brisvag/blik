@@ -8,7 +8,7 @@ from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
 
-from peepingtom.data import Particles
+from peepingtom.components.data import Particles
 
 def classify(data_blocks, max_r=50, n_shells=100, n_classes=5, convolve=True, cv_window=20, std=5, rerun=False):
     shell_thickness = max_r / n_shells

@@ -1,6 +1,5 @@
 from peepingtom._io.read import zip_data_to_blocks
-from peepingtom.viewable import VolumeViewer
-from peepingtom.peeper import Peeper
+from peepingtom.visualisation.peeper import Peeper
 
 
 def zip2peep(mrc_paths=[], star_paths=[], sort=True, data_columns=None):

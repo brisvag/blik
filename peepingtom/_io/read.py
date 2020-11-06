@@ -6,7 +6,7 @@ import mrcfile
 import starfile
 from eulerangles import euler2matrix
 
-from peepingtom.data import Particles, Image, DataBlock
+from peepingtom.components.data import Particles, Image, DataBlock
 from peepingtom._io.utils import _path, guess_name
 
 

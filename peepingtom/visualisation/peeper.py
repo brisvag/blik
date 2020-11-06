@@ -2,7 +2,7 @@
 main class that interfaces visualization, analysis and data manipulation
 """
 
-from peepingtom.viewable import Viewable, VolumeViewer
+from peepingtom.visualisation.viewable import Viewable, VolumeViewer
 
 
 class Peeper(Viewable):

@@ -2,18 +2,16 @@
 Viewable interfaces data classes to napari
 """
 
-import logging
-
 import numpy as np
 import napari
 from napari.components.layerlist import LayerList
 
-from peepingtom.data import Particles, Image
+from peepingtom.base import Particles, Image
 
 
 class Viewable:
     """
-    Base class for viewable object in napari
+    Base class for objects which are viewable in napari
     """
     def __init__(self, viewer=None, parent=None, name=''):
         self.viewer = viewer
