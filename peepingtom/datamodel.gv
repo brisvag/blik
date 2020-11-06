@@ -1,0 +1,22 @@
+digraph {
+    subgraph cluster_data_model {
+        label="Core Data Model"
+        DataBlock -> Particles
+        DataBlock -> Image
+        DataBlock -> Model
+        DataBlock -> Mesh
+        Particles -> Crate
+        Image -> Crate
+        Mesh -> Crate
+        Model -> Crate
+        }
+
+    subgraph cluster_visualisation {
+        label="Visualisation Layer\n(napari compatibility)"
+        Crate -> VolumeViewer
+        Viewable -> VolumeViewer
+        VolumeViewer -> Peeper
+        Viewable -> Peeper
+
+    }
+}
