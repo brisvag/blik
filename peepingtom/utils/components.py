@@ -6,9 +6,12 @@ from enum import Enum
 
 
 class ImageType(Enum):
-
-    tomogram = 0
-    classification = 1
+    image = 0
+    multi_frame_micrograph = 1
+    micrograph = 2
+    tilt_series = 3
+    tomogram = 4
+    cross_correlation_volume = 5
 
 
 class SmartList():
