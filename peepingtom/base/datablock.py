@@ -63,37 +63,4 @@ class Image(DataBlock):
         return float(value)
 
 
-class Image2D(Image):
-    """
-    2 dimensional image of shape (y, x)
-    """
-    def __init__(self, data, **kwargs):
-        super().__init__(data, **kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        assert len(data.shape) == 2
-        self._data = data
-
-
-class Image3D(Image):
-    """
-    3 dimensional image of shape (z, y, x)
-    """
-    def __init__(self, data, **kwargs):
-        super().__init__(data, **kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        assert len(data.shape) == 2
-        self._data = data
-
 
