@@ -63,6 +63,7 @@ class Peeper(Viewable):
             volume.hide()
 
     def loop_volumes():
+        pass
 
     def update(self):
         for volume in self.volumes:
