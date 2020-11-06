@@ -1,3 +1,6 @@
+from typing import Union, List
+from pathlib import Path
+
 import numpy as np
 import mrcfile
 import starfile
@@ -95,5 +98,24 @@ def zip_data_to_blocks(mrc_paths=[], star_paths=[], sort=True, data_columns=None
             coords *= image.shape
         data_block.append(Particles(coords, ori_matrix, properties=properties))
         blocks.append(data_block)
+
+    return blocks
+
+
+def star_to_blocks(star_files: Union[Path, str, list], data_columns: List[str] = None):
+    """
+    Reads an arbitrary number of star files
+    Returns a list of DataBlocks
+    """
+    # Get tuples
+    data_tuples = read_starfiles(starfile_paths=star_files, data_columns=data_columns)
+
+    # Make blocks from data tuples
+    blocks = []
+    for name, coordinates, orientation_matrices, properties in data_tuples:
+        block = DataBlock()
+        particles = Particles(coordinates, orientation_matrices, properties)
+        block.append(particles)
+        blocks.append(block)
 
     return blocks
