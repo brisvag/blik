@@ -1,26 +1,30 @@
-"""
-Basic data structures and base
-"""
+# Basic data structures
+import numpy as np
 
-from enum import Enum
-
-
-class ImageType(Enum):
-    image = 0
-    multi_frame_micrograph = 1
-    micrograph = 2
-    tilt_series = 3
-    tomogram = 4
-    cross_correlation_volume = 5
+class Child:
+    """
+    base class for all objects with p a reference to a parent object from which the Child was derived
+    """
+    def __init__(self, parent=None):
+        self.parent = parent
 
 
-class ModelType(Enum):
-    particle = 0
-    dipole = 1
-    vesicle = 2
-    filament = 3
-    surface = 4
-    crystal = 5
+class ArrayContainer(np.ndarray):
+    """
+    base class for extending the functionality of simple ndarray objects
+    examples include adding commonly used functions as methods and coersion of shape
+    """
+    def __new__(cls, a, shape: tuple = None, **kwargs):
+        obj = np.asarray(a, **kwargs).view(cls)
+
+        if shape is not None:
+            return obj.reshape(shape)
+        else:
+            return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
 
 
 class SmartList():
@@ -29,3 +33,9 @@ class SmartList():
     """
     def __init__(self, basetype, iterable=()):
         super().__init__(iterable)
+
+
+
+
+
+
