@@ -17,13 +17,18 @@ def test_array_container():
     assert_array_almost_equal(b, [2, 4, 6])
 
     # Instantiate with shape
-    a = ArrayContainer(data, shape=(-1, 3))
+    a = ArrayContainer(data, target_shape=(-1, 3))
     assert a.shape == (1, 3)
 
     # Check sliced views into array containers retain class
     view = a[0]
     assert isinstance(view, ArrayContainer)
+    assert view.shape == (3,)
 
     # Instantiate with dtype
     a = ArrayContainer(data, dtype=np.float32)
     assert a.dtype == np.float32
+
+    # test asarray
+    a = ArrayContainer(data)
+    assert isinstance(a.asarray(), np.ndarray)
