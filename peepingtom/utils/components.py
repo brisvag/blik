@@ -26,6 +26,7 @@ class ArrayContainer(np.ndarray, Child):
     def __init__(self, a, **kwargs):
         super().__init__(**kwargs)
 
+    @property
     def asarray(self):
         return np.asarray(self)
 
