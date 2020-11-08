@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 from scipy.interpolate import splprep, splev
+from eulerangles import euler2matrix
 
 from ..utils.components import Child
 
@@ -236,9 +237,11 @@ class LineBlock(DataBlock, PointBlock):
         return self.evaluate_spline(n_points)
 
 
-class VectorBlock(DataBlock):
+class OrientationBlock(DataBlock):
     """
-    VectorBlock objects represent orientations in a 2d or 3d space
+    OrientationBlock objects represent orientations in a 2d or 3d space
+
+    Contains factory methods for instantiation from eulerian angles
     """
 
     def __init__(self, rotation_matrices: np.ndarray, **kwargs):
@@ -265,6 +268,37 @@ class VectorBlock(DataBlock):
     @property
     def ndim_spatial(self):
         return self.data.shape[-1]
+
+    @staticmethod
+    def from_euler_angles(euler_angles: np.ndarray, axes: str, intrinsic: bool, positive_ccw: bool,
+                          invert_matrix: bool):
+        """
+        Factory method for creating a VectorBlock directly from a set of eulerian angles
+
+        Parameters
+        ----------
+        euler_angles : ndarray, (n, 3) array of n sets of eulerian angles in degrees
+        axes : str, 3 characters from 'x', 'y' and 'z' representing axes around which rotations occur in the euler angles
+        intrinsic : bool, are the euler angles describing a set of intrinsic (rotating reference frame) or extrinsic
+                    (fixed reference frame) rotations
+        positive_ccw : bool, are positive euler angles referring to counterclockwise rotations of vectors when looking
+                       from a positive point along the axis towards the origin
+        invert_matrix : bool, should the matrix be inverted?
+                        this is useful if your euler angles describe the rotation of a target to a source but you would
+                        like your rotation matrices to describe the rotation of a source to align it with a target
+
+        Returns
+        -------
+
+        """
+        # Calculate rotation matrices
+        rotation_matrices = euler2matrix(euler_angles, axes=axes, intrinsic=intrinsic, positive_ccw=positive_ccw)
+
+        # invert matrix if required
+        if invert_matrix:
+            rotation_matrices = rotation_matrices.transpose((-1, -2))
+
+        return OrientationBlock(rotation_matrices)
 
     def _calculate_matrix_product(self, vector: np.ndarray):
         """
