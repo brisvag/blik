@@ -19,8 +19,9 @@ class DataBlock(Child, ABC):
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, properties=None, **kwargs):
         super().__init__(**kwargs)
+        self.properties = properties
 
     @property
     def data(self):
