@@ -39,7 +39,7 @@ class PointBlock(DataBlock):
     """
     PointBlock objects for representing points with convenience methods
 
-    PointBlock data should be array-like objects of shape (n, m) representing n points in m spatial dimensions
+    PointBlock data should be array-like objects of shape (n, m) representing n points in m dimensions
 
     order of dimensions along m is:
     2d : (x, y)
