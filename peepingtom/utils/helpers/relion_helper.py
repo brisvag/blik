@@ -3,7 +3,8 @@ import pandas as pd
 from eulerangles import euler2matrix
 
 from peepingtom.utils.validators import columns_in_df
-from peepingtom.utils.constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, relion_euler_angle_headings
+from peepingtom.utils.constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, \
+    relion_euler_angle_headings
 
 
 def df_to_xyz(df: pd.DataFrame):
@@ -72,3 +73,19 @@ def df_to_rotation_matrices(df: pd.DataFrame):
     euler_angles = df_to_euler_angles(df)
     rotation_matrices = euler_angles_to_rotation_matrices(euler_angles)
     return rotation_matrices
+
+
+def df_split_on_volume(df: pd.DataFrame):
+    """
+
+    Parameters
+    ----------
+    df : RELION format STAR file as DataFrame (usually the result of starfile.read)
+
+    Returns dict {name : df} of DataFrame objects
+            one for each volume in a star file based on the 'rlnMicrographName' column
+    -------
+
+    """
+    grouped = df.groupby('rlnMicrographName')
+    return {name: _df for name, _df in grouped}
