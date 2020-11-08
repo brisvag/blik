@@ -115,6 +115,9 @@ class PointBlock(DataBlock):
         -------
 
         """
+        if as_tuple and as_array:
+            raise ValueError(f"'as_tuple' and 'as_array' cannot both be True")
+
         if len(dim) > 1:
             # split dims up and get each separately
             data = [self._get_named_dimension(_dim) for _dim in dim]
@@ -124,8 +127,6 @@ class PointBlock(DataBlock):
                 return np.column_stack(data)
             elif as_tuple and not as_array:
                 return tuple(data)
-            else:
-                raise ValueError(f"'as_tuple' and 'as_array' cannot both be True")
 
         else:
             # get index of named dimension along spatial axis
