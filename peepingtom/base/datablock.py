@@ -29,14 +29,7 @@ class DataBlock(Child, ABC):
 
     @data.setter
     def data(self, value):
-        return self._data_setter(value)
-
-    @abstractmethod
-    def _data_setter(self, *args):
-        """
-        abstract method which sets the data property of the object
-        """
-        self._data = [arg for arg in args]
+        raise NotImplementedError
 
     def __getitem__(self, item):
         return self.data[item]
@@ -381,4 +374,3 @@ class ImageBlock(DataBlock):
     @pixel_size.setter
     def pixel_size(self, value):
         self._pixel_size = float(value)
-
