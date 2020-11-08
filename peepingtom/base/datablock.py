@@ -346,12 +346,14 @@ class OrientationBlock(DataBlock):
 class ImageBlock(DataBlock):
     """
     n-dimensional image block
-    axes are expected to be (z, y, x) order
+    data can be interpreted as n-dimensional images or stacks of n-dimensional images,
+    this is controlled by the ndim_spatial attribute
     """
 
-    def __init__(self, data, pixel_size=None, **kwargs):
+    def __init__(self, data, ndim_spatial: int, pixel_size=None, **kwargs):
         super().__init__(**kwargs)
         self.data = data
+        self.ndim_spatial = ndim_spatial
         self.pixel_size = pixel_size
 
     def _data_setter(self, image: np.ndarray):
