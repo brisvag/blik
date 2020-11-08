@@ -27,18 +27,21 @@ class DataBlock(Child, ABC):
         return self._data_setter(value)
 
     @abstractmethod
-    def _data_setter(self, value):
+    def _data_setter(self, *args):
         """
         abstract method which sets the data property of the object
         """
-        self._data = value
+        self._data = [arg for arg in args]
 
     def __getitem__(self, item):
+        return self.data[item]
 
 
 
 
-class Points(DataBlock)
+class Points(DataBlock):
+    def __init__(self, points, **kwargs):
+        super().__init__(**kwargs)
 
 class Particles(DataBlock):
     """
@@ -96,12 +99,7 @@ class Image(DataBlock):
         self._pixel_size = float(value)
 
 
-class Model(DataBlock):
-    """
-    An object representing an underlying geometrical support in an object in an image
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+
 
 
 
