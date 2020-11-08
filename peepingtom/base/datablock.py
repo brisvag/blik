@@ -262,8 +262,8 @@ class OrientationBlock(DataBlock):
     def ndim_spatial(self):
         return self.data.shape[-1]
 
-    @staticmethod
-    def from_euler_angles(euler_angles: np.ndarray, axes: str, intrinsic: bool, positive_ccw: bool,
+    @classmethod
+    def from_euler_angles(cls, euler_angles: np.ndarray, axes: str, intrinsic: bool, positive_ccw: bool,
                           invert_matrix: bool):
         """
         Factory method for creating a VectorBlock directly from a set of eulerian angles
@@ -291,7 +291,7 @@ class OrientationBlock(DataBlock):
         if invert_matrix:
             rotation_matrices = rotation_matrices.transpose((-1, -2))
 
-        return OrientationBlock(rotation_matrices)
+        return cls(rotation_matrices)
 
     def _calculate_matrix_product(self, vector: np.ndarray):
         """
