@@ -14,33 +14,6 @@ class Child:
         self.parent = parent
 
 
-class ArrayContainer(np.ndarray, Child):
-    """
-    base class for extending the functionality of simple ndarray objects
-    examples include adding commonly used functions as methods and coersion of shape
-    """
-
-    def __new__(cls, a, target_shape: tuple = None, **kwargs):
-        obj = np.asarray(a, **kwargs).view(cls)
-        if target_shape is not None:
-            obj = obj.reshape(target_shape)
-        return obj
-
-    def __init__(self, a, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    def asarray(self):
-        return np.asarray(self)
-
-    def _index_as_self(self, index):
-        return self[index]
-
-
-
-
-
-
 class SmartList():
     """
     typed list that can be indexed n-dimensionally, also with properties of the elements
