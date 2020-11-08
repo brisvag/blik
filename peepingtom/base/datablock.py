@@ -125,7 +125,7 @@ class PointBlock(DataBlock):
             data = [self._get_named_dimension(_dim) for _dim in dim]
 
             # decide on output type and return array or tuple as requested, default to array
-            if  (as_array and not as_tuple) or (not (as_array and as_tuple)):
+            if (as_array and not as_tuple) or (not (as_array and as_tuple)):
                 return np.column_stack(data)
             elif as_tuple and not as_array:
                 return tuple(data)
@@ -236,6 +236,85 @@ class LineBlock(DataBlock, PointBlock):
         return self.evaluate_spline(n_points)
 
 
+class VectorBlock(DataBlock):
+    """
+    VectorBlock objects represent orientations in a 2d or 3d space
+    """
+
+    def __init__(self, rotation_matrices: np.ndarray, **kwargs):
+        """
+
+        Parameters
+        ----------
+        rotation_matrices : (n, 2, 2) or (n, 3, 3) array of rotation matrices R
+                            R should satisfy Rv = v' where v is a column vector
+        kwargs
+        """
+        super().__init__(**kwargs)
+        self.data = rotation_matrices
+
+    def _data_setter(self, rotation_matrices: np.ndarray):
+        # check for single matrix case and assert dimensionality
+        assert rotation_matrices.shape[-1] == rotation_matrices.shape[-2]
+
+        if rotation_matrices.ndim == 2:
+            m = rotation_matrices.shape[-1]
+            rotation_matrices = rotation_matrices.reshape((1, m, m))
+        self._data = rotation_matrices
+
+    @property
+    def ndim_spatial(self):
+        return self.data.shape[-1]
+
+    def _calculate_matrix_product(self, vector: np.ndarray):
+        """
+        Calculates the matrix product (v') of the orientation matrices (R) in this VectorBlock object with a given vector (v)
+        Rv = v'
+
+        Parameters
+        ----------
+        vector : ndarray v, column vector or set of column vectors to be premultiplied by rotation matrices
+
+        Returns ndarray v', matrix product Rv
+        -------
+
+        """
+        return self.data @ vector
+
+    def _unit_vector(self, axis: str):
+        """
+        Get a unit vector along a specified axis which matches the dimensionality of the VectorBlock object
+
+        Parameters
+        ----------
+        axis : str, named axis 'x', 'y' or 'z'
+
+        Returns unit vector along provided axis with appropriate dimensionality
+        -------
+
+        """
+        # check dimensionality
+        if self.ndim_spatial > 3:
+            raise NotImplementedError(
+                'Unit vector generation for objects with greater than 3 spatial dimensions is not implemented')
+
+        # initialise unit vector array
+        unit_vector = np.zeros(self.ndim_spatial)
+
+        # get index which corresponds to axis for vector
+        axis_to_index = {'x': 0,
+                         'y': 1,
+                         'z': 2}
+        dim_idx = axis_to_index[axis]
+
+        # construct unit vector
+        if dim_idx <= self.ndim_spatial:
+            unit_vector[dim_idx] = 1
+        else:
+            raise ValueError(f"You asked for axis {axis} from a {self.ndim_spatial}d object")
+
+        return unit_vector
+
 
 class Particles(DataBlock):
     """
@@ -291,9 +370,3 @@ class Image(DataBlock):
     @pixel_size.setter
     def pixel_size(self, value):
         self._pixel_size = float(value)
-
-
-
-
-
-
