@@ -13,6 +13,11 @@ class Child:
     def __init__(self, parent=None, **kwargs):
         self.parent = parent
 
+    @property
+    def parent_properties(self):
+        return getattr(self.parent, 'properties', None)
+
+
 
 class SmartList():
     """
