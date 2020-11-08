@@ -1,4 +1,7 @@
-# Basic data structures
+"""
+Basic data structures
+"""
+
 import numpy as np
 
 
