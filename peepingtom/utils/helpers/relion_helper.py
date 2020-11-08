@@ -6,6 +6,7 @@ from peepingtom.utils.validators import columns_in_df
 from peepingtom.utils.constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, \
     relion_euler_angle_headings
 
+from .exceptions import RelionDataFrameError
 
 def df_to_xyz(df: pd.DataFrame):
     """
@@ -19,7 +20,9 @@ def df_to_xyz(df: pd.DataFrame):
 
     """
     # get xyz coordinates from dataframe
-    assert columns_in_df(relion_coordinate_headings_3d, df)
+    if not columns_in_df(relion_coordinate_headings_3d, df):
+        raise RelionDataFrameError("Could not get coordinates from DataFrame")
+
     positions = df[relion_coordinate_headings_3d]
 
     # add shifts if present in dataframe
@@ -40,7 +43,8 @@ def df_to_euler_angles(df: pd.DataFrame):
     -------
 
     """
-    assert columns_in_df(relion_euler_angle_headings, df)
+    if not columns_in_df(relion_euler_angle_headings, df):
+        raise RelionDataFrameError("Could not get euler angles from DataFrame")
     euler_angles = df[relion_euler_angle_headings]
     return euler_angles.to_numpy()
 

@@ -6,6 +6,8 @@ from peepingtom.utils.validators import columns_in_df
 from peepingtom.utils.constants.dynamo_constants import dynamo_table_coordinate_headings, dynamo_table_shift_headings, \
     dynamo_euler_angle_headings
 
+from .exceptions import DynamoDataFrameError
+
 
 def df_to_xyz(df: pd.DataFrame):
     """
@@ -18,7 +20,8 @@ def df_to_xyz(df: pd.DataFrame):
     -------
 
     """
-    assert columns_in_df(dynamo_table_coordinate_headings + dynamo_table_shift_headings, df)
+    if not columns_in_df(dynamo_table_coordinate_headings + dynamo_table_shift_headings, df):
+        raise DynamoDataFrameError("Could not find information about positions in DataFrame")
     xyz = df[dynamo_table_coordinate_headings] + df[dynamo_table_shift_headings]
     return xyz.to_numpy()
 
@@ -34,7 +37,8 @@ def df_to_euler_angles(df: pd.DataFrame):
     -------
 
     """
-    assert columns_in_df(dynamo_euler_angle_headings)
+    if not columns_in_df(dynamo_euler_angle_headings):
+        raise DynamoDataFrameError("Could not find euler angles in DataFrame")
     euler_angles = df[dynamo_euler_angle_headings]
     return euler_angles.to_numpy()
 
