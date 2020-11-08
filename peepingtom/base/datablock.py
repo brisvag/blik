@@ -1,13 +1,44 @@
+from abc import ABC, abstractmethod
+
 import pandas as pd
+from ..utils.components import Child
 
 
-class DataBlock:
+class DataBlock(Child, ABC):
     """
-    Base class for all classes which can be put into Crates
-    """
-    def __init__(self, parent=None):
-        self.parent = parent
+    Base class for all classes which can be put into Crates for subsequent visualisation
 
+    Examples include geometric primitives such as Points, Line, Sphere
+
+    DataBlock objects must implement a data setter method as _data_setter which sets the value of DataBlock._data
+
+    Calling __getitem__ on a DataBlock will call __getitem__ on its data property
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        return self._data_setter(value)
+
+    @abstractmethod
+    def _data_setter(self, value):
+        """
+        abstract method which sets the data property of the object
+        """
+        self._data = value
+
+    def __getitem__(self, item):
+
+
+
+
+class Points(DataBlock)
 
 class Particles(DataBlock):
     """
@@ -16,6 +47,7 @@ class Particles(DataBlock):
     orientation_matrices: (n, 3, 3) ndarray R which rotates xyz column vectors v when matrix multiplied Rv
     properties: dataframe of length n with additional particle properties
     """
+
     def __init__(self, coordinates, orientation_matrices, properties=None):
         super().__init__()
         self.coords = coordinates
@@ -49,6 +81,7 @@ class Image(DataBlock):
     """
     n-dimensional image
     """
+
     def __init__(self, data, pixel_size=None, **kwargs):
         super().__init__(**kwargs)
         self.data = data
