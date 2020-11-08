@@ -34,8 +34,8 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
 """)
         self._orientations = orientations
 
-    @staticmethod
-    def _from_relion_star_dataframe(df: pd.DataFrame):
+    @classmethod
+    def _from_relion_star_dataframe(cls, df: pd.DataFrame):
         """
         Create a Particles instance from a RELION format star file DataFrame
 
@@ -53,10 +53,10 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         """
         positions = PointBlock(relion_helper.df_to_xyz(df))
         orientations = OrientationBlock(relion_helper.df_to_rotation_matrices(df))
-        return Particles(positions, orientations, parent=df)
+        return cls(positions, orientations, parent=df)
 
-    @staticmethod
-    def _from_dynamo_table_dataframe(df: pd.DataFrame):
+    @classmethod
+    def _from_dynamo_table_dataframe(cls, df: pd.DataFrame):
         """
         Create a Particles instance from a RELION format star file DataFrame
 
@@ -74,4 +74,4 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         """
         positions = PointBlock(dynamo_helper.df_to_xyz(df))
         orientations = OrientationBlock(dynamo_helper.df_to_rotation_matrices(df))
-        return Particles(positions, orientations, parent=df)
+        return cls(positions, orientations, parent=df)
