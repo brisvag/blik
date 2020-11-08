@@ -179,13 +179,17 @@ class PointBlock(DataBlock):
         return np.linalg.norm(point - self.center_of_mass)
 
 
-class LineBlock(DataBlock, Points):
+class LineBlock(DataBlock, PointBlock):
     """
-    Line objects with convenience methods
+    LineBlock objects represent lines with convenience methods
 
-    Line data should be array-like objects of shape (n, m) representing n ordered points in m spatial dimensions
+    LineBlock line data should be array-like objects of shape (n, m) representing n ordered points in m spatial
+    dimensions
 
-    order of dimensions along m is (x, y, z)
+    order of dimensions along m is:
+    2d : (x, y)
+    3d : (x. y, z)
+    nd : (..., x, y, z)
 
     Polarity (direction) of lines, lines start from 0 to n along the 0th dimension
     """
@@ -200,9 +204,9 @@ class LineBlock(DataBlock, Points):
 
         """
         super(DataBlock).__init__(**kwargs)
-        super(Points).__init__(points=line)
+        super(PointBlock).__init__(points=line)
 
-        # attributes related to spline fitting
+        # initialise attributes related to spline fitting
         self.spline_smoothing_parameter = 0
         self._tck = None
 
@@ -230,6 +234,7 @@ class LineBlock(DataBlock, Points):
         u = np.linspace(0, 1, n_points, endpoint=True)
         self.fit_spline()
         return self.evaluate_spline(n_points)
+
 
 
 class Particles(DataBlock):
