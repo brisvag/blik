@@ -1,2 +1,2 @@
-from .crate import Crate
+from .datacrate import Crate
 from .datablock import Particles, Image

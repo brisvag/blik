@@ -1,9 +1,9 @@
 from .datablock import DataBlock
 
 
-class Crate(list):
+class DataCrate(list):
     """
-    represents a collection of DataBlock objects which exist within the same n-dimensional reference space
+    A container of DataBlock objects which exist within the same n-dimensional reference space
     """
     # TODO: add napari-like indexing by attribute or by type
     def __init__(self, iterable=()):
