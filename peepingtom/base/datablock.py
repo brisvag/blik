@@ -349,52 +349,29 @@ class OrientationBlock(DataBlock):
         return unit_vector
 
 
-class Particles(DataBlock):
+class ImageBlock(DataBlock):
     """
-    Positions and orientations of particles in a volume
-    coordinates: (n, m+3), with m=additional dimensions. Last 3 are in order xyz
-    orientation_matrices: (n, 3, 3) ndarray R which rotates xyz column vectors v when matrix multiplied Rv
-    properties: dataframe of length n with additional particle properties
-    """
-
-    def __init__(self, coordinates, orientation_matrices, properties=None):
-        super().__init__()
-        self.coords = coordinates
-        if properties is None:
-            properties = pd.DataFrame()
-        self.properties = properties
-        self.orientations = orientation_matrices
-
-    def prop_as_dict(self):
-        """
-        properties as dictionaries of numpy arrays
-        """
-        return dict(zip(self.properties.keys(), self.properties.values))
-
-    def ori_as_vectors(self, from_vector='z'):
-        unit_vectors = {'x': [1, 0, 0],
-                        'y': [0, 1, 0],
-                        'z': [0, 0, 1]}
-        if isinstance(from_vector, str):
-            vect = unit_vectors.get(from_vector)
-        else:
-            vect = from_vector
-
-        if vect is None:
-            vect = unit_vectors.get('z')
-
-        return self.orientations @ vect
-
-
-class Image(DataBlock):
-    """
-    n-dimensional image
+    n-dimensional image block
+    axes are expected to be (z, y, x) order
     """
 
     def __init__(self, data, pixel_size=None, **kwargs):
         super().__init__(**kwargs)
         self.data = data
         self.pixel_size = pixel_size
+
+    def _data_setter(self, image: np.ndarray):
+        """
+        TODO: should we contain only the path to the images or the images themselves here?
+        Parameters
+        ----------
+        image
+
+        Returns
+        -------
+
+        """
+        self._data = image
 
     @property
     def pixel_size(self):
@@ -403,3 +380,4 @@ class Image(DataBlock):
     @pixel_size.setter
     def pixel_size(self, value):
         self._pixel_size = float(value)
+
