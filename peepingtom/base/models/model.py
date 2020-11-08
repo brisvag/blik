@@ -1,15 +1,16 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
-from ..datablock import DataBlock
+from ...utils.components import Child
 
 
-class Model(DataBlock, ABC):
+class Model(Child, ABC):
     """
-    A Model is a DataBlock from which a CroppingGeometry can be derived
+    A Model is an object from which a set of Particles can be derived
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def derive_cropping_geometry(self):
+    @abstractmethod
+    def derive_particles(self):
         pass
