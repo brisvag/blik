@@ -30,8 +30,8 @@ class Particles(Child):
     @orientations.setter
     def orientations(self, orientations):
         if not isinstance(OrientationBlock):
-            raise TypeError(f"""Expected type 'OrientationBlock' but got '{type(orientations)}'
-Construct an OrientationBlock or instantiate your particles using one of the 'from_*' factory methods of this class
+            raise TypeError(f"""Expected type 'OrientationBlock' but got '{type(orientations)}' instead.
+Construct an OrientationBlock or instantiate your Particles using one of the 'from_*' factory methods of this class
 """)
         self._orientations = orientations
 
@@ -54,7 +54,7 @@ Construct an OrientationBlock or instantiate your particles using one of the 'fr
         """
         positions = PointBlock(relion_helper.df_to_xyz(df))
         orientations = OrientationBlock(relion_helper.df_to_rotation_matrices(df))
-        return Particles(positions, orientations)
+        return Particles(positions, orientations, parent=df)
 
     @staticmethod
     def _from_dynamo_table_dataframe(df: pd.DataFrame):
@@ -75,4 +75,4 @@ Construct an OrientationBlock or instantiate your particles using one of the 'fr
         """
         positions = PointBlock(dynamo_helper.df_to_xyz(df))
         orientations = OrientationBlock(dynamo_helper.df_to_rotation_matrices(df))
-        return Particles(positions, orientations)
+        return Particles(positions, orientations, parent=df)
