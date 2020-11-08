@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from eulerangles import euler2matrix
 
-from .validators import columns_in_df
-from .constants.dynamo_constants import dynamo_table_coordinate_headings, dynamo_table_shift_headings, \
+from peepingtom.utils.validators import columns_in_df
+from peepingtom.utils.constants.dynamo_constants import dynamo_table_coordinate_headings, dynamo_table_shift_headings, \
     dynamo_euler_angle_headings
 
 

@@ -1,10 +1,9 @@
-from eulerangles import euler2matrix
 import pandas as pd
 
 from .datablock import PointBlock, OrientationBlock
 from ..utils.components import Child
-import peepingtom.utils.relion_helper as relion_helper
-import peepingtom.utils.dynamo_helper as dynamo_helper
+import peepingtom.utils.helpers.relion_helper as relion_helper
+import peepingtom.utils.helpers.dynamo_helper as dynamo_helper
 
 
 class Particles(Child):

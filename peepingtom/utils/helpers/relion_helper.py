@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from eulerangles import euler2matrix
 
-from .validators import columns_in_df
-from .constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, relion_euler_angle_headings
+from peepingtom.utils.validators import columns_in_df
+from peepingtom.utils.constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, relion_euler_angle_headings
 
 
 def df_to_xyz(df: pd.DataFrame):
