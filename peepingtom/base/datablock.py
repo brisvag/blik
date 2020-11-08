@@ -143,7 +143,7 @@ class PointBlock(DataBlock):
         return self._get_named_dimension('y')
 
     @property
-    def y(self):
+    def z(self):
         return self._get_named_dimension('z')
 
     @property
