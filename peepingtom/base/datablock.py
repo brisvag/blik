@@ -1,9 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import numpy as np
-import pandas as pd
-from scipy.interpolate import splprep, splev
 from eulerangles import euler2matrix
+from scipy.interpolate import splprep, splev
 
 from ..utils.components import Child
 
@@ -60,7 +59,8 @@ class PointBlock(DataBlock):
             points.reshape((1, len(points)))
 
         # check ndim of points
-        assert points.ndim == 2
+        if not points.ndim == 2:
+            raise ValueError("points object should have ndim == 2")
 
         self._data = points
 
@@ -110,7 +110,7 @@ class PointBlock(DataBlock):
         as_array : bool, force return type to be ndarray (incompatible with as_tuple)
         as_tuple : bool, force return type to be tuple (incompatible with as_array)
 
-        Returns : (default) (n,m) ndarray of data along named dimension(s) from m
+        Returns (default) (n,m) ndarray of data along named dimension(s) from m
                   or tuple of arrays of data along each axis
         -------
 
@@ -171,7 +171,9 @@ class PointBlock(DataBlock):
 
         """
         point = np.asarray(point)
-        assert point.shape == self.center_of_mass.shape
+        if not point.shape == self.center_of_mass.shape:
+            raise ValueError(
+                f"shape of point '{point.shape}' does not match shape of center of mass '{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
 
@@ -252,7 +254,9 @@ class OrientationBlock(DataBlock):
 
     def _data_setter(self, rotation_matrices: np.ndarray):
         # check for single matrix case and assert dimensionality
-        assert rotation_matrices.shape[-1] == rotation_matrices.shape[-2]
+        if not rotation_matrices.shape[-1] == rotation_matrices.shape[-2]:
+            raise ValueError(
+                f'rotation matrices should be of shape (n, 2, 2) or (n, 3, 3), not {rotation_matrices.shape}')
 
         if rotation_matrices.ndim == 2:
             m = rotation_matrices.shape[-1]
