@@ -180,7 +180,7 @@ class PointBlock(DataBlock):
         return np.linalg.norm(point - self.center_of_mass)
 
 
-class LineBlock(DataBlock, PointBlock):
+class LineBlock(PointBlock):
     """
     LineBlock objects represent lines with convenience methods
 
@@ -204,8 +204,7 @@ class LineBlock(DataBlock, PointBlock):
         kwargs : kwargs are passed to DataBlock object
 
         """
-        super(DataBlock).__init__(**kwargs)
-        super(PointBlock).__init__(points=line)
+        super().__init__(points=line, **kwargs)
 
         # initialise attributes related to spline fitting
         self.spline_smoothing_parameter = 0
