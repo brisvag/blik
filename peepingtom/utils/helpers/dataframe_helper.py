@@ -2,37 +2,52 @@ import numpy as np
 import pandas as pd
 from eulerangles import euler2matrix
 
-from peepingtom.utils.validators import columns_in_df
-from peepingtom.utils.constants.relion_constants import relion_coordinate_headings_3d, relion_shift_headings_3d, \
-    relion_euler_angle_headings
+from ..validators import columns_in_df
+from ..constants import relion_coordinate_headings_3d, relion_shift_headings_3d, \
+    relion_euler_angle_headings, dynamo_table_coordinate_headings, dynamo_table_shift_headings, \
+    dynamo_euler_angle_headings
 
-from .exceptions import RelionDataFrameError
+from ..exceptions import DataFrameError
 
-def df_to_xyz(df: pd.DataFrame):
+
+def _check_mode(mode):
+    modes = ['relion', 'dynamo']
+    if mode not in modes:
+        raise ValueError(f'mode can only be one of {modes}; got {mode}')
+
+
+def df_to_xyz(df: pd.DataFrame, mode: str):
     """
 
     Parameters
     ----------
     df : RELION format STAR file as DataFrame (usually the result of starfile.read)
 
+    mode: one of 'relion', 'dynamo'
+
     Returns (n, 3) ndarray of xyz positions from the DataFrame
     -------
 
     """
+    coord_columns = {
+        'relion': relion_coordinate_headings_3d,
+        'dynamo': dynamo_table_coordinate_headings
+    }
+    shift_columns = {
+        'relion': relion_shift_headings_3d,
+        'dynamo': dynamo_table_shift_headings,
+    }
+    _check_mode(mode)
     # get xyz coordinates from dataframe
-    if not columns_in_df(relion_coordinate_headings_3d, df):
-        raise RelionDataFrameError("Could not get coordinates from DataFrame")
+    if not columns_in_df(coord_columns[mode], df):
+        raise DataFrameError("Could not get coordinates from DataFrame")
 
-    positions = df[relion_coordinate_headings_3d]
-
-    # add shifts if present in dataframe
-    if columns_in_df(relion_shift_headings_3d, df):
-        positions += df[relion_shift_headings_3d]
+    positions = df[coord_columns[mode]] + df.get(shift_columns[mode], 0)
 
     return positions.to_numpy()
 
 
-def df_to_euler_angles(df: pd.DataFrame):
+def df_to_euler_angles(df: pd.DataFrame, mode: str):
     """
 
     Parameters
@@ -43,13 +58,18 @@ def df_to_euler_angles(df: pd.DataFrame):
     -------
 
     """
-    if not columns_in_df(relion_euler_angle_headings, df):
-        raise RelionDataFrameError("Could not get euler angles from DataFrame")
-    euler_angles = df[relion_euler_angle_headings]
+    angle_columns = {
+        'relion': relion_euler_angle_headings,
+        'dynamo': dynamo_euler_angle_headings,
+    }
+    _check_mode(mode)
+    if not columns_in_df(angle_columns[mode], df):
+        raise DataFrameError("Could not get euler angles from DataFrame")
+    euler_angles = df[angle_columns[mode]]
     return euler_angles.to_numpy()
 
 
-def euler_angles_to_rotation_matrices(euler_angles: np.ndarray):
+def euler_angles_to_rotation_matrices(euler_angles: np.ndarray, mode: str):
     """
 
     Parameters
@@ -60,10 +80,15 @@ def euler_angles_to_rotation_matrices(euler_angles: np.ndarray):
     -------
 
     """
-    return euler2matrix(euler_angles, axes='zyz', intrinsic=True, positive_ccw=True)
+    euler_kwargs = {
+        'relion': {'axes': 'zyz', 'intrinsic': True, 'positive_ccw': True},
+        'dynamo': {'axes': 'zxz', 'intrinsic': True, 'positive_ccw': True}
+    }
+    _check_mode(mode)
+    return euler2matrix(euler_angles, **euler_kwargs[mode])
 
 
-def df_to_rotation_matrices(df: pd.DataFrame):
+def df_to_rotation_matrices(df: pd.DataFrame, mode: str):
     """
 
     Parameters
@@ -74,8 +99,8 @@ def df_to_rotation_matrices(df: pd.DataFrame):
     -------
 
     """
-    euler_angles = df_to_euler_angles(df)
-    rotation_matrices = euler_angles_to_rotation_matrices(euler_angles)
+    euler_angles = df_to_euler_angles(df, mode)
+    rotation_matrices = euler_angles_to_rotation_matrices(euler_angles, mode)
     return rotation_matrices
 
 
