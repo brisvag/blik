@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 
-from ...utils.components import Child
 
-
-class Model(Child, ABC):
+class Model(ABC):
     """
     A Model is an object from which a set of Particles can be derived
     """

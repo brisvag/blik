@@ -1,3 +1,3 @@
 from .datacrate import DataCrate
-from .datablock import PointBlock, LineBlock, Image
-from .particles import Particles
+from .datablock import PointBlock, LineBlock, ImageBlock
+from .groupblock import Particles
