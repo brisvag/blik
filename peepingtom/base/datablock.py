@@ -1,13 +1,11 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import numpy as np
 from eulerangles import euler2matrix
 from scipy.interpolate import splprep, splev
 
-from ..utils.components import Child
 
-
-class DataBlock(Child, ABC):
+class DataBlock(ABC):
     """
     Base class for all classes which can be put into Crates for subsequent visualisation
 
@@ -18,9 +16,9 @@ class DataBlock(Child, ABC):
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
 
-    def __init__(self, properties=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, properties=None, parent=None):
         self.properties = properties
+        self.parent = parent
 
     @property
     def data(self):
@@ -28,7 +26,11 @@ class DataBlock(Child, ABC):
 
     @data.setter
     def data(self, value):
-        raise NotImplementedError
+        return self._data_setter
+
+    @abstractmethod
+    def _data_setter(self, value):
+        pass
 
     def __getitem__(self, item):
         return self.data[item]
@@ -362,16 +364,6 @@ class ImageBlock(DataBlock):
         self.pixel_size = pixel_size
 
     def _data_setter(self, image: np.ndarray):
-        """
-        TODO: should we contain only the path to the images or the images themselves here?
-        Parameters
-        ----------
-        image
-
-        Returns
-        -------
-
-        """
         self._data = image
 
     @property

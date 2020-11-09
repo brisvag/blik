@@ -1,2 +1,3 @@
 from .relion_constants import relion_coordinate_headings_2d, relion_shift_headings_2d, relion_coordinate_headings_3d, \
     relion_shift_headings_3d
+from .dynamo_constants import dynamo_table_coordinate_headings, dynamo_table_shift_headings

@@ -1,16 +1,25 @@
 import pandas as pd
 
-from .datablock import PointBlock, OrientationBlock
-from ..utils.components import Child
-import peepingtom.utils.helpers.relion_helper as relion_helper
-import peepingtom.utils.helpers.dynamo_helper as dynamo_helper
+from .datablock import DataBlock, PointBlock, OrientationBlock
+from ..utils.helpers import dataframe_helper
 
 
-class Particles(Child):
-    def __init__(self, positions: PointBlock, orientations: OrientationBlock, **kwargs):
+class GroupBlock(DataBlock):
+    """
+    unites multiple DataBlocks to construct a complex data object
+    """
+
+
+class Particles(GroupBlock):
+    def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: pd.DataFrame, **kwargs):
         super().__init__(**kwargs)
         self.positions = positions
         self.orientations = orientations
+        self.properties = properties
+        self.data = self.positions
+
+    def _data_setter(self, value):
+        self._data = value
 
     @property
     def positions(self):
@@ -35,7 +44,7 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         self._orientations = orientations
 
     @classmethod
-    def _from_relion_star_dataframe(cls, df: pd.DataFrame):
+    def _from_star_dataframe(cls, df: pd.DataFrame, mode: str):
         """
         Create a Particles instance from a RELION format star file DataFrame
 
@@ -51,27 +60,6 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         -------
 
         """
-        positions = PointBlock(relion_helper.df_to_xyz(df))
-        orientations = OrientationBlock(relion_helper.df_to_rotation_matrices(df))
-        return cls(positions, orientations, parent=df)
-
-    @classmethod
-    def _from_dynamo_table_dataframe(cls, df: pd.DataFrame):
-        """
-        Create a Particles instance from a RELION format star file DataFrame
-
-        This method expects the DataFrame to already represent the desired subset of particles in the case where data
-        contains particles from multiple volumes
-
-        Parameters
-        ----------
-        df: pandas DataFrame for particles from one volume of a RELION format star file DataFrame
-            df should already represent the desired, single volume subset of particles
-
-        Returns
-        -------
-
-        """
-        positions = PointBlock(dynamo_helper.df_to_xyz(df))
-        orientations = OrientationBlock(dynamo_helper.df_to_rotation_matrices(df))
-        return cls(positions, orientations, parent=df)
+        positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
+        orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
+        return cls(positions, orientations)

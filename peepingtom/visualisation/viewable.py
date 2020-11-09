@@ -6,7 +6,7 @@ import numpy as np
 import napari
 from napari.components.layerlist import LayerList
 
-from peepingtom.base import Particles, Image
+from ..base import PointBlock, LineBlock, OrientationBlock, ImageBlock
 
 
 class Viewable:
@@ -19,10 +19,10 @@ class Viewable:
         self.name = name
         self.layers = LayerList()
 
-    def show(self, viewer=None):
+    def peep(self, viewer=None):
         """
         creates a new napari viewer if not present or given
-        shows the contents of the Viewable
+        peeps the contents of the Viewable
         """
         # create a new viewer if necessary
         if viewer is not None:
