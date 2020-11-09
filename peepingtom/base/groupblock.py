@@ -1,4 +1,6 @@
-import pandas as pd
+"""
+GroupBlock objects are groups of DataBlock objects which are commonly viewed and manipulated together
+"""
 
 from .datablock import DataBlock, PointBlock, OrientationBlock
 from ..utils.helpers import dataframe_helper
@@ -18,8 +20,8 @@ class Particles(GroupBlock):
         self.properties = properties
         self.data = self.positions
 
-    def _data_setter(self, value):
-        self._data = value
+    def _data_setter(self, positions):
+        self._data = positions
 
     @property
     def positions(self):
@@ -44,7 +46,29 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         self._orientations = orientations
 
     @classmethod
-    def _from_star_dataframe(cls, df: pd.DataFrame, mode: str):
+    def _from_dataframe(cls, df: pd.DataFrame, mode: str):
+        """
+        Create a Particles instance from a DataFrame in a known mode
+
+        This method expects the DataFrame to already represent the desired subset of particles in the case where data
+        contains particles from multiple volumes
+
+        Parameters
+        ----------
+        df: pandas DataFrame for particles from one volume of a RELION format star file DataFrame
+            df should already represent the desired, single volume subset of particles
+
+        mode: str, 'relion' or 'dynamo'
+        Returns
+        -------
+
+        """
+        positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
+        orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
+        return cls(positions, orientations)
+
+    @classmethod
+    def _from_dynamo_table_dataframe(cls, df: pd.DataFrame):
         """
         Create a Particles instance from a RELION format star file DataFrame
 
@@ -60,6 +84,6 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         -------
 
         """
-        positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
-        orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
-        return cls(positions, orientations)
+        positions = PointBlock(dynamo_helper.df_to_xyz(df))
+        orientations = OrientationBlock(dynamo_helper.df_to_rotation_matrices(df))
+        return cls(positions, orientations, parent=df)
