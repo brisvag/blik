@@ -1,11 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import numpy as np
 from eulerangles import euler2matrix
 from scipy.interpolate import splprep, splev
 
+from ..utils.components import Child
 
-class DataBlock(ABC):
+
+class DataBlock(Child, ABC):
     """
     Base class for all classes which can be put into Crates for subsequent visualisation
 
@@ -16,21 +18,21 @@ class DataBlock(ABC):
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
 
-    def __init__(self, properties=None, parent=None):
+    def __init__(self, properties=None, **kwargs):
+        super().__init__(**kwargs)
         self.properties = properties
-        self.parent = parent
 
     @property
     def data(self):
         return self._data
 
     @data.setter
-    def data(self, value):
-        return self._data_setter
+    def data(self, *args):
+        self._data = self._data_setter(*args)
 
     @abstractmethod
-    def _data_setter(self, value):
-        pass
+    def _data_setter(self, data):
+        self.data = data
 
     def __getitem__(self, item):
         return self.data[item]
@@ -64,7 +66,7 @@ class PointBlock(DataBlock):
         if not points.ndim == 2:
             raise ValueError("points object should have ndim == 2")
 
-        self._data = points
+        return points
 
     @property
     def ndim_spatial(self):
@@ -263,7 +265,8 @@ class OrientationBlock(DataBlock):
         if rotation_matrices.ndim == 2:
             m = rotation_matrices.shape[-1]
             rotation_matrices = rotation_matrices.reshape((1, m, m))
-        self._data = rotation_matrices
+
+        return rotation_matrices
 
     @property
     def ndim_spatial(self):
@@ -364,7 +367,17 @@ class ImageBlock(DataBlock):
         self.pixel_size = pixel_size
 
     def _data_setter(self, image: np.ndarray):
-        self._data = image
+        """
+        TODO: should we contain only the path to the images or the images themselves here?
+        Parameters
+        ----------
+        image
+
+        Returns
+        -------
+
+        """
+        return image
 
     @property
     def pixel_size(self):
@@ -373,3 +386,40 @@ class ImageBlock(DataBlock):
     @pixel_size.setter
     def pixel_size(self, value):
         self._pixel_size = float(value)
+
+
+class SphereBlock(DataBlock):
+    def __init__(self, center: np.ndarray, radius: float = None, **kwargs):
+        super().__init__(**kwargs)
+        self.center = center
+        self.edge_point = None
+        self.radius = radius
+
+    def _data_setter(self, center: np.ndarray, radius: float = None):
+
+        self._data =
+
+    @property
+    def center(self):
+        return self._center
+
+    @center.setter
+    def center(self, point: np.ndarray):
+        return np.asarray(point).reshape(3)
+
+    @property
+    def edge_point(self):
+        return self._edge_point
+
+    @edge_point.setter
+    def edge_point(self, edge_point: np.ndarray):
+        edge_point = np.asarray(edge_point).reshape(3)
+        self._edge_point = edge_point
+        self._update_radius_from_edge_point()
+
+    def _update_radius_from_edge_point(self):
+        self.radius = np.linalg.norm(self.center - self.edge_point)
+
+
+
+
