@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import numpy as np
 from eulerangles import euler2matrix
@@ -391,13 +391,13 @@ class ImageBlock(DataBlock):
 class SphereBlock(DataBlock):
     def __init__(self, center: np.ndarray, radius: float = None, **kwargs):
         super().__init__(**kwargs)
-        self.center = center
+        self.data = center, radius
         self.edge_point = None
-        self.radius = radius
 
     def _data_setter(self, center: np.ndarray, radius: float = None):
-
-        self._data =
+        self.center = center
+        self.radius = float(radius)
+        return self.center, self.radius
 
     @property
     def center(self):
@@ -419,7 +419,3 @@ class SphereBlock(DataBlock):
 
     def _update_radius_from_edge_point(self):
         self.radius = np.linalg.norm(self.center - self.edge_point)
-
-
-
-
