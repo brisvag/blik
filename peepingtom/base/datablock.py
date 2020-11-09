@@ -4,10 +4,8 @@ import numpy as np
 from eulerangles import euler2matrix
 from scipy.interpolate import splprep, splev
 
-from ..utils.components import Child
 
-
-class DataBlock(Child, ABC):
+class DataBlock(ABC):
     """
     Base class for all classes which can be put into Crates for subsequent visualisation
 
@@ -220,7 +218,8 @@ class LineBlock(PointBlock):
         self._spline_smoothing_parameter = float(value)
 
     def fit_spline(self):
-        self._tck = splprep(self.dims_list, self.spline_smoothing_parameter)
+        TODO: fix
+        self._tck = splprep(self._get_named_dimension(), self.spline_smoothing_parameter)
         return self._tck
 
     def evaluate_spline(self, n_points):
@@ -367,16 +366,6 @@ class ImageBlock(DataBlock):
         self.pixel_size = pixel_size
 
     def _data_setter(self, image: np.ndarray):
-        """
-        TODO: should we contain only the path to the images or the images themselves here?
-        Parameters
-        ----------
-        image
-
-        Returns
-        -------
-
-        """
         return image
 
     @property
@@ -391,6 +380,7 @@ class ImageBlock(DataBlock):
 class SphereBlock(DataBlock):
     def __init__(self, center: np.ndarray, radius: float = None, **kwargs):
         super().__init__(**kwargs)
+        # TODO: check if below works
         self.data = center, radius
         self.edge_point = None
 
