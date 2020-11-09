@@ -7,18 +7,16 @@ from scipy.interpolate import splprep, splev
 
 class DataBlock(ABC):
     """
-    Base class for all classes which can be put into Crates for subsequent visualisation
+    Base class for all simple DataBlock objects, data types which can be visualised by Depictors
 
-    Examples include geometric primitives such as Points, Line, Sphere
-
-    DataBlock objects must implement a data setter method as _data_setter which sets the value of DataBlock._data
+    DataBlock objects must implement a data setter method as _data_setter which returns the appropriately formatted data
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
 
-    def __init__(self, properties=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, properties=None, parent=None):
         self.properties = properties
+        self.parent = parent
 
     @property
     def data(self):
@@ -34,6 +32,10 @@ class DataBlock(ABC):
 
     def __getitem__(self, item):
         return self.data[item]
+
+    @property
+    def parent_properties(self):
+        return getattr(self.parent, 'properties', None)
 
 
 class PointBlock(DataBlock):
@@ -217,14 +219,29 @@ class LineBlock(PointBlock):
     def spline_smoothing_parameter(self, value):
         self._spline_smoothing_parameter = float(value)
 
-    def fit_spline(self):
-        TODO: fix
-        self._tck = splprep(self._get_named_dimension(), self.spline_smoothing_parameter)
+    def fit_spline(self, dimensions: str, smoothing_parameter=None):
+        """
+
+        Parameters
+        ----------
+        dimensions :  str of named dimensions ('xyz') to which a spline should be fit
+        smoothing_parameter : smoothing parameter for spline fitting
+
+        Returns tck, list of spline parameters from scipy.interpolate.splprep
+        -------
+
+        """
+        if smoothing_parameter:
+            self.spline_smoothing_parameter = smoothing_parameter
+
+        dims_to_fit = self._get_named_dimension(dimensions, as_type='tuple')
+        self._tck, _ = splprep(dims_to_fit, s=self.spline_smoothing_parameter)
+
         return self._tck
 
     def evaluate_spline(self, n_points):
         u = np.linspace(0, 1, n_points, endpoint=True)
-        return splev(u, tck=self._tck)
+        return np.asarray(splev(u, tck=self._tck))
 
     @property
     def smooth_backbone(self):
