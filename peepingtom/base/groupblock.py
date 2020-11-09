@@ -1,6 +1,7 @@
 """
 GroupBlock objects are groups of DataBlock objects which are commonly viewed and manipulated together
 """
+import pandas as pd
 
 from .datablock import DataBlock, PointBlock, OrientationBlock
 from ..utils.helpers import dataframe_helper

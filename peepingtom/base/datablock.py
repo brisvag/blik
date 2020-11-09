@@ -58,7 +58,7 @@ class PointBlock(DataBlock):
 
         # coerce 1d point to 2d
         if points.ndim == 1:
-            points.reshape((1, len(points)))
+            points = points.reshape((1, len(points)))
 
         # check ndim of points
         if not points.ndim == 2:
@@ -92,7 +92,7 @@ class PointBlock(DataBlock):
         dim_idx = dim_to_index[dim]
 
         # check and correct index for higher dimensionality
-        if self.ndim_spatial >= 3:
+        if self.ndim_spatial > 3:
             dim_idx = -dim_idx - 1
 
         return dim_idx
@@ -100,7 +100,7 @@ class PointBlock(DataBlock):
     def _get_dim_at_spatial_index(self, idx: int):
         return self[:, idx]
 
-    def _get_named_dimension(self, dim: str, as_array=None, as_tuple=None):
+    def _get_named_dimension(self, dim: str, as_type='array'):
         """
         Get data for a named dimension or multiple named dimensions of the object
 
@@ -109,25 +109,25 @@ class PointBlock(DataBlock):
         ----------
 
         dim : str 'x', 'y', 'z' or a combination thereof
-        as_array : bool, force return type to be ndarray (incompatible with as_tuple)
-        as_tuple : bool, force return type to be tuple (incompatible with as_array)
+        as_type : str for return type, only if len(dim) > 1
+                  'array' for ndarray or 'tuple' for tuple return type
 
         Returns (default) (n,m) ndarray of data along named dimension(s) from m
                   or tuple of arrays of data along each axis
         -------
 
         """
-        if as_tuple and as_array:
-            raise ValueError(f"'as_tuple' and 'as_array' cannot both be True")
+        if as_type not in ('array', 'tuple'):
+            raise ValueError("Argument 'as_type' must be a string from 'array' or 'tuple'")
 
         if len(dim) > 1:
             # split dims up and get each separately
             data = [self._get_named_dimension(_dim) for _dim in dim]
 
             # decide on output type and return array or tuple as requested, default to array
-            if (as_array and not as_tuple) or (not (as_array and as_tuple)):
+            if as_type == 'array':
                 return np.column_stack(data)
-            elif as_tuple and not as_array:
+            elif as_type == 'tuple':
                 return tuple(data)
 
         else:
