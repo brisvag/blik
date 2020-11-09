@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from ..datablock import DataBlock, PointBlock, OrientationBlock
+from ..datablock import DataBlock, PointBlock, LineBlock, OrientationBlock
 
 
 def test_datablock():
@@ -105,3 +105,15 @@ def test_pointblock_distance_to():
     # check for failure
     with pytest.raises(ValueError):
         block.distance_to([1, 2, 3, 4, 5, 6])
+
+
+# test data for lineblock
+v = np.linspace(0, 12)
+line_2d = np.column_stack([v, np.sin(v)])
+line_3d = np.column_stack([v, np.sin(v), np.cos(v)])
+
+
+def test_lineblock_instantiation():
+    block = LineBlock(line_2d)
+    block = LineBlock(line_3d)
+
