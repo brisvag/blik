@@ -1,41 +1,44 @@
 """
-Viewable interfaces data classes to napari
+Depictor interfaces data classes to napari
 """
 
 import numpy as np
 import napari
 from napari.components.layerlist import LayerList
 
-from ..base import PointBlock, LineBlock, OrientationBlock, ImageBlock
+from ..base import PointBlock, LineBlock, OrientationBlock, ImageBlock, Particles
 
 
-class Viewable:
+class Depictor:
     """
-    Base class for objects which are viewable in napari
+    Depictors display the contents of a datablock in napari
     """
-    def __init__(self, viewer=None, parent=None, name=''):
+    def __init__(self, datablock, viewer=None, parent=None):
+        self.datablock = datablock
         self.viewer = viewer
         self.parent = parent
-        self.name = name
         self.layers = LayerList()
 
-    def peep(self, viewer=None):
+    def peep(self, viewer=None, remake_layers=False):
         """
-        creates a new napari viewer if not present or given
-        peeps the contents of the Viewable
+        creates a new napari viewer if not present
+        displays the contents of the datablock
         """
         # create a new viewer if necessary
         if viewer is not None:
             self.viewer = viewer
         elif self.viewer is None:
-            self.viewer = napari.Viewer(ndisplay=3)
+            self.viewer = napari.Depictor(ndisplay=3)
         # random check to make sure viewer was not closed
         try:
             self.viewer.window.qt_viewer.actions()
         except RuntimeError:
-            self.viewer = napari.Viewer(ndisplay=3)
+            self.viewer = napari.Depictor(ndisplay=3)
+        if self.layers and not remake_layers:
+            for layer in self.layers:
+                self.viewer.add_layer(layer)
 
-    def hide(self, layers=None):
+    def hide(self, layers=None, delete_layer=False):
         """
         layer_id can be the index or name of a layer or a list of ids
         """
@@ -46,17 +49,11 @@ class Viewable:
         for l in layers:
             if l in self.layers:
                 self.viewer.layers.remove(l)
-                self.layers.remove(l)
-
-    def update(self, **kwargs):
-        """
-        reload data in the viewer
-        """
-        self.hide()
-        self.show(**kwargs)
+                if delete_layer:
+                    self.layers.remove(l)
 
 
-class VolumeViewer(Viewable):
+class CrateDepictor(Depictor):
     """
     display the contents of a DataBlock in napari and provide hooks between Peeper and Data
     """
