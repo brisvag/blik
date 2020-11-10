@@ -368,6 +368,8 @@ class OrientationBlock(DataBlock):
 
         return unit_vector
 
+    def oriented_vectors(self, axis):
+        return self._calculate_matrix_product(self._unit_vector(axis))
 
 class ImageBlock(DataBlock):
     """

@@ -2,17 +2,18 @@
 main class that interfaces visualization, analysis and data manipulation
 """
 
-from peepingtom.visualisation.viewable import Viewable, VolumeViewer
+from .depictor import Depictor, CrateDepictor
 
 
-class Peeper(Viewable):
+class Peeper(Depictor):
     """
     collect and display an arbitrary set of images and/or datasets
     expose the datasets to visualization and analysis tools
     """
-    def __init__(self, data_blocks):
-        super().__init__()
-        self.volumes = [VolumeViewer(db, parent=self) for db in data_blocks]
+    def __init__(self, crates, **kwargs):
+        super().__init__(**kwargs)
+        self.crates = crates
+        self.crate_depictors = [CrateDepictor(crate) for crate in crates]
 
     def _make_stack(self):
         pass
@@ -48,23 +49,22 @@ class Peeper(Viewable):
                 # add_data_4d[k] = np.concatenate(v)
             # self.stack_particles = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
-    def show(self, volumes='all', viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}, stack=True):
-        super().show(viewer=viewer)
-        if volumes == 'all':
-            volumes = self.volumes
-        for volume in volumes:
-            volume.show(viewer=self.viewer, point_kwargs=point_kwargs,
-                        vector_kwargs=vector_kwargs, image_kwargs=image_kwargs)
+    def peep(self, crate_depictors='all', viewer=None):
+        super().peep(viewer=viewer)
+        if crate_depictors == 'all':
+            crate_depictors = self.crate_depictors
+        for crate_depictor in crate_depictors:
+            crate_depictor.peep(viewer=self.viewer)
 
-    def hide(self, volumes='all'):
-        if volumes == 'all':
-            volumes = self.volumes
-        for volume in volumes:
-            volume.hide()
+    def hide(self, crate_depictors='all'):
+        if crate_depictors == 'all':
+            crate_depictors = self.crate_depictors
+        for crate_depictor in crate_depictors:
+            crate_depictor.hide()
 
-    def loop_volumes():
+    def loop_crate_depictors():
         pass
 
     def update(self):
-        for volume in self.volumes:
-            volume.update()
+        for crate_depictor in self.crate_depictors:
+            crate_depictor.update()

@@ -64,6 +64,7 @@ def df_to_euler_angles(df: pd.DataFrame, mode: str):
     }
     _check_mode(mode)
     if not columns_in_df(angle_columns[mode], df):
+        print(angle_columns[mode], df.columns)
         raise DataFrameError("Could not get euler angles from DataFrame")
     euler_angles = df[angle_columns[mode]]
     return euler_angles.to_numpy()

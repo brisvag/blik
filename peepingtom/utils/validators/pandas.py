@@ -13,5 +13,5 @@ def columns_in_df(columns: list, df: pd.DataFrame):
     -------
 
     """
-    return pd.Series(columns).isin(df.columns).all()
+    return all([col in df for col in columns])
 

@@ -13,8 +13,8 @@ class Depictor:
     """
     Depictors display the contents of a datablock in napari
     """
-    def __init__(self, datablock, viewer=None, parent=None):
-        self.datablock = datablock
+    def __init__(self, viewer=None, parent=None):
+        self.name = 'None'
         self.viewer = viewer
         self.parent = parent
         self.layers = LayerList()
@@ -28,12 +28,12 @@ class Depictor:
         if viewer is not None:
             self.viewer = viewer
         elif self.viewer is None:
-            self.viewer = napari.Depictor(ndisplay=3)
+            self.viewer = napari.Viewer(ndisplay=3)
         # random check to make sure viewer was not closed
         try:
             self.viewer.window.qt_viewer.actions()
         except RuntimeError:
-            self.viewer = napari.Depictor(ndisplay=3)
+            self.viewer = napari.Viewer(ndisplay=3)
         if self.layers and not remake_layers:
             for layer in self.layers:
                 self.viewer.add_layer(layer)
@@ -53,13 +53,55 @@ class Depictor:
                     self.layers.remove(l)
 
 
+class ParticleDepictor(Depictor):
+    def __init__(self, particles, **kwargs):
+        super().__init__(**kwargs)
+        self.particles = particles
+
+    def peep(self, point_kwargs={}, vector_kwargs={}, **kwargs):
+        super().peep(**kwargs)
+
+        pkwargs = {'size': 3}
+        vkwargs = {'length': 10}
+
+        pkwargs.update(point_kwargs)
+        vkwargs.update(vector_kwargs)
+
+        p_layer = self.viewer.add_points(self.particles.positions.zyx,
+                                       name=f'{self.name} - particle positions',
+                                       properties=self.particles.property_dict,
+                                       **pkwargs)
+        self.layers.append(p_layer)
+
+        napari_vectors = np.stack([self.particles.positions.zyx,
+                                   self.particles.orientations.oriented_vectors('y')],
+                                  # TODO: fix why x and not z!
+                                  axis=1)
+        v_layer = self.viewer.add_vectors(napari_vectors,
+                                        name=f'{self.name} - particle orientations',
+                                        **vkwargs)
+        self.layers.append(v_layer)
+
+
 class CrateDepictor(Depictor):
     """
     display the contents of a DataBlock in napari and provide hooks between Peeper and Data
     """
-    def __init__(self, data_block, **kwargs):
+    def __init__(self, crate, **kwargs):
         super().__init__(**kwargs)
-        self.data_block = data_block
+        self.crate = crate
+        self.depictors = []
+        for block in self.crate:
+            self.make_depictor(block)
+
+    def make_depictor(self, block):
+        # TODO
+        self.depictors.append(ParticleDepictor(block))
+
+    def peep(self, viewer=None, **kwargs):
+        super().peep(viewer=viewer)
+        for depictor in self.depictors:
+            depictor.peep(viewer=self.viewer, **kwargs)
 
     @property
     def particles(self):
@@ -82,7 +124,7 @@ class CrateDepictor(Depictor):
 
     @property
     def images(self):
-        return [i for i in self.data_block if isinstance(i, Image)]
+        return [i for i in self.data_block if isinstance(i, ImageBlock)]
 
     @property
     def image_data(self):
@@ -92,32 +134,8 @@ class CrateDepictor(Depictor):
     def image_shapes(self):
         return [i.shape for i in self.image_data]
 
-    def show(self, viewer=None, point_kwargs={}, vector_kwargs={}, image_kwargs={}):
-        super().show(viewer=viewer)
-
-        pkwargs = {'size': 3}
-        vkwargs = {'length': 10}
-        ikwargs = {}
-
-        pkwargs.update(point_kwargs)
-        vkwargs.update(vector_kwargs)
-        ikwargs.update(image_kwargs)
-
-        for particles in self.particles:
-            layer = self.viewer.add_points(particles.coords,
-                                           name=f'{self.name} - particle positions',
-                                           properties=particles.prop_as_dict(),
-                                           **pkwargs)
-            self.layers.append(layer)
-
-        for vectors in self.particle_vectors_napari:
-            layer = self.viewer.add_vectors(vectors,
-                                            name=f'{self.name} - particle orientations',
-                                            **vkwargs)
-            self.layers.append(layer)
-
-        for image in self.images:
-            layer = self.viewer.add_image(image.data,
-                                          name=f'{self.name} - image',
-                                          **ikwargs)
-            self.layers.append(layer)
+    # def show(self)
+        # layer = self.viewer.add_image(image.data,
+                                        # name=f'{self.name} - image',
+                                        # **ikwargs)
+        # self.layers.append(layer)
