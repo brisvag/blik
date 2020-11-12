@@ -1,0 +1,8 @@
+napari
+pyqt5
+numpy
+pandas
+starfile
+eulerangles
+dynamotable
+mrcfile
