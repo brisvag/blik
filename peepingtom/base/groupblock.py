@@ -4,7 +4,7 @@ GroupBlock objects are groups of DataBlock objects which are commonly viewed and
 import pandas as pd
 import numpy as np
 
-from .datablock import DataBlock, PointBlock, OrientationBlock
+from .datablock import DataBlock, PointBlock, OrientationBlock, PropertyBlock
 from ..utils.helpers import dataframe_helper
 
 
@@ -12,14 +12,16 @@ class GroupBlock(DataBlock):
     """
     unites multiple DataBlocks to construct a complex data object
     """
+    def __init__(self, children):
+        self.children = children
 
 
 class Particles(GroupBlock):
-    def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: pd.DataFrame, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: PropertyBlock, **kwargs):
         self.positions = positions
         self.orientations = orientations
         self.properties = properties
+        super().__init__(children=[self.positions, self.orientations, self.properties], **kwargs)
         self.data = self.positions
 
     def _data_setter(self, positions):
@@ -48,11 +50,14 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         self._orientations = orientations
 
     @property
-    def property_dict(self):
-        """
-        properties as dictionaries of numpy arrays
-        """
-        return {key: self.properties[key].to_numpy() for key in self.properties.columns}
+    def properties(self):
+        return self._properties
+
+    @properties.setter
+    def properties(self, properties):
+        if not isinstance(properties, PropertyBlock):
+            properties = PropertyBlock(properties)
+        self._properties = properties
 
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, mode: str, **kwargs):
@@ -78,5 +83,5 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
 
         positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
         orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
-        properties = df[data_columns]
+        properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
         return cls(positions, orientations, properties, **kwargs)

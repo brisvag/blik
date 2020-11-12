@@ -2,18 +2,33 @@
 main class that interfaces visualization, analysis and data manipulation
 """
 
-from .depictor import Depictor, CrateDepictor
+import napari
+
+from ..base import DataBlock, Particles
+from .depictor import ParticleDepictor
 
 
-class Peeper(Depictor):
+class Peeper:
     """
     collect and display an arbitrary set of images and/or datasets
     expose the datasets to visualization and analysis tools
     """
-    def __init__(self, crates, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, crates, viewer=None):
         self.crates = crates
-        self.crate_depictors = [CrateDepictor(crate) for crate in crates]
+        self.viewer = viewer
+        # initialise depictors
+        for crate in crates:
+            for datablock in crate:
+                self._init_depictor(datablock)
+
+    def _init_depictor(self, datablock):
+        if isinstance(datablock, Particles):
+            # don't store a reference to it, cause it hooks itself on the datablock
+            ParticleDepictor(datablock, peeper=self)
+
+    @property
+    def depictors(self):
+        return [datablock.depictor for crate in self.crates for datablock in crate]
 
     def _make_stack(self):
         pass
@@ -49,22 +64,29 @@ class Peeper(Depictor):
                 # add_data_4d[k] = np.concatenate(v)
             # self.stack_particles = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
-    def peep(self, crate_depictors='all', viewer=None):
-        super().peep(viewer=viewer)
-        if crate_depictors == 'all':
-            crate_depictors = self.crate_depictors
-        for crate_depictor in crate_depictors:
-            crate_depictor.peep(viewer=self.viewer)
+    def peep(self, viewer=None):
+        # create a new viewer if necessary
+        if viewer is not None:
+            self.viewer = viewer
+        elif self.viewer is None:
+            self.viewer = napari.Viewer(ndisplay=3)
 
-    def hide(self, crate_depictors='all'):
-        if crate_depictors == 'all':
-            crate_depictors = self.crate_depictors
-        for crate_depictor in crate_depictors:
-            crate_depictor.hide()
+        # random check to make sure viewer was not closed
+        try:
+            self.viewer.window.qt_viewer.actions()
+        except RuntimeError:
+            self.viewer = napari.Viewer(ndisplay=3)
 
-    def loop_crate_depictors():
+        for depictor in self.depictors:
+            depictor.draw()
+
+    def hide(self, crates='all'):
+        for depictor in self.depictors:
+            depictor.hide()
+
+    def loop_crate():
         pass
 
     def update(self):
-        for crate_depictor in self.crate_depictors:
-            crate_depictor.update()
+        for crate in self.crate:
+            crate.update()

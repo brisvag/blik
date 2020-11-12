@@ -13,9 +13,7 @@ class DataBlock(ABC):
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
-
-    def __init__(self, properties=None, parent=None):
-        self.properties = properties
+    def __init__(self, parent=None):
         self.parent = parent
 
     @property
@@ -33,9 +31,22 @@ class DataBlock(ABC):
     def __getitem__(self, item):
         return self.data[item]
 
-    @property
-    def parent_properties(self):
-        return getattr(self.parent, 'properties', None)
+    def __setitem__(self, item, value):
+        self.data.__setitem__(item, value)
+        # signal that data was updated
+        self.updated()
+
+    def dump(self):
+        kwargs = {}
+        kwargs.update({'parent': self.parent})
+        return kwargs
+
+    def updated(self):
+        """
+        this function is called when getitem is used.
+        It is used by other modules to know when the data was changed.
+        When needed, it can be patched with additional callbacks.
+        """
 
 
 class PointBlock(DataBlock):
@@ -180,6 +191,28 @@ class PointBlock(DataBlock):
                 f"shape of point '{point.shape}' does not match shape of center of mass '{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'points': self.data})
+        return kwargs
+
+
+class PropertyBlock(DataBlock):
+    """
+    PropertyBlock is a simple dictionary wrapper for arbitrary data
+    """
+    def __init__(self, properties, **kwargs):
+        super().__init__(**kwargs)
+        self.data = properties
+
+    def _data_setter(self, properties):
+        return properties
+
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'properties': self.data})
+        return kwargs
+
 
 class LineBlock(PointBlock):
     """
@@ -251,6 +284,11 @@ class LineBlock(PointBlock):
         u = np.linspace(0, 1, n_points, endpoint=True)
         self.fit_spline()
         return self.evaluate_spline(n_points)
+
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'line': self.data})
+        return kwargs
 
 
 class OrientationBlock(DataBlock):
@@ -371,6 +409,12 @@ class OrientationBlock(DataBlock):
     def oriented_vectors(self, axis):
         return self._calculate_matrix_product(self._unit_vector(axis))
 
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'rotation_matrices': self.data})
+        return kwargs
+
+
 class ImageBlock(DataBlock):
     """
     n-dimensional image block
@@ -394,6 +438,11 @@ class ImageBlock(DataBlock):
     @pixel_size.setter
     def pixel_size(self, value):
         self._pixel_size = float(value)
+
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'data': self.data, 'ndim_spatial': self.ndim_spatial})
+        return kwargs
 
 
 class SphereBlock(DataBlock):

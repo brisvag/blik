@@ -2,43 +2,54 @@
 Depictor interfaces data classes to napari
 """
 
+from types import MethodType
+
 import numpy as np
 import napari
 from napari.components.layerlist import LayerList
 
-from ..base import PointBlock, LineBlock, OrientationBlock, ImageBlock, Particles
+from ..base import DataBlock, GroupBlock, PointBlock, LineBlock, OrientationBlock, ImageBlock, Particles
 
 
 class Depictor:
     """
-    Depictors display the contents of a datablock in napari
+    Depictors are DataBlock or GroupBlock wrappers able to display their contents in napari
     """
-    def __init__(self, viewer=None, parent=None):
-        self.name = 'None'
-        self.viewer = viewer
-        self.parent = parent
+    def __init__(self, datablock, peeper, name='NoName'):
+        self.datablock = datablock
+
+        # this hack updates DataBlock.updated() with a new version that calls Depictor.update()
+        def updated_patch(slf):
+            slf.depictor.update()
+        if isinstance(self.datablock, GroupBlock):
+            for child in self.datablock.children:
+                child.updated = MethodType(updated_patch, child)
+                child.depictor = self
+        self.datablock.updated = MethodType(updated_patch, self.datablock)
+        # hook self to the datablock
+        self.datablock.depictor = self
+
+        self.name = name
+        self.peeper = peeper
         self.layers = LayerList()
 
-    def peep(self, viewer=None, remake_layers=False):
+    @property
+    def viewer(self):
+        return self.peeper.viewer
+
+    def draw(self, viewer=None, remake_layers=False):
         """
         creates a new napari viewer if not present
         displays the contents of the datablock
         """
         # create a new viewer if necessary
-        if viewer is not None:
-            self.viewer = viewer
-        elif self.viewer is None:
-            self.viewer = napari.Viewer(ndisplay=3)
-        # random check to make sure viewer was not closed
-        try:
-            self.viewer.window.qt_viewer.actions()
-        except RuntimeError:
-            self.viewer = napari.Viewer(ndisplay=3)
+        if viewer is None:
+            viewer = self.viewer
         if self.layers and not remake_layers:
             for layer in self.layers:
                 self.viewer.add_layer(layer)
 
-    def hide(self, layers=None, delete_layer=False):
+    def hide(self, layers=None, delete_layers=False):
         """
         layer_id can be the index or name of a layer or a list of ids
         """
@@ -49,17 +60,16 @@ class Depictor:
         for l in layers:
             if l in self.layers:
                 self.viewer.layers.remove(l)
-                if delete_layer:
+                if delete_layers:
                     self.layers.remove(l)
+
+    def update(self):
+        pass
 
 
 class ParticleDepictor(Depictor):
-    def __init__(self, particles, **kwargs):
-        super().__init__(**kwargs)
-        self.particles = particles
-
-    def peep(self, point_kwargs={}, vector_kwargs={}, **kwargs):
-        super().peep(**kwargs)
+    def draw(self, point_kwargs={}, vector_kwargs={}, **kwargs):
+        super().draw(**kwargs)
 
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
@@ -67,14 +77,14 @@ class ParticleDepictor(Depictor):
         pkwargs.update(point_kwargs)
         vkwargs.update(vector_kwargs)
 
-        p_layer = self.viewer.add_points(self.particles.positions.zyx,
-                                       name=f'{self.name} - particle positions',
-                                       properties=self.particles.property_dict,
-                                       **pkwargs)
+        p_layer = self.viewer.add_points(self.datablock.positions.zyx,
+                                         name=f'{self.name} - particle positions',
+                                         properties=self.datablock.properties.data,
+                                         **pkwargs)
         self.layers.append(p_layer)
 
-        napari_vectors = np.stack([self.particles.positions.zyx,
-                                   self.particles.orientations.oriented_vectors('y')],
+        napari_vectors = np.stack([self.datablock.positions.zyx,
+                                   self.datablock.orientations.oriented_vectors('y')],
                                   # TODO: fix why x and not z!
                                   axis=1)
         v_layer = self.viewer.add_vectors(napari_vectors,
@@ -82,26 +92,31 @@ class ParticleDepictor(Depictor):
                                         **vkwargs)
         self.layers.append(v_layer)
 
+    @property
+    def point_layer(self):
+        return self.layers[f'{self.name} - particle positions']
 
-class CrateDepictor(Depictor):
-    """
-    display the contents of a DataBlock in napari and provide hooks between Peeper and Data
-    """
-    def __init__(self, crate, **kwargs):
-        super().__init__(**kwargs)
-        self.crate = crate
-        self.depictors = []
-        for block in self.crate:
-            self.make_depictor(block)
+    @property
+    def vector_layer(self):
+        return self.layers[f'{self.name} - particle orientations']
 
-    def make_depictor(self, block):
-        # TODO
-        self.depictors.append(ParticleDepictor(block))
+    def update(self):
+        try:
+            self.point_layer.properties = {k: v for k, v in self.datablock.properties.data.items()
+                                           if len(v) == len(self.datablock.positions.data)}
+        except KeyError:
+            # happens if layers do not exist: just pass
+            pass
 
-    def peep(self, viewer=None, **kwargs):
-        super().peep(viewer=viewer)
+
+class Old:
+    def draw(self, viewer=None, **kwargs):
+        super().draw(viewer=viewer)
         for depictor in self.depictors:
-            depictor.peep(viewer=self.viewer, **kwargs)
+            depictor.draw(viewer=self.viewer, **kwargs)
+
+    def update():
+        pass
 
     @property
     def particles(self):

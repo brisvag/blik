@@ -119,3 +119,10 @@ def df_split_on_volume(df: pd.DataFrame):
     """
     grouped = df.groupby('rlnMicrographName')
     return {name: _df for name, _df in grouped}
+
+
+def df_to_dict_of_arrays(df):
+    """
+    transform a dataframe into dictionary of numpy arrays
+    """
+    return {key: df[key].to_numpy() for key in df}
