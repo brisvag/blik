@@ -4,6 +4,9 @@ import mrcfile
 import numpy as np
 import pandas as pd
 import starfile
+from eulerangles import matrix2euler
+
+from peepingtom.utils.helpers.linalg_helper import align_vectors
 
 test_data = Path('.')
 
@@ -21,12 +24,32 @@ with mrcfile.new(vol_path, overwrite=True) as mrc:
     mrc.set_data(vol)
 
 # relion star file simple
-z = np.linspace(0, 6 * np.pi, 50)
+# coords for helix along z
+z = np.linspace(0.1, 6 * np.pi+0.1, 50) # TODO: investigate why this doesn't work with 0.1
 x = 3 * np.sin(z)
 y = 3 * np.cos(z)
-rot = np.zeros(z.shape[0])
-tilt = np.linspace(0, 180, z.shape[0])
-psi = rot
+
+# backbone along center of helix
+x_backbone = np.zeros(z.shape[0])
+y_backbone = np.zeros(z.shape[0])
+
+xyz = np.column_stack([x, y, z])
+xyz_backbone = np.column_stack([x_backbone, y_backbone, z])
+
+# calculate directions from backbone to points on helix
+orientation_vectors = xyz - xyz_backbone
+orientation_vectors_normalised = orientation_vectors / np.linalg.norm(orientation_vectors, axis=1).reshape((-1, 1))
+unit_z = np.array([0, 0, 1])
+
+# calculate rotation matrices to align unit vector to direction away from backbone
+rotation_matrices = align_vectors(unit_z, orientation_vectors_normalised)
+
+# calculate eulers from rotation matrices
+euler_angles_rln = matrix2euler(rotation_matrices, target_axes='ZYZ', target_positive_ccw=True, target_intrinsic=True)
+
+rot = euler_angles_rln[:, 0]
+tilt = euler_angles_rln[:, 1]
+psi = euler_angles_rln[:, 2]
 
 star_info = {'rlnCoordinateX': x,
              'rlnCoordinateY': y,

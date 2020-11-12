@@ -5,3 +5,8 @@ star_file = '../test_data/relion_3d_simple.star'
 crates = star_to_crates(star_file)
 p = Peeper(crates)
 p.peep()
+
+# Access properties of layers
+p.crates[0][0].depictor.layers[0].size = 1
+p.crates[0][0].depictor.layers[1].length = 3
+# p.viewer.layers[0]
