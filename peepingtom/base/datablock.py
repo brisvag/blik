@@ -390,7 +390,7 @@ class OrientationBlock(DataBlock):
                 'Unit vector generation for objects with greater than 3 spatial dimensions is not implemented')
 
         # initialise unit vector array
-        unit_vector = np.zeros(self.ndim_spatial)
+        unit_vector = np.zeros((self.ndim_spatial, 1))
 
         # get index which corresponds to axis for vector
         axis_to_index = {'x': 0,
@@ -400,7 +400,7 @@ class OrientationBlock(DataBlock):
 
         # construct unit vector
         if dim_idx <= self.ndim_spatial:
-            unit_vector[dim_idx] = 1
+            unit_vector[dim_idx, 0] = 1
         else:
             raise ValueError(f"You asked for axis {axis} from a {self.ndim_spatial}d object")
 

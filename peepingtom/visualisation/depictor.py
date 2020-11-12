@@ -83,8 +83,13 @@ class ParticleDepictor(Depictor):
                                          **pkwargs)
         self.layers.append(p_layer)
 
-        napari_vectors = np.stack([self.datablock.positions.zyx,
-                                   self.datablock.orientations.oriented_vectors('y')],
+        # get positions and 'projection' vectors
+        positions = self.datablock.positions.zyx
+        unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors('z').reshape((-1, 3))
+        unit_z_rotated_order_zyx = unit_z_rotated_order_xyz[:, ::-1]
+
+        napari_vectors = np.stack([positions,
+                                   unit_z_rotated_order_zyx],
                                   # TODO: fix why x and not z!
                                   axis=1)
         v_layer = self.viewer.add_vectors(napari_vectors,
