@@ -424,7 +424,7 @@ class ImageBlock(DataBlock):
     this is controlled by the ndim_spatial attribute
     """
 
-    def __init__(self, data, ndim_spatial: int, pixel_size=None, **kwargs):
+    def __init__(self, data, ndim_spatial: int = 3, pixel_size=1, **kwargs):
         super().__init__(**kwargs)
         self.data = data
         self.ndim_spatial = ndim_spatial

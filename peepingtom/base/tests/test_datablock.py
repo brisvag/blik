@@ -171,7 +171,7 @@ def test_orientationblock_unit_vectors():
     assert_array_equal(z, unit_z)
 
 
-# test data for Particles
+# test data for ParticleBlock
 # positions
 z = np.linspace(0, 6*np.pi, 50)
 x = 3 * np.sin(z)

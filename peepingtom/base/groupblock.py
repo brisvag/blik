@@ -16,7 +16,7 @@ class GroupBlock(DataBlock):
         self.children = children
 
 
-class Particles(GroupBlock):
+class ParticleBlock(GroupBlock):
     def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: PropertyBlock, **kwargs):
         self.positions = positions
         self.orientations = orientations
@@ -45,7 +45,7 @@ class Particles(GroupBlock):
     def orientations(self, orientations):
         if not isinstance(orientations, OrientationBlock):
             raise TypeError(f"""Expected type 'OrientationBlock' but got '{type(orientations)}' instead.
-Construct an OrientationBlock or instantiate your Particles using one of the 'from_*' factory methods of this class
+Construct an OrientationBlock or instantiate your ParticleBlock using one of the 'from_*' factory methods of this class
 """)
         self._orientations = orientations
 
@@ -62,7 +62,7 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, mode: str, **kwargs):
         """
-        Create a Particles instance from a DataFrame in a known mode
+        Create a ParticleBlock instance from a DataFrame in a known mode
 
         This method expects the DataFrame to already represent the desired subset of particles in the case where data
         contains particles from multiple volumes

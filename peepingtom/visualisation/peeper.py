@@ -5,8 +5,8 @@ main class that interfaces visualization, analysis and data manipulation
 import napari
 from seaborn import color_palette
 
-from ..base import DataBlock, Particles
-from .depictor import ParticleDepictor
+from ..base import DataBlock, ImageBlock, ParticleBlock
+from .depictor import ImageDepictor, ParticleDepictor
 
 from .._io import star_to_crates
 from ..analysis.particles import classify_radial_distance
@@ -25,9 +25,14 @@ class Peeper:
                 self._init_depictor(datablock)
 
     def _init_depictor(self, datablock):
-        if isinstance(datablock, Particles):
-            # don't store a reference to it, cause it hooks itself on the datablock
-            ParticleDepictor(datablock, peeper=self)
+        depictor_type = {
+            ParticleBlock: ParticleDepictor,
+            ImageBlock: ImageDepictor,
+        }
+        for b_type, d_type in depictor_type.items():
+            if isinstance(datablock, b_type):
+                # don't store a reference to it, cause it hooks itself on the datablock
+                d_type(datablock, peeper=self)
 
     @property
     def datablocks(self):
@@ -80,7 +85,7 @@ class Peeper:
             # vectors_4d = np.concatenate(vectors_4d)
             # for k, v in add_data_4d.items():
                 # add_data_4d[k] = np.concatenate(v)
-            # self.stack_particles = Particles(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
+            # self.stack_particles = ParticleBlock(coords_4d, vectors_4d, parent=self.parent, name='stack', properties=add_data_4d)
 
     def peep(self, viewer=None):
         # create a new viewer if necessary
