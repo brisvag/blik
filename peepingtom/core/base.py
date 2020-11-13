@@ -9,6 +9,7 @@ class DataBlock(ABC):
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
+
     def __init__(self, parent=None):
         self.parent = parent
 
@@ -120,11 +121,13 @@ class DataBlock(ABC):
             return NotImplemented
 
 
-class GroupBlock(DataBlock):
+class GroupBlock(DataBlock, ABC):
     """
     unites multiple DataBlocks to construct a complex data object
     """
+
     def __init__(self, children):
+        super().__init__()
         self.children = children
 
 
@@ -132,6 +135,7 @@ class DataCrate(list):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
+
     def __and__(self, other):
         if isinstance(other, DataCrate):
             return DataCrate(self + other)
@@ -149,7 +153,7 @@ class DataCrate(list):
             return NotImplemented
 
     def __repr__(self):
-        return f'<DataCrate{[db for db in self]}>'
+        return f'<DataCrate{[datablock for datablock in self]}>'
 
 
 class Model(ABC):
