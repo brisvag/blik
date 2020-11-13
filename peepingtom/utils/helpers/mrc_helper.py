@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Union, List
 import mrcfile
 
-from .iterable_helper import simplify
 
+#FIXME remove simplify!
 
 def data_from_header(*files: Union[List[str, Path], str, Path], attributes: List[str, Path]):
     """

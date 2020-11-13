@@ -1,12 +1,13 @@
 """
 Tests for DataBlock objects
 """
+
 import pytest
 import numpy as np
 from eulerangles import euler2matrix
 from numpy.testing import assert_array_equal
 
-from ..datablock import DataBlock, PointBlock, LineBlock, OrientationBlock
+from peepingtom.core import DataBlock, PointBlock, LineBlock, OrientationBlock
 
 
 def test_datablock():
@@ -171,7 +172,7 @@ def test_orientationblock_unit_vectors():
     assert_array_equal(z, unit_z)
 
 
-# test data for Particles
+# test data for ParticleBlock
 # positions
 z = np.linspace(0, 6*np.pi, 50)
 x = 3 * np.sin(z)

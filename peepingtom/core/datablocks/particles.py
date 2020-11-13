@@ -2,21 +2,15 @@
 GroupBlock objects are groups of DataBlock objects which are commonly viewed and manipulated together
 """
 import pandas as pd
-import numpy as np
 
-from .datablock import DataBlock, PointBlock, OrientationBlock, PropertyBlock
+from ..base import GroupBlock
+from .points import PointBlock
+from .orientations import OrientationBlock
+from .properties import PropertyBlock
 from ..utils.helpers import dataframe_helper
 
 
-class GroupBlock(DataBlock):
-    """
-    unites multiple DataBlocks to construct a complex data object
-    """
-    def __init__(self, children):
-        self.children = children
-
-
-class Particles(GroupBlock):
+class ParticleBlock(GroupBlock):
     def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: PropertyBlock, **kwargs):
         self.positions = positions
         self.orientations = orientations
@@ -45,7 +39,7 @@ class Particles(GroupBlock):
     def orientations(self, orientations):
         if not isinstance(orientations, OrientationBlock):
             raise TypeError(f"""Expected type 'OrientationBlock' but got '{type(orientations)}' instead.
-Construct an OrientationBlock or instantiate your Particles using one of the 'from_*' factory methods of this class
+Construct an OrientationBlock or instantiate your ParticleBlock using one of the 'from_*' factory methods of this class
 """)
         self._orientations = orientations
 
@@ -62,7 +56,7 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, mode: str, **kwargs):
         """
-        Create a Particles instance from a DataFrame in a known mode
+        Create a ParticleBlock instance from a DataFrame in a known mode
 
         This method expects the DataFrame to already represent the desired subset of particles in the case where data
         contains particles from multiple volumes
@@ -85,3 +79,11 @@ Construct an OrientationBlock or instantiate your Particles using one of the 'fr
         orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
         properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
         return cls(positions, orientations, properties, **kwargs)
+
+    @staticmethod
+    def _merge(db1, db2):
+        return NotImplemented
+
+    @staticmethod
+    def _stack(db1, db2):
+        return NotImplemented
