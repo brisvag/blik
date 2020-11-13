@@ -6,3 +6,4 @@ starfile
 eulerangles
 dynamotable
 mrcfile
+seaborn

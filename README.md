@@ -1,3 +1,3 @@
-## peepingtom
+## PeepingTom
 
-Visualising cryo-electron tomography data
+Peeping at Tomography data made easy.
