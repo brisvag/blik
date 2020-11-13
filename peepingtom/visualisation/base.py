@@ -6,19 +6,21 @@ from types import MethodType
 
 from napari.components.layerlist import LayerList
 
-from ..base import GroupBlock
+from ..core import GroupBlock
 
 
 class Depictor:
     """
     Depictors are DataBlock or GroupBlock wrappers able to display their contents in napari
     """
+
     def __init__(self, datablock, peeper, name='NoName'):
         self.datablock = datablock
 
         # this hack updates DataBlock.updated() with a new version that calls Depictor.update()
         def updated_patch(slf):
             slf.depictor.update()
+
         if isinstance(self.datablock, GroupBlock):
             for child in self.datablock.children:
                 child.updated = MethodType(updated_patch, child)
