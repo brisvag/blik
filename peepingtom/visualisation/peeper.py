@@ -51,7 +51,7 @@ class Peeper:
 
     @property
     def particles(self):
-        return self._get_datablocks(Particles)
+        return self._get_datablocks(ParticleBlock)
 
     def _make_stack(self):
         pass
