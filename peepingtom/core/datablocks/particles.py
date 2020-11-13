@@ -2,18 +2,12 @@
 GroupBlock objects are groups of DataBlock objects which are commonly viewed and manipulated together
 """
 import pandas as pd
-import numpy as np
 
-from .datablock import DataBlock, PointBlock, OrientationBlock, PropertyBlock
+from ..base import GroupBlock
+from .points import PointBlock
+from .orientations import OrientationBlock
+from .properties import PropertyBlock
 from ..utils.helpers import dataframe_helper
-
-
-class GroupBlock(DataBlock):
-    """
-    unites multiple DataBlocks to construct a complex data object
-    """
-    def __init__(self, children):
-        self.children = children
 
 
 class ParticleBlock(GroupBlock):
@@ -85,3 +79,11 @@ Construct an OrientationBlock or instantiate your ParticleBlock using one of the
         orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
         properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
         return cls(positions, orientations, properties, **kwargs)
+
+    @staticmethod
+    def _merge(db1, db2):
+        return NotImplemented
+
+    @staticmethod
+    def _stack(db1, db2):
+        return NotImplemented
