@@ -83,14 +83,14 @@ class DataBlock(ABC):
     @staticmethod
     def _merge(db1, db2):
         """
-        merge two datablocks into one, within the same ndimensional space
+        merge two datablocks of the same type into one, within the same ndimensional space
         """
         return NotImplemented
 
     @staticmethod
     def _stack(db1, db2):
         """
-        stack two datablock into one. If dimensionality is the same,
+        stack two Datablock objects into one. If dimensionality is the same,
         add a new dimension; otherwise, use the next available dimension for the
         datablock with smaller dimensionality
         """
