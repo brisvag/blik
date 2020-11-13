@@ -8,7 +8,7 @@ import numpy as np
 import napari
 from napari.components.layerlist import LayerList
 
-from ..base import DataBlock, GroupBlock, PointBlock, LineBlock, OrientationBlock, ImageBlock, Particles
+from ..base import DataBlock, GroupBlock, PointBlock, LineBlock, OrientationBlock, ImageBlock, ParticleBlock
 
 
 class Depictor:
@@ -65,6 +65,19 @@ class Depictor:
 
     def update(self):
         pass
+
+
+class ImageDepictor(Depictor):
+    def draw(self, image_kwargs={}, **kwargs):
+        super().draw(**kwargs)
+
+        ikwargs = {}
+        ikwargs.update(image_kwargs)
+
+        layer = self.viewer.add_image(self.datablock.data,
+                                      name=f'{self.name} - image',
+                                      **ikwargs)
+        self.layers.append(layer)
 
 
 class ParticleDepictor(Depictor):
@@ -125,7 +138,7 @@ class Old:
 
     @property
     def particles(self):
-        return [p for p in self.data_block if isinstance(p, Particles)]
+        return [p for p in self.data_block if isinstance(p, ParticleBlock)]
 
     @property
     def particle_positions(self):
@@ -154,8 +167,3 @@ class Old:
     def image_shapes(self):
         return [i.shape for i in self.image_data]
 
-    # def show(self)
-        # layer = self.viewer.add_image(image.data,
-                                        # name=f'{self.name} - image',
-                                        # **ikwargs)
-        # self.layers.append(layer)

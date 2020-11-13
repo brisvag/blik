@@ -6,7 +6,7 @@ import mrcfile
 import starfile
 from eulerangles import euler2matrix
 
-from ..base import Particles, DataCrate
+from ..base import ImageBlock, ParticleBlock, DataCrate
 from .utils import _path, guess_name
 
 
@@ -20,7 +20,7 @@ def read_images(image_paths, sort=True):
     if sort:
         image_paths = sorted(image_paths)
     for image in image_paths:
-        data.append(mrcfile.open(_path(image)).data)
+        data.append(ImageBlock(mrcfile.open(_path(image)).data))
     return data
 
 
@@ -52,7 +52,7 @@ def starfiles_to_particles(starfile_paths, sort=True, data_columns=None, mode='r
 
     particles = []
     for raw_name, star_df in dataframes:
-        particles.append(Particles.from_dataframe(star_df, mode, data_columns=data_columns))
+        particles.append(ParticleBlock.from_dataframe(star_df, mode, data_columns=data_columns))
     return particles
 
 
@@ -78,7 +78,7 @@ def starfiles_to_particles(starfile_paths, sort=True, data_columns=None, mode='r
         # # denormalize if necessary (not index column) by multiplying by the shape of images
         # if coords.max() <= 1:
             # coords *= image.shape
-        # data_block.append(Particles(coords, ori_matrix, properties=properties))
+        # data_block.append(ParticleBlock(coords, ori_matrix, properties=properties))
         # blocks.append(data_block)
 
     # return blocks
@@ -92,3 +92,7 @@ def star_to_crates(star_files: Union[Path, str, list], data_columns: List[str] =
     particles = starfiles_to_particles(starfile_paths=star_files, data_columns=data_columns, mode=mode)
 
     return [DataCrate([particle]) for particle in particles]
+
+
+def images_to_crates(image_paths):
+    return [DataCrate([image]) for image in read_images(image_paths)]
