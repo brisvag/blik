@@ -1,5 +1,5 @@
 from seaborn import color_palette
-from .._io import star_to_crates
+from ..io_ import star_to_crates
 from ..analysis.particles import classify_radial_distance
 from ..peeper import Peeper
 
