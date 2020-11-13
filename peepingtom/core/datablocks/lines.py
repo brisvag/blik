@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import splprep, splev
 
-from ..points import PointBlock
+from .points import PointBlock
 
 
 class LineBlock(PointBlock):

@@ -4,8 +4,8 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ..base import DataBlock, ImageBlock, ParticleBlock
-from .depictor import ImageDepictor, ParticleDepictor
+from ..core import DataBlock, ImageBlock, ParticleBlock
+from ..visualisation.depictors import ImageDepictor, ParticleDepictor
 
 
 class Peeper:

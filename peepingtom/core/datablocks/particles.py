@@ -3,11 +3,11 @@ GroupBlock objects are groups of DataBlock objects which are commonly viewed and
 """
 import pandas as pd
 
-from ..base import GroupBlock
-from .points import PointBlock
 from .orientations import OrientationBlock
+from .points import PointBlock
 from .properties import PropertyBlock
-from ..utils.helpers import dataframe_helper
+from ..base import GroupBlock
+from ...utils.helpers import dataframe_helper
 
 
 class ParticleBlock(GroupBlock):
