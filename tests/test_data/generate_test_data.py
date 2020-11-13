@@ -6,7 +6,8 @@ import pandas as pd
 import starfile
 from eulerangles import matrix2euler
 
-from peepingtom.utils.helpers.linalg_helper import align_vectors
+from peepingtom.utils.helpers import align_vectors
+
 
 test_data = Path('.')
 

@@ -1,12 +1,13 @@
 """
 Tests for DataBlock objects
 """
+
 import pytest
 import numpy as np
 from eulerangles import euler2matrix
 from numpy.testing import assert_array_equal
 
-from ..datablock import DataBlock, PointBlock, LineBlock, OrientationBlock
+from peepingtom.core import DataBlock, PointBlock, LineBlock, OrientationBlock
 
 
 def test_datablock():
