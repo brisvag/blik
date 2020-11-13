@@ -29,16 +29,32 @@ class MySlider(QDoubleSlider):
         super().setMinimum(int(value * self.PRECISION))
 
 
-def make_property_slider(layer, property_name=None, condition='>'):
-    min_value = layer.properties[property_name].min()
-    max_value = layer.properties[property_name].max()
-    @magicgui(auto_call=True,
-              cutoff={'widget_type': MySlider, 'minimum': min_value, 'maximum': max_value, 'fixedWidth': 400})
-    def magic_slider(cutoff: float) -> Layer:
-        sele = conditions[condition](layer.properties[property_name], cutoff)
-        return [(layer.data[sele], {'name': 'result', 'size': 2 }, 'points')]
+def make_property_sliders(points_layer, property_names=None, conditions=None, output_layer='result'):
+    p_min = []
+    p_max = []
+    for prop in property_names:
+        p_min.append(points_layer.properties[prop].min())
+        p_max.append(points_layer.properties[prop].max())
+    magic_kwargs = {}
+    for prop, min_value, max_value in zip(property_names, p_min, p_max):
+        magic_kwargs[prop] = {'widget_type': MySlider, 'minimum': min_value, 'maximum': max_value}
+    # programmatically generate function call
+    func_lines = []
+    func_lines.append(f'def magic_slider(layer: Points, {": float, ".join(property_names)}: float) -> Layer:')
+    func_lines.append(f'sele = np.ones(len(layer.data))')
+    for prop, cond in zip(property_names, conditions):
+        func_lines.append(f'sele_{prop} = layer.properties["{prop}"] {cond} {prop}')
+        func_lines.append(f'sele = np.logical_and(sele, sele_{prop})')
+    func_lines.append(f'return [(layer.data[sele], {{"name": "{output_layer}", "size": 3 }}, "points")]')
+    func = '\n    '.join(func_lines)
+    # make the widget
+    exec(func, globals())
+    slider_gui = magicgui(magic_slider, auto_call=True, **magic_kwargs)
 
-    return magic_slider.Gui()
+    return slider_gui.Gui()
+
+def make_categorical_checkboxes(layer, property_name=None):
+    pass
 
 
 class Axis(Enum):
