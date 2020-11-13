@@ -3,10 +3,13 @@ main class that interfaces visualization, analysis and data manipulation
 """
 
 import napari
+from seaborn import color_palette
 
 from ..base import DataBlock, Particles
 from .depictor import ParticleDepictor
 
+from .._io import star_to_crates
+from ..analysis.particles import classify_radial_distance
 
 class Peeper:
     """
@@ -27,8 +30,23 @@ class Peeper:
             ParticleDepictor(datablock, peeper=self)
 
     @property
+    def datablocks(self):
+        return [datablock for crate in self.crates for datablock in crate]
+
+    @property
     def depictors(self):
-        return [datablock.depictor for crate in self.crates for datablock in crate]
+        return [datablock.depictor for datablock in self.datablocks]
+
+    @property
+    def depictor_layers(self):
+        return [depictor.layers for depictor in self.depictors]
+
+    def _get_datablocks(self, block_type=DataBlock):
+        return [datablock for datablock in self.datablocks if isinstance(datablock, block_type)]
+
+    @property
+    def particles(self):
+        return self._get_datablocks(Particles)
 
     def _make_stack(self):
         pass
@@ -84,9 +102,24 @@ class Peeper:
         for depictor in self.depictors:
             depictor.hide()
 
-    def loop_crate():
-        pass
-
     def update(self):
         for crate in self.crate:
             crate.update()
+
+
+class ParticlePeeper(Peeper):
+    """
+    Peeper class for particles only
+    """
+    def __init__(self, star_paths, **kwargs):
+        crates = star_to_crates(star_paths)
+        super().__init__(crates, **kwargs)
+
+    def classify_radial_distance(self, **kwargs):
+        n_classes = kwargs.get('n_classes', 5)
+        class_tag = kwargs.get('class_tag', 'class_radial')
+        colors = [list(x) for x in color_palette('colorblind', n_colors=n_classes)]
+        classify_radial_distance(self.particles)
+        for d in self.depictors:
+            d.point_layer.face_color = class_tag
+            d.point_layer.face_color_cycle = colors

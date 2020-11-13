@@ -99,11 +99,11 @@ class ParticleDepictor(Depictor):
 
     @property
     def point_layer(self):
-        return self.layers[f'{self.name} - particle positions']
+        return self.layers[0]
 
     @property
     def vector_layer(self):
-        return self.layers[f'{self.name} - particle orientations']
+        return self.layers[1]
 
     def update(self):
         try:

@@ -28,14 +28,6 @@ class DataBlock(ABC):
     def _data_setter(self, data):
         self.data = data
 
-    def __getitem__(self, item):
-        return self.data[item]
-
-    def __setitem__(self, item, value):
-        self.data.__setitem__(item, value)
-        # signal that data was updated
-        self.updated()
-
     def dump(self):
         kwargs = {}
         kwargs.update({'parent': self.parent})
@@ -48,6 +40,16 @@ class DataBlock(ABC):
         When needed, it can be patched with additional callbacks.
         """
 
+    def __getitem__(self, item):
+        return self.data.__getitem__(item)
+
+    def __setitem__(self, item, value):
+        self.data.__setitem__(item, value)
+        # signal that data was updated
+        self.updated()
+
+    def __contains__(self, item):
+        return self.data.__contains__(item)
 
 class PointBlock(DataBlock):
     """
