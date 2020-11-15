@@ -63,7 +63,7 @@ class LineBlock(PointBlock):
 
     def evaluate_spline(self, n_points):
         u = np.linspace(0, 1, n_points, endpoint=True)
-        return np.asarray(splev(u, tck=self._tck))
+        return np.asarray(splev(u, tck=self._tck)).T
 
     @property
     def smooth_backbone(self):

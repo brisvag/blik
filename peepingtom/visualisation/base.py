@@ -11,7 +11,7 @@ from ..core import GroupBlock
 
 class Depictor:
     """
-    Depictors are DataBlock or GroupBlock wrappers able to display their contents in napari
+    Depictors are DataBlock or GroupBlock wrappers able controlling depiction of their contents in napari
     """
 
     def __init__(self, datablock, peeper, name='NoName'):
