@@ -126,8 +126,28 @@ class PointBlock(DataBlock):
     def zyx(self):
         return self._get_named_dimension('zyx')
 
+    def as_zyx(self):
+        """
+        return the data with the order of the spatial axes switched to 'zyx' style rather than 'xyz'
+
+        Returns
+        -------
+        correct view into data no matter the dimensionality
+        """
+        if self.ndim == 1:
+            return self.data
+        elif self.ndim == 2:
+            # invert last two axes
+            return self.data[:, ::-1]
+        else:
+            # invert only last three axes, leave leading dimensions intact
+            data = np.empty_like(self.data)
+            data[:, :-3] = self.data[:, :-3]
+            data[:, -3:] = self.data[:, -1:-4:-1]
+            return data
+
     @property
-    def n(self):
+    def n_points(self):
         return len(self)
 
     @property

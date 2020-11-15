@@ -4,8 +4,8 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ..core import DataBlock, ImageBlock, ParticleBlock
-from ..visualisation.depictors import ImageDepictor, ParticleDepictor
+from ..core import DataBlock, ImageBlock, ParticleBlock, LineBlock
+from ..visualisation.depictors import ImageDepictor, ParticleDepictor, LineDepictor
 
 
 class Peeper:
@@ -25,6 +25,7 @@ class Peeper:
         depictor_type = {
             ParticleBlock: ParticleDepictor,
             ImageBlock: ImageDepictor,
+            LineBlock: LineDepictor
         }
         for b_type, d_type in depictor_type.items():
             if isinstance(datablock, b_type):

@@ -41,7 +41,7 @@ class LineBlock(PointBlock):
     def spline_smoothing_parameter(self, value):
         self._spline_smoothing_parameter = float(value)
 
-    def fit_spline(self, dimensions: str, smoothing_parameter=None):
+    def fit_spline(self, dimensions: str = 'xyz', smoothing_parameter=None):
         """
 
         Parameters
