@@ -9,7 +9,7 @@ class LineDepictor(Depictor):
         pkwargs = {'size': 3,
                    'face_color': 'cornflowerblue'}
         bkwargs = {'edge_color': 'orangered',
-                     'edge_width': 1}
+                   'edge_width': 1}
 
         # update keyword arguments from passed dictionaries
         pkwargs.update(point_kwargs)
