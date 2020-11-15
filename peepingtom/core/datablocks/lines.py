@@ -70,7 +70,6 @@ class LineBlock(PointBlock):
         return self._generate_smooth_backbone()
 
     def _generate_smooth_backbone(self, n_points=1000):
-        u = np.linspace(0, 1, n_points, endpoint=True)
         self.fit_spline()
         return self.evaluate_spline(n_points)
 
