@@ -26,7 +26,8 @@ with mrcfile.new(vol_path, overwrite=True) as mrc:
 
 # relion star file simple
 # coords for helix along z
-z = np.linspace(0.1, 6 * np.pi+0.1, 50) # TODO: investigate why this doesn't work with 0.1
+z = np.linspace(0.1, 6 * np.pi+0.1, 50)
+# TODO: investigate why this doesn't work with 0
 x = 3 * np.sin(z)
 y = 3 * np.cos(z)
 
