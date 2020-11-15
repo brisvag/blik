@@ -1,0 +1,44 @@
+from ..base import Depictor
+
+
+class LineDepictor(Depictor):
+    def draw(self, point_kwargs={}, backbone_kwargs={}, **kwargs):
+        super.draw(**kwargs)
+
+        # default keyword arguments
+        pkwargs = {'size': 3,
+                   'color': 'cornflowerblue'}
+        bkwargs = {'edge_color': 'orangered',
+                     'edge_width': 1}
+
+        # update keyword arguments from passed dictionaries
+        pkwargs.update(point_kwargs)
+        bkwargs.update(backbone_kwargs)
+
+        # get smooth backbone data in napari expected order
+        backbone_data = self.datablock.smooth_backbone[:, ::-1]
+
+        # draw points layer in napari
+        points = self.viewer.add_points(self.datablock.data,
+                                        name=f'{self.name} - points',
+                                        properties=self.datablock.properties.data,
+                                        **pkwargs)
+
+        self.layers.append(points)
+
+        # draw line as path in napari
+        backbone = self.viewer.add_shapes(backbone_data,
+                                          method='path',
+                                          name=f'{self.name} - line',
+                                          properties=self.datablock.properties.data,
+                                          **bkwargs)
+
+        self.layers.append(backbone)
+
+    @property
+    def points_layer(self):
+        return self.layers[0]
+
+    @property
+    def backbone_layer(self):
+        return self.layers[1]

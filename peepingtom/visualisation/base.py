@@ -26,6 +26,7 @@ class Depictor:
                 child.updated = MethodType(updated_patch, child)
                 child.depictor = self
         self.datablock.updated = MethodType(updated_patch, self.datablock)
+
         # hook self to the datablock
         self.datablock.depictor = self
 
