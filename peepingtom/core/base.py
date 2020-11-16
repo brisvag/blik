@@ -9,7 +9,6 @@ class DataBlock(ABC):
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
-
     def __init__(self, parent=None):
         self.parent = parent
 
@@ -105,6 +104,7 @@ class DataBlock(ABC):
     def __iadd__(self, other):
         if isinstance(other, type(self)):
             self.data = self._merge(self, other)
+            return self
         else:
             return NotImplemented
 
@@ -117,6 +117,7 @@ class DataBlock(ABC):
     def __ior__(self, other):
         if isinstance(other, type(self)):
             self.data = self._stack(self, other)
+            return self
         else:
             return NotImplemented
 
@@ -125,17 +126,70 @@ class GroupBlock(DataBlock, ABC):
     """
     unites multiple DataBlocks to construct a complex data object
     """
-
-    def __init__(self, children):
-        super().__init__()
+    def __init__(self, children, parent=None):
+        super().__init__(parent=parent)
         self.children = children
+
+    def __newlike__(self, *args, **kwargs):
+        cls = type(self)
+        return cls(parent=self.parent, *args, **kwargs)
+
+    @staticmethod
+    def _merge(db1, db2):
+        blocks = []
+        for block1, block2 in zip(db1.children, db2.children):
+            blocks.append(block1 + block2)
+        return blocks
+
+    @staticmethod
+    def _stack(db1, db2):
+        blocks = []
+        for block1, block2 in zip(db1.children, db2.children):
+            blocks.append(block1 | block2)
+        return blocks
+
+    @staticmethod
+    def _imerge(db1, db2):
+        for block1, block2 in zip(db1.children, db2.children):
+            block1 += block2
+
+    @staticmethod
+    def _istack(db1, db2):
+        for block1, block2 in zip(db1.children, db2.children):
+            block1 |= block2
+
+    def __add__(self, other):
+        if isinstance(other, type(self)):
+            return self.__newlike__(*self._merge(self, other))
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, type(self)):
+            self._imerge(self, other)
+            return self
+        else:
+            return NotImplemented
+
+    def __or__(self, other):
+        if isinstance(other, type(self)):
+            return self.__newlike__(*self._stack(self, other))
+        else:
+            return NotImplemented
+
+    def __ior__(self, other):
+        if isinstance(other, type(self)):
+            self._istack(self, other)
+            return self
+        else:
+            return NotImplemented
+
 
 
 class DataCrate(list):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
-
     def __and__(self, other):
         if isinstance(other, DataCrate):
             return DataCrate(self + other)
@@ -147,8 +201,10 @@ class DataCrate(list):
     def __iand__(self, other):
         if isinstance(other, DataCrate):
             self += other
+            return self
         elif isinstance(other, DataBlock):
             self += DataCrate([other])
+            return self
         else:
             return NotImplemented
 

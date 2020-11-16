@@ -35,6 +35,10 @@ class OrientationBlock(DataBlock):
         return rotation_matrices
 
     @property
+    def n(self):
+        return len(self)
+
+    @property
     def ndim(self):
         """
         as ndim for numpy arrays, but treating the vectors as a sparse matrix.
@@ -137,3 +141,6 @@ class OrientationBlock(DataBlock):
     @staticmethod
     def _stack(db1, db2):
         return np.concatenate([db1.data, db2.data])
+
+    def __repr__(self):
+        return f'<{type(self).__name__}({self.n}, {self.ndim})>'

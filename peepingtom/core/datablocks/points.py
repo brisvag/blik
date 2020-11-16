@@ -198,3 +198,6 @@ class PointBlock(DataBlock):
             idx = max(a[:, 0])
             b_nplus1 = np.concatenate([np.ones((b.n, 1)) * (idx + 1), b.data], axis=1)
             return np.concatenate([a, b_nplus1])
+
+    def __repr__(self):
+        return f'<{type(self).__name__}{self.data.shape}>'
