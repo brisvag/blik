@@ -1,7 +1,10 @@
+import numpy as np
 from seaborn import color_palette
+
 from ...io_ import data_star_to_crate
 from ...analysis.particles import classify_radial_distance
 from ..peeper import Peeper
+from ...core import LineBlock, PointBlock
 
 
 class ParticlePeeper(Peeper):
@@ -20,3 +23,12 @@ class ParticlePeeper(Peeper):
         for d in self.depictors:
             d.point_layer.face_color = class_tag
             d.point_layer.face_color_cycle = colors
+
+    def pick_points(self, crate_idx=0):
+        new_layer = self.viewer.add_points(np.zeros((1,3)))
+        new_layer.selected_data = {0}
+        new_layer.remove_selected()
+        pointblock = PointBlock([])
+        self.crates[crate_idx].append(pointblock)
+        self._init_depictor(pointblock)
+        pointblock.depictor.layers.append(new_layer)

@@ -4,23 +4,13 @@ Gui elements for interfacing peeper and napari
 
 from enum import Enum
 from math import floor, ceil
+from inspect import signature
 
 import numpy as np
 import napari
 from magicgui import magicgui
 from magicgui._qt.widgets import QDoubleSlider, QDataComboBox
 from napari.layers import Layer, Image, Points
-
-colors = {
-    'transparent': [0, 0, 0, 0],
-    'white': [1, 1, 1, 1],
-    'black': [0, 0, 0, 1]
-}
-
-conditions = {
-    '>': lambda x, y: x >= y,
-    '<': lambda x, y: x <= y
-}
 
 
 class MySlider(QDoubleSlider):
@@ -29,15 +19,30 @@ class MySlider(QDoubleSlider):
         super().setMinimum(int(value * self.PRECISION))
 
 
-def make_property_sliders(points_layer, property_names=None, conditions=None, output_layer='result'):
-    p_min = []
-    p_max = []
-    for prop in property_names:
-        p_min.append(points_layer.properties[prop].min())
-        p_max.append(points_layer.properties[prop].max())
+def make_property_widgets(points_layer, property_conditions: dict, output_layer='result'):
+    """
+    conditions can be strings such as:
+        - >, <, >=, <=: continuous properties, make sliders to set the cutoff
+        - 'check': property is categorical, make a checkbox for each unique value
+    """
+    continuous_props = []
+    categorical_props = {}
+    for p, c in property_conditions.items():
+        if c == 'check':
+            categorical_props.append(p)
+        else:
+            continuous_props[p] = {}
+            continuous_props[p]['cond'] = c
+
+    for prop, params in continuous_props:
+        params['min'] = points_layer.properties[prop].min()
+        params['max'] = points_layer.properties[prop].max()
+
     magic_kwargs = {}
-    for prop, min_value, max_value in zip(property_names, p_min, p_max):
-        magic_kwargs[prop] = {'widget_type': MySlider, 'minimum': min_value, 'maximum': max_value}
+    for prop, params in continuous_props:
+        magic_kwargs[prop] = {'widget_type': MySlider, 'minimum': params['min'], 'maximum': params['max']}
+    for prop in categorical_props:
+        pass
     # programmatically generate function call
     func_lines = []
     func_lines.append(f'def magic_slider(layer: Points, {": float, ".join(property_names)}: float) -> Layer:')
@@ -53,7 +58,9 @@ def make_property_sliders(points_layer, property_names=None, conditions=None, ou
 
     return slider_gui.Gui()
 
-def make_categorical_checkboxes(layer, property_name=None):
+
+@magicgui(auto_call=True)
+def checkboxes(class_0: True, class_1: True, class_2: True):
     pass
 
 
