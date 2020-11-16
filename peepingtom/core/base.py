@@ -19,6 +19,7 @@ class DataBlock(ABC):
     @data.setter
     def data(self, *args):
         self._data = self._data_setter(*args)
+        self.updated()
 
     @abstractmethod
     def _data_setter(self, data):

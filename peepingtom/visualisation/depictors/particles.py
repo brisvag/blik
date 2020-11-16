@@ -1,22 +1,21 @@
 import numpy as np
+from napari.layers import Points, Vectors
 
 from ..base import Depictor
 
 
 class ParticleDepictor(Depictor):
-    def draw(self, point_kwargs={}, vector_kwargs={}, **kwargs):
-        super().draw(**kwargs)
-
+    def make_layers(self, point_kwargs={}, vector_kwargs={}):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 
         pkwargs.update(point_kwargs)
         vkwargs.update(vector_kwargs)
 
-        p_layer = self.viewer.add_points(self.datablock.positions.zyx,
-                                         name=f'{self.name} - particle positions',
-                                         properties=self.datablock.properties.data,
-                                         **pkwargs)
+        p_layer = Points(self.datablock.positions.zyx,
+                         name=f'{self.name} - particle positions',
+                         properties=self.datablock.properties.data,
+                         **pkwargs)
         self.layers.append(p_layer)
 
         # get positions and 'projection' vectors
@@ -27,9 +26,9 @@ class ParticleDepictor(Depictor):
         napari_vectors = np.stack([positions,
                                    unit_z_rotated_order_zyx],
                                   axis=1)
-        v_layer = self.viewer.add_vectors(napari_vectors,
-                                          name=f'{self.name} - particle orientations',
-                                          **vkwargs)
+        v_layer = Vectors(napari_vectors,
+                          name=f'{self.name} - particle orientations',
+                          **vkwargs)
         self.layers.append(v_layer)
 
     @property

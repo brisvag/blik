@@ -1,10 +1,10 @@
+from napari.layers import Points, Shapes
+
 from ..base import Depictor
 
 
 class LineDepictor(Depictor):
-    def draw(self, point_kwargs={}, backbone_kwargs={}, **kwargs):
-        super().draw(**kwargs)
-
+    def make_layers(self, point_kwargs={}, backbone_kwargs={}):
         # default keyword arguments
         pkwargs = {'size': 3,
                    'face_color': 'cornflowerblue'}
@@ -22,17 +22,17 @@ class LineDepictor(Depictor):
         backbone_data = self.datablock.smooth_backbone[:, ::-1]
 
         # draw points layer in napari
-        points = self.viewer.add_points(points_data,
-                                        name=f'{self.name} - points',
-                                        **pkwargs)
+        points = Points(points_data,
+                        name=f'{self.name} - points',
+                        **pkwargs)
 
         self.layers.append(points)
 
         # draw line as path in napari
-        backbone = self.viewer.add_shapes(backbone_data,
-                                          shape_type='path',
-                                          name=f'{self.name} - line',
-                                          **bkwargs)
+        backbone = Shapes(backbone_data,
+                          shape_type='path',
+                          name=f'{self.name} - line',
+                          **bkwargs)
 
         self.layers.append(backbone)
 
@@ -43,3 +43,12 @@ class LineDepictor(Depictor):
     @property
     def backbone_layer(self):
         return self.layers[1]
+
+    def update(self):
+        backbone_data = self.datablock.smooth_backbone[:, ::-1]
+        self.backbone_layer.selected_data = {0}
+        self.backbone_layer.remove_selected()
+        self.backbone_layer.add(backbone_data, shape_type='path')
+
+    def push_changes(self, event):
+        self.datablock.data = self.points_layer.data[:, ::-1]

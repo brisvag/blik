@@ -48,10 +48,6 @@ class Peeper:
     def _get_datablocks(self, block_type=DataBlock):
         return [datablock for datablock in self.datablocks if isinstance(datablock, block_type)]
 
-    @property
-    def particles(self):
-        return self._get_datablocks(ParticleBlock)
-
     def peep(self, viewer=None):
         # create a new viewer if necessary
         if viewer is not None:
