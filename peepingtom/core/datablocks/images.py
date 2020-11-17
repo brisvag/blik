@@ -36,3 +36,6 @@ class ImageBlock(DataBlock):
     @staticmethod
     def _stack(db1, db2):
         return np.stack([db1.data, db2.data])
+
+    def __repr__(self):
+        return f'<{type(self).__name__}{self.data.shape}>'

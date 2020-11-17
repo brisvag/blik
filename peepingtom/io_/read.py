@@ -9,7 +9,7 @@ from .utils import _path
 from ..core import ImageBlock, ParticleBlock, DataCrate
 
 
-def read_mrc_file(image_path: Union[str, List[str], Path], sort=True) -> List[ImageBlock]:
+def read_mrc_file(image_paths: Union[str, List[str], Path], sort=True) -> List[ImageBlock]:
     """
     read any number of mrc files and return as a list of ImageBlock objects
 
@@ -22,12 +22,12 @@ def read_mrc_file(image_path: Union[str, List[str], Path], sort=True) -> List[Im
     -------
 
     """
-    if not isinstance(image_path, list):
-        image_paths = [image_path]
+    if not isinstance(image_paths, list):
+        image_paths = [image_paths]
     if sort:
-        image_paths = sorted(image_path)
+        image_paths = sorted(image_paths)
 
-    data = [ImageBlock(mrcfile.open(_path(image)).data) for image in image_path]
+    data = [ImageBlock(mrcfile.open(_path(image)).data) for image in image_paths]
     return data
 
 
@@ -53,7 +53,7 @@ def _read_relion_star_file(star_path) -> List[Tuple[str, pd.DataFrame]]:
         return [(str(star_path), df)]
 
 
-def data_star_to_particleblock(star_path: Union[str, List[str], Path], sort=True, data_columns=None, mode='relion') -> \
+def data_star_to_particleblock(star_paths: Union[str, List[str], Path], sort=True, data_columns=None, mode='relion') -> \
         List[ParticleBlock]:
     """
     read a number of STAR files and return a list of ParticleBlock objects
@@ -69,13 +69,13 @@ def data_star_to_particleblock(star_path: Union[str, List[str], Path], sort=True
     -------
 
     """
-    if not isinstance(star_path, list):
-        star_path = [star_path]
+    if not isinstance(star_paths, list):
+        star_paths = [star_paths]
     if sort:
-        star_path = sorted(star_path)
+        star_paths = sorted(star_paths)
 
     dataframes = []
-    for star in star_path:
+    for star in star_paths:
         dataframes.extend(_read_relion_star_file(star))
 
     particles = [ParticleBlock.from_dataframe(star_df, data_columns=data_columns, mode=mode)

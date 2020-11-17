@@ -1,7 +1,9 @@
 from seaborn import color_palette
+
 from ...io_ import data_star_to_crate
 from ...analysis.particles import classify_radial_distance
 from ..peeper import Peeper
+from ...core import ParticleBlock
 
 
 class ParticlePeeper(Peeper):
@@ -11,6 +13,10 @@ class ParticlePeeper(Peeper):
     def __init__(self, star_paths, **kwargs):
         crates = data_star_to_crate(star_paths)
         super().__init__(crates, **kwargs)
+
+    @property
+    def particles(self):
+        return self._get_datablocks(ParticleBlock)
 
     def classify_radial_distance(self, **kwargs):
         n_classes = kwargs.get('n_classes', 5)

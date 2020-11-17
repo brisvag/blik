@@ -1,6 +1,3 @@
-"""
-GroupBlock objects are groups of DataBlock objects which are commonly viewed and manipulated together
-"""
 import pandas as pd
 
 from .orientations import OrientationBlock
@@ -80,10 +77,5 @@ Construct an OrientationBlock or instantiate your ParticleBlock using one of the
         properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
         return cls(positions, orientations, properties, **kwargs)
 
-    @staticmethod
-    def _merge(db1, db2):
-        return NotImplemented
-
-    @staticmethod
-    def _stack(db1, db2):
-        return NotImplemented
+    def __repr__(self):
+        return f'<{type(self).__name__}{self.positions.data.shape}>'
