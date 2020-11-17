@@ -1,7 +1,7 @@
 import numpy as np
 from eulerangles import euler2matrix
 
-from ..base import DataBlock
+from .base import DataBlock
 
 
 class OrientationBlock(DataBlock):

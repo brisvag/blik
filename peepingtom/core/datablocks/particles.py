@@ -3,7 +3,7 @@ import pandas as pd
 from .orientations import OrientationBlock
 from .points import PointBlock
 from .properties import PropertyBlock
-from ..base import GroupBlock
+from .base import GroupBlock
 from ...utils.helpers import dataframe_helper
 
 
