@@ -147,7 +147,7 @@ class PointBlock(DataBlock):
             return data
 
     @property
-    def n_points(self):
+    def n(self):
         return len(self)
 
     @property
