@@ -1,5 +1,6 @@
-from pathlib import Path
 import re
+from pathlib import Path
+
 
 def _path(path):
     """

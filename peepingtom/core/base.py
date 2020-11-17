@@ -19,6 +19,7 @@ class DataBlock(ABC):
     @data.setter
     def data(self, *args):
         self._data = self._data_setter(*args)
+        self.updated()
 
     @abstractmethod
     def _data_setter(self, data):
@@ -82,14 +83,14 @@ class DataBlock(ABC):
     @staticmethod
     def _merge(db1, db2):
         """
-        merge two datablocks into one, within the same ndimensional space
+        merge two datablocks of the same type into one, within the same ndimensional space
         """
         return NotImplemented
 
     @staticmethod
     def _stack(db1, db2):
         """
-        stack two datablock into one. If dimensionality is the same,
+        stack two Datablock objects into one. If dimensionality is the same,
         add a new dimension; otherwise, use the next available dimension for the
         datablock with smaller dimensionality
         """
@@ -104,6 +105,7 @@ class DataBlock(ABC):
     def __iadd__(self, other):
         if isinstance(other, type(self)):
             self.data = self._merge(self, other)
+            return self
         else:
             return NotImplemented
 
@@ -116,16 +118,73 @@ class DataBlock(ABC):
     def __ior__(self, other):
         if isinstance(other, type(self)):
             self.data = self._stack(self, other)
+            return self
         else:
             return NotImplemented
 
 
-class GroupBlock(DataBlock):
+class GroupBlock(DataBlock, ABC):
     """
     unites multiple DataBlocks to construct a complex data object
     """
-    def __init__(self, children):
+    def __init__(self, children, parent=None):
+        super().__init__(parent=parent)
         self.children = children
+
+    def __newlike__(self, *args, **kwargs):
+        cls = type(self)
+        return cls(parent=self.parent, *args, **kwargs)
+
+    @staticmethod
+    def _merge(db1, db2):
+        blocks = []
+        for block1, block2 in zip(db1.children, db2.children):
+            blocks.append(block1 + block2)
+        return blocks
+
+    @staticmethod
+    def _stack(db1, db2):
+        blocks = []
+        for block1, block2 in zip(db1.children, db2.children):
+            blocks.append(block1 | block2)
+        return blocks
+
+    @staticmethod
+    def _imerge(db1, db2):
+        for block1, block2 in zip(db1.children, db2.children):
+            block1 += block2
+
+    @staticmethod
+    def _istack(db1, db2):
+        for block1, block2 in zip(db1.children, db2.children):
+            block1 |= block2
+
+    def __add__(self, other):
+        if isinstance(other, type(self)):
+            return self.__newlike__(*self._merge(self, other))
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, type(self)):
+            self._imerge(self, other)
+            return self
+        else:
+            return NotImplemented
+
+    def __or__(self, other):
+        if isinstance(other, type(self)):
+            return self.__newlike__(*self._stack(self, other))
+        else:
+            return NotImplemented
+
+    def __ior__(self, other):
+        if isinstance(other, type(self)):
+            self._istack(self, other)
+            return self
+        else:
+            return NotImplemented
+
 
 
 class DataCrate(list):
@@ -143,13 +202,15 @@ class DataCrate(list):
     def __iand__(self, other):
         if isinstance(other, DataCrate):
             self += other
+            return self
         elif isinstance(other, DataBlock):
             self += DataCrate([other])
+            return self
         else:
             return NotImplemented
 
     def __repr__(self):
-        return f'<DataCrate{[db for db in self]}>'
+        return f'<DataCrate{[datablock for datablock in self]}>'
 
 
 class Model(ABC):

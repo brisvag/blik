@@ -41,7 +41,7 @@ class LineBlock(PointBlock):
     def spline_smoothing_parameter(self, value):
         self._spline_smoothing_parameter = float(value)
 
-    def fit_spline(self, dimensions: str, smoothing_parameter=None):
+    def fit_spline(self, dimensions: str = 'xyz', smoothing_parameter=None):
         """
 
         Parameters
@@ -63,14 +63,13 @@ class LineBlock(PointBlock):
 
     def evaluate_spline(self, n_points):
         u = np.linspace(0, 1, n_points, endpoint=True)
-        return np.asarray(splev(u, tck=self._tck))
+        return np.asarray(splev(u, tck=self._tck)).T
 
     @property
     def smooth_backbone(self):
         return self._generate_smooth_backbone()
 
     def _generate_smooth_backbone(self, n_points=1000):
-        u = np.linspace(0, 1, n_points, endpoint=True)
         self.fit_spline()
         return self.evaluate_spline(n_points)
 

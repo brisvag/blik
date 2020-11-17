@@ -24,7 +24,7 @@ def test_lineblock_fit_spline():
 
 
 def test_lineblock_evaluate_spline():
-    # test LineBlock.fit_spline
+    # test LineBlock.evaluate_spline
     block = LineBlock(line_3d)
     block.fit_spline('xyz')
     for n in [10, 100, 1000]:
