@@ -83,7 +83,7 @@ def data_star_to_particleblock(star_paths: Union[str, List[str], Path], sort=Tru
     return particles
 
 
-def data_star_to_crate(star_path: Union[Path, str, List[str], List[Path]], data_columns: List[str] = [], mode='relion') -> \
+def data_star_to_crate(star_paths: Union[Path, str, List[str], List[Path]], data_columns: List[str] = [], mode='relion') -> \
         List[DataCrate]:
     """
     Reads an arbitrary number of _data.star type STAR files into a list of DataCrate objects
@@ -98,7 +98,7 @@ def data_star_to_crate(star_path: Union[Path, str, List[str], List[Path]], data_
     -------
 
     """
-    particles = data_star_to_particleblock(star_path=star_path, data_columns=data_columns, mode=mode)
+    particles = data_star_to_particleblock(star_paths=star_paths, data_columns=data_columns, mode=mode)
     crates = [DataCrate([particle]) for particle in particles]
     return crates
 
