@@ -1,8 +1,9 @@
 from .base import DataBlock, GroupBlock, DataCrate
-from .images import ImageBlock
-from .lines import LineBlock
-from .orientations import OrientationBlock
-from .particles import ParticleBlock
-from .points import PointBlock
-from .properties import PropertyBlock
-from .spheres import SphereBlock
+from .imageblock import ImageBlock
+from .lineblock import LineBlock
+from .meshblock import MeshBlock
+from .orientationblock import OrientationBlock
+from .particleblock import ParticleBlock
+from .pointblock import PointBlock
+from .propertyblock import PropertyBlock
+from .sphereblock import SphereBlock
