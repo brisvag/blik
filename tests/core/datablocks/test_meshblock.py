@@ -30,7 +30,7 @@ def test_meshblock_instantiation():
 def test_triangles():
     block = MeshBlock(vertices, faces)
     triangles = block.triangles
-    assert triangles.shape[1] == faces.shape[0]
+    assert triangles.shape[0] == faces.shape[0]
     assert triangles.shape[2] == 3
 
 
