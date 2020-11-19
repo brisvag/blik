@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..base import DataBlock
+from .base import DataBlock
 
 
 class PointBlock(DataBlock):
@@ -147,7 +147,7 @@ class PointBlock(DataBlock):
             return data
 
     @property
-    def n_points(self):
+    def n(self):
         return len(self)
 
     @property

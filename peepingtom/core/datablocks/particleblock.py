@@ -1,9 +1,9 @@
 import pandas as pd
 
+from .base import GroupBlock
 from .orientationblock import OrientationBlock
 from .pointblock import PointBlock
 from .propertyblock import PropertyBlock
-from ..base import GroupBlock
 from ...utils.helpers import dataframe_helper
 
 
