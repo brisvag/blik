@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..base import DataBlock
+from .base import DataBlock
 
 
 class SphereBlock(DataBlock):

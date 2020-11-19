@@ -1,4 +1,4 @@
-from ..base import DataBlock
+from .base import DataBlock
 
 
 class PropertyBlock(DataBlock):
