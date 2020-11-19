@@ -128,6 +128,13 @@ class GroupBlock(DataBlock, ABC):
     unites multiple DataBlocks to construct a complex data object
     """
     def __init__(self, children, parent=None):
+        """
+
+        Parameters
+        ----------
+        children :
+        parent
+        """
         super().__init__(parent=parent)
         self.children = children
 
