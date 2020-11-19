@@ -5,7 +5,7 @@ Tests for DataBlock objects
 import pytest
 
 from peepingtom.core import DataBlock, GroupBlock, DataCrate, Model
-from .datablocks.blocks import pointblock, lineblock, orientationblock
+from .blocks import pointblock, lineblock, orientationblock
 
 
 def test_datablock():
@@ -36,14 +36,6 @@ def test_datablock():
         subblock = SubBlock()
 
 
-def test_datablock_merge():
-    block = DataBlock._merge(pointblock, pointblock)
-
-def test_datablock_stack():
-    block = DataBlock._stack(pointblock, pointblock)
-    assert block.data.shape == (pointblock.data.shape[0] * 2, pointblock.data.shape[1])
-
-
 def test_groupblock():
     # assert that GroupBlock class cannot be instantiated directly
     with pytest.raises(TypeError):
@@ -54,10 +46,6 @@ def test_datacrate():
     # assert that datacrate instantiates properly
     crate = DataCrate([pointblock, lineblock, orientationblock])
     assert isinstance(crate, DataCrate)
-
-    # assert that datacrate cannot be made from non DataBlock objects
-    with pytest.raises(TypeError):
-        crate = DataCrate(['test', 1, False])
 
 
 def test_model():
