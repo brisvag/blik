@@ -135,11 +135,11 @@ class OrientationBlock(DataBlock):
         return kwargs
 
     @staticmethod
-    def _merge_data(self, datablocks):
+    def _merge_data(datablocks):
         return np.concatenate([db.data for db in datablocks])
 
     @staticmethod
-    def _stack_data(self, datablocks):
+    def _stack_data(datablocks):
         return np.concatenate([db.data for db in datablocks])
 
     def __repr__(self):
