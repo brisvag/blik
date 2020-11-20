@@ -7,3 +7,4 @@ from .particleblock import ParticleBlock
 from .pointblock import PointBlock
 from .propertyblock import PropertyBlock
 from .sphereblock import SphereBlock
+from .dipoleblock import DipoleBlock
