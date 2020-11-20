@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from ...utils.containers import AttributedList
+
 
 class BaseBlock(ABC):
     """
@@ -240,7 +242,7 @@ class MultiBlock(BaseBlock, ABC):
             block.data = data
 
 
-class DataCrate(list):
+class DataCrate(AttributedList):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """

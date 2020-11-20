@@ -4,8 +4,9 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ..core import DataBlock, ImageBlock, ParticleBlock, PointBlock, LineBlock
-from .depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
+from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
+from ...utils.containers import AttributedList
 
 
 class Peeper:
@@ -36,18 +37,18 @@ class Peeper:
 
     @property
     def datablocks(self):
-        return [datablock for crate in self.crates for datablock in crate]
+        return AttributedList(datablock for crate in self.crates for datablock in crate)
 
     @property
     def depictors(self):
-        return [datablock.depictor for datablock in self.datablocks]
+        return self.datablocks.depictor
 
     @property
     def depictor_layers(self):
-        return [depictor.layers for depictor in self.depictors]
+        return self.depictors.layers
 
-    def _get_datablocks(self, block_type=DataBlock):
-        return [datablock for datablock in self.datablocks if isinstance(datablock, block_type)]
+    def _get_datablocks(self, block_type):
+        return AttributedList(datablock for datablock in self.datablocks if isinstance(datablock, block_type))
 
     def peep(self, viewer=None):
         # create a new viewer if necessary
@@ -62,13 +63,10 @@ class Peeper:
         except RuntimeError:
             self.viewer = napari.Viewer(ndisplay=3)
 
-        for depictor in self.depictors:
-            depictor.draw()
+        self.depictors.draw()
 
     def hide(self):
-        for depictor in self.depictors:
-            depictor.hide()
+        self.depictors.hide()
 
     def update(self):
-        for depictor in self.depictors:
-            depictor.update()
+        self.depictors.update()

@@ -2,7 +2,7 @@ from seaborn import color_palette
 
 from ...io_ import data_star_to_crate
 from ...analysis.particles import classify_radial_distance
-from ..peeper import Peeper
+from .base import Peeper
 from ...core import ParticleBlock
 
 
