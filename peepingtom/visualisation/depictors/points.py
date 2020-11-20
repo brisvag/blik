@@ -1,4 +1,4 @@
-from ..base import Depictor
+from .base import Depictor
 
 
 class PointDepictor(Depictor):

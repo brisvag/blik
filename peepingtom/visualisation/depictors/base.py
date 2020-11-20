@@ -3,9 +3,9 @@ Depictor interfaces data classes to napari
 """
 
 from napari.components.layerlist import LayerList
-from napari.layers import Points
+from napari.layers import Points, Image, Vectors, Shapes
 
-from ..core import MultiBlock
+from ...core import MultiBlock
 
 
 class Depictor:
@@ -30,10 +30,21 @@ class Depictor:
     def viewer(self):
         return self.peeper.viewer
 
+    def make_image_layer(self, image, layer_name, **kwargs):
+        layer = Image(image, layer_name, **kwargs)
+        return layer
+
     def make_points_layer(self, points, layer_name, **kwargs):
         layer = Points(points, layer_name, **kwargs)
         return layer
 
+    def make_vectors_layer(self, vectors, layer_name, **kwargs):
+        layer = Vectors(vectors, layer_name, **kwargs)
+        return layer
+
+    def make_shapes_layer(self, shape, shape_type, layer_name, **kwargs):
+        layer = Shapes(shape, shape_type, layer_name, **kwargs)
+        return layer
 
     def make_layers(self):
         """
