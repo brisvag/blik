@@ -4,7 +4,7 @@ Tests for DataBlock objects
 
 import pytest
 
-from peepingtom.core import DataBlock, GroupBlock, DataCrate, Model
+from peepingtom.core import DataBlock, MultiBlock, DataCrate, Model
 from ...test_data.blocks import pointblock, lineblock, orientationblock
 
 
@@ -37,9 +37,9 @@ def test_datablock():
 
 
 def test_groupblock():
-    # assert that GroupBlock class cannot be instantiated directly
+    # assert that MultiBlock class cannot be instantiated directly
     with pytest.raises(TypeError):
-        block = GroupBlock()
+        block = MultiBlock()
 
 
 def test_datacrate():

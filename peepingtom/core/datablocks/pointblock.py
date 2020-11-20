@@ -14,23 +14,19 @@ class PointBlock(DataBlock):
     3d : (x. y, z)
     nd : (..., x, y, z)
     """
-    def __init__(self, points, **kwargs):
-        super().__init__(**kwargs)
-        self.data = points
-
-    def _data_setter(self, points):
+    def _data_setter(self, data):
         # cast as array
-        points = np.asarray(points)
+        data = np.asarray(data)
 
         # coerce 1d point to 2d
-        if points.ndim == 1:
-            points = points.reshape((1, len(points)))
+        if data.ndim == 1:
+            data = data.reshape((1, len(data)))
 
-        # check ndim of points
-        if not points.ndim == 2:
-            raise ValueError("points object should have ndim == 2")
+        # check ndim of data
+        if not data.ndim == 2:
+            raise ValueError("data object should have ndim == 2")
 
-        return points
+        return data
 
     @property
     def ndim(self):
@@ -208,5 +204,5 @@ class PointBlock(DataBlock):
             previous = current
         return stacked
 
-    def __repr__(self):
-        return f'<{type(self).__name__}{self.data.shape}>'
+    def __shape_repr__(self):
+        return f'{self.data.shape}'

@@ -18,19 +18,19 @@ class LineBlock(PointBlock):
 
     Polarity (direction) of lines, lines start from 0 to n along the 0th dimension
     """
-    def __init__(self, line, **kwargs):
+    def __init__(self, data, spline_smoothing_parameter=0,  **kwargs):
         """
 
         Parameters
         ----------
-        line : array-like objects of shape (n, m) representing n ordered points in m spatial dimensions
+        data : array-like objects of shape (n, m) representing n ordered points in m spatial dimensions
         kwargs : kwargs are passed to DataBlock object
 
         """
-        super().__init__(points=line, **kwargs)
+        super().__init__(data, **kwargs)
 
         # initialise attributes related to spline fitting
-        self.spline_smoothing_parameter = 0
+        self.spline_smoothing_parameter = spline_smoothing_parameter
         self._tck = None
 
     @property

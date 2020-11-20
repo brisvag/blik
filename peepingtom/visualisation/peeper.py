@@ -28,10 +28,11 @@ class Peeper:
             PointBlock: PointDepictor,
             LineBlock: LineDepictor,
         }
-        for b_type, d_type in depictor_type.items():
-            if isinstance(datablock, b_type):
-                # don't store a reference to it, cause it hooks itself on the datablock
-                d_type(datablock, peeper=self)
+        try:
+            # don't store a reference to it, cause it hooks itself on the datablock
+            depictor_type[type(datablock)](datablock, peeper=self)
+        except KeyError:
+            raise TypeError(f'cannot find a Depictor for datablock of type {type(datablock)}')
 
     @property
     def datablocks(self):

@@ -10,12 +10,11 @@ class ImageBlock(DataBlock):
     """
 
     def __init__(self, data, pixel_size=1, **kwargs):
-        super().__init__(**kwargs)
-        self.data = data
+        super().__init__(data, **kwargs)
         self.pixel_size = pixel_size
 
     def _data_setter(self, image: np.ndarray):
-        return image
+        return np.array(image)
 
     @property
     def pixel_size(self):
@@ -37,5 +36,5 @@ class ImageBlock(DataBlock):
     def _stack_data(datablocks):
         return np.stack([db.data for db in datablocks])
 
-    def __repr__(self):
-        return f'<{type(self).__name__}{self.data.shape}>'
+    def __shape_repr__(self):
+        return f'{self.data.shape}'

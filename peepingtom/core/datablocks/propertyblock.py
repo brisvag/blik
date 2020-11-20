@@ -5,17 +5,17 @@ class PropertyBlock(DataBlock):
     """
     PropertyBlock is a simple dictionary wrapper for arbitrary data
     """
-    def __init__(self, properties, **kwargs):
-        super().__init__(**kwargs)
-        self.data = properties
-
-    def _data_setter(self, properties):
-        return properties
-
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'properties': self.data})
-        return kwargs
+    def _data_setter(self, data):
+        return dict(data)
 
     def items(self):
         return self.data.items()
+
+    @staticmethod
+    def _merge_data(datablocks):
+        # TODO: this is probably gonna break
+        return {k: v for db in datablocks for k, v in db.items()}
+
+    @staticmethod
+    def _stack_data(datablocks):
+        return {}

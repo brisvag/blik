@@ -7,48 +7,12 @@ from .propertyblock import PropertyBlock
 from ...utils.helpers import dataframe_helper
 
 
-class ParticleBlock(GroupBlock):
+class ParticleBlock(MultiBlock):
     def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: PropertyBlock, **kwargs):
-        self.positions = positions
-        self.orientations = orientations
-        self.properties = properties
-        super().__init__(children=[self.positions, self.orientations, self.properties], **kwargs)
-        self.data = self.positions
-
-    def _data_setter(self, positions):
-        self._data = positions
-
-    @property
-    def positions(self):
-        return self._positions
-
-    @positions.setter
-    def positions(self, positions):
-        if not isinstance(positions, PointBlock):
-            positions = PointBlock(positions)
-        self._positions = positions
-
-    @property
-    def orientations(self):
-        return self._orientations
-
-    @orientations.setter
-    def orientations(self, orientations):
-        if not isinstance(orientations, OrientationBlock):
-            raise TypeError(f"""Expected type 'OrientationBlock' but got '{type(orientations)}' instead.
-Construct an OrientationBlock or instantiate your ParticleBlock using one of the 'from_*' factory methods of this class
-""")
-        self._orientations = orientations
-
-    @property
-    def properties(self):
-        return self._properties
-
-    @properties.setter
-    def properties(self, properties):
-        if not isinstance(properties, PropertyBlock):
-            properties = PropertyBlock(properties)
-        self._properties = properties
+        self.positions = PointBlock(positions)
+        self.orientations = OrientationBlock(orientations)
+        self.properties = PropertyBlock(properties)
+        super().__init__(blocks=[self.positions, self.orientations, self.properties], **kwargs)
 
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, mode: str, **kwargs):
@@ -77,5 +41,5 @@ Construct an OrientationBlock or instantiate your ParticleBlock using one of the
         properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
         return cls(positions, orientations, properties, **kwargs)
 
-    def __repr__(self):
-        return f'<{type(self).__name__}{self.positions.data.shape}>'
+    def __shape_repr__(self):
+        return f'{self.positions.data.shape}'

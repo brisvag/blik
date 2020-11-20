@@ -1,76 +1,46 @@
 from abc import ABC, abstractmethod
 
 
-class DataBlock(ABC):
+class BaseBlock(ABC):
     """
-    Base class for all simple DataBlock objects, data types which can be visualised by Depictors
-
-    DataBlock objects must implement a data setter method as _data_setter which returns the appropriately formatted data
-
-    Calling __getitem__ on a DataBlock will call __getitem__ on its data property
+    Base class for all simple and complex datablocks.
+    Provides common methods and easy type inference
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, depictor=None):
         self.parent = parent
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, *args):
-        self._data = self._data_setter(*args)
-        self.updated()
-
-    @abstractmethod
-    def _data_setter(self, data):
-        self.data = data
+        self.depictor = depictor
 
     def dump(self):
         kwargs = {}
-        kwargs.update({'parent': self.parent})
+        kwargs.update({'parent': self.parent, 'depictor': self.depictor})
         return kwargs
 
     def updated(self):
         """
-        this function is called when getitem is used.
-        It is used by other modules to know when the data was changed.
-        When needed, it can be patched with additional callbacks.
+        this function is called when the data changed in order to trigger callbacks
         """
+        if self.depictor is not None:
+            self.depictor.update()
 
     def __newlike__(self, *args, **kwargs):
+        # this makes sure that operators get the right output in case
+        # _merge or _stack return notimplemented
+        if args[0] is NotImplemented:
+            return NotImplemented
         cls = type(self)
         return cls(parent=self.parent, *args, **kwargs)
 
-    def __getitem__(self, key):
-        return self.data.__getitem__(key)
+    def __shape_repr__(self):
+        return ''
 
-    def __setitem__(self, key, value):
-        self.data.__setitem__(key, value)
-        # signal that data was updated
-        self.updated()
-
-    def __delitem__(self, key):
-        self.data.__delitem__(key)
-        # signal that data was updated
-        self.updated()
-
-    def __contains__(self, item):
-        return self.data.__contains__(item)
-
-    def __len__(self):
-        return self.data.__len__()
-
-    def __iter__(self):
-        return self.data.__iter__()
-
-    def __reversed__(self):
-        return self.data.__reversed__()
+    def __base_repr__(self):
+        return f'{type(self).__name__}{self.__shape_repr__()}'
 
     def __repr__(self):
-        return f'<{type(self).__name__}>'
+        return f'<{self.__base_repr__()}>'
 
     def __and__(self, other):
-        if isinstance(other, DataBlock):
+        if isinstance(other, BaseBlock):
             return DataCrate([self, other])
         elif isinstance(other, DataCrate):
             return DataCrate([self]) + other
@@ -103,25 +73,25 @@ class DataBlock(ABC):
         """
         merge several datablocks and return a `newlike` object
         """
-        return self.__newlike__(self._merge_data([self] + datablocks))
+        return NotImplemented
 
     def _stack(self, datablocks):
         """
         stack several datablocks and return a `newlike` object
         """
-        return self.__newlike__(self._stack_data([self] + datablocks))
+        return NotImplemented
 
     def _imerge(self, datablocks):
         """
         like merge, but inplace
         """
-        self.data = self._merge_data([self] + datablocks)
+        return NotImplemented
 
     def _istack(self, datablocks):
         """
         like stack, but inplace
         """
-        self.data = self._stack_data([self] + datablocks)
+        return NotImplemented
 
     def __add__(self, other):
         if isinstance(other, type(self)):
@@ -150,47 +120,124 @@ class DataBlock(ABC):
             return NotImplemented
 
 
-class GroupBlock(DataBlock, ABC):
+class DataBlock(BaseBlock, ABC):
     """
-    unites multiple DataBlocks to construct a complex data object
+    Base class for all simple DataBlock objects, data types which can be visualised by Depictors
+
+    DataBlock objects must implement a data setter method as _data_setter which returns the appropriately formatted data
+
+    Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
-    def __init__(self, children, parent=None):
-        super().__init__(parent=parent)
-        self.children = children
+    def __init__(self, data, **kwargs):
+        super().__init__(**kwargs)
+        self.data = data
 
-    def __newlike__(self, *args, **kwargs):
-        cls = type(self)
-        return cls(parent=self.parent, *args, **kwargs)
+    @property
+    def data(self):
+        return self._data
 
-    @staticmethod
-    def _merge_data(datablocks):
-        children_data = []
-        for children in zip(*[db.children for db in datablocks]):
-            children_data.append(children[0]._merge_data(children))
-        return children_data
+    @data.setter
+    def data(self, data):
+        if isinstance(data, type(self)):
+            self._data = data.data
+        else:
+            self._data = self._data_setter(data)
+        self.updated()
 
-    @staticmethod
-    def _stack_data(datablocks):
-        children_data = []
-        for children in zip(*[db.children for db in datablocks]):
-            children_data.append(children[0]._stack_data(children))
-        return children_data
+    @abstractmethod
+    def _data_setter(self, data):
+        return data
+
+    def dump(self):
+        kwargs = super().dump()
+        kwargs.update({'data': self.data})
+        return kwargs
+
+    def __getitem__(self, key):
+        return self.data.__getitem__(key)
+
+    def __setitem__(self, key, value):
+        self.data.__setitem__(key, value)
+        self.updated()
+
+    def __delitem__(self, key):
+        self.data.__delitem__(key)
+        self.updated()
+
+    def __contains__(self, item):
+        return self.data.__contains__(item)
+
+    def __len__(self):
+        return self.data.__len__()
+
+    def __iter__(self):
+        return self.data.__iter__()
+
+    def __reversed__(self):
+        return self.data.__reversed__()
 
     def _merge(self, datablocks):
-        return self.__newlike__(*self._merge_data([self] + datablocks))
+        return self.__newlike__(self._merge_data([self] + datablocks))
 
     def _stack(self, datablocks):
-        return self.__newlike__(*self._stack_data([self] + datablocks))
+        return self.__newlike__(self._stack_data([self] + datablocks))
 
     def _imerge(self, datablocks):
-        new_data = self._merge_data([self] + datablocks)
-        for child, data in zip(self.children, new_data):
-            child.data = data
+        self.data = self._merge_data([self] + datablocks)
 
     def _istack(self, datablocks):
-        new_data = self._stack_data([self] + datablocks)
-        for child, data in zip(self.children, new_data):
-            child.data = data
+        self.data = self._stack_data([self] + datablocks)
+
+
+class MultiBlock(BaseBlock, ABC):
+    """
+    unites multiple DataBlocks to construct a more complex data object
+    constructor requires a list of references to the component DataBlocks
+    in order to know where to find them
+    """
+    def __init__(self, blocks, **kwargs):
+        super().__init__(**kwargs)
+        self.blocks = blocks
+
+    @staticmethod
+    def _merge_data(multiblocks):
+        blocks_data = []
+        blocks_all = [mb.blocks for mb in multiblocks]
+        # cryptic loop example: datablock types in "blocks" (a, b, c),
+        # this loops through the list [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
+        # so this separates the components of a list of multiblocks into a lists of
+        # simple datablocks of the same type
+        for blocks_by_type in zip(*blocks_all):
+            blocks_data.append(blocks_by_type[0]._merge_data(blocks_by_type))
+        return blocks_data
+
+    @staticmethod
+    def _stack_data(multiblocks):
+        blocks_data = []
+        blocks_all = [mb.blocks for mb in multiblocks]
+        # cryptic loop example: datablock types in "blocks" (a, b, c),
+        # this loops through the list [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
+        # so this separates the components of a list of multiblocks into a lists of
+        # simple datablocks of the same type
+        for blocks_by_type in zip(*blocks_all):
+            blocks_data.append(blocks_by_type[0]._stack_data(blocks_by_type))
+        return blocks_data
+
+    def _merge(self, multiblocks):
+        return self.__newlike__(*self._merge_data([self] + multiblocks))
+
+    def _stack(self, multiblocks):
+        return self.__newlike__(*self._stack_data([self] + multiblocks))
+
+    def _imerge(self, multiblocks):
+        new_data = self._merge_data([self] + multiblocks)
+        for block, data in zip(self.blocks, new_data):
+            block.data = data
+
+    def _istack(self, multiblocks):
+        new_data = self._stack_data([self] + multiblocks)
+        for block, data in zip(self.blocks, new_data):
+            block.data = data
 
 
 class DataCrate(list):
@@ -216,4 +263,4 @@ class DataCrate(list):
             return NotImplemented
 
     def __repr__(self):
-        return f'<DataCrate{[datablock for datablock in self]}>'
+        return f'<DataCrate({len(self)}): [{", ".join([datablock.__base_repr__() for datablock in self])}]>'
