@@ -4,7 +4,7 @@ from ..base import Depictor
 
 
 class LineDepictor(Depictor):
-    def make_layers(self, point_kwargs={}, backbone_kwargs={}):
+    def init_layers(self, point_kwargs={}, backbone_kwargs={}):
         # default keyword arguments
         pkwargs = {'size': 3,
                    'face_color': 'cornflowerblue'}

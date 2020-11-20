@@ -65,7 +65,7 @@ class Peeper:
         for depictor in self.depictors:
             depictor.draw()
 
-    def hide(self, crates='all'):
+    def hide(self):
         for depictor in self.depictors:
             depictor.hide()
 

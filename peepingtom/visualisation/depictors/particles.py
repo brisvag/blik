@@ -5,7 +5,7 @@ from ..base import Depictor
 
 
 class ParticleDepictor(Depictor):
-    def make_layers(self, point_kwargs={}, vector_kwargs={}):
+    def init_layers(self, point_kwargs={}, vector_kwargs={}):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 

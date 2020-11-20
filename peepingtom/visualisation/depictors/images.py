@@ -4,7 +4,7 @@ from ..base import Depictor
 
 
 class ImageDepictor(Depictor):
-    def make_layers(self, image_kwargs={}, **kwargs):
+    def init_layers(self, image_kwargs={}, **kwargs):
         ikwargs = {}
         ikwargs.update(image_kwargs)
 

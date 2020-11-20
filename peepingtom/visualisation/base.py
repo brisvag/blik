@@ -30,6 +30,11 @@ class Depictor:
     def viewer(self):
         return self.peeper.viewer
 
+    def make_points_layer(self, points, layer_name, **kwargs):
+        layer = Points(points, layer_name, **kwargs)
+        return layer
+
+
     def make_layers(self):
         """
         generate the appropriate napari layers and store them
@@ -51,7 +56,7 @@ class Depictor:
         if viewer is None:
             viewer = self.viewer
         if remake_layers or not self.layers:
-            self.make_layers()
+            self.init_layers()
             self.connect_layers()
         for layer in self.layers:
             self.viewer.add_layer(layer)
@@ -81,4 +86,4 @@ class Depictor:
         """
 
     def __repr__(self):
-        return f'<{type(self).__name__}:{self.datablock}>'
+        return f'<{type(self).__name__}{self.datablock.__shape_repr__()}>'
