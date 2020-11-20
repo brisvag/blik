@@ -30,20 +30,20 @@ class Depictor:
     def viewer(self):
         return self.peeper.viewer
 
-    def make_image_layer(self, image, layer_name, **kwargs):
-        layer = Image(image, layer_name, **kwargs)
+    def make_image_layer(self, image, name, **kwargs):
+        layer = Image(image, name=name, **kwargs)
         return layer
 
-    def make_points_layer(self, points, layer_name, **kwargs):
-        layer = Points(points, layer_name, **kwargs)
+    def make_points_layer(self, points, name, **kwargs):
+        layer = Points(points, name=name, **kwargs)
         return layer
 
-    def make_vectors_layer(self, vectors, layer_name, **kwargs):
-        layer = Vectors(vectors, layer_name, **kwargs)
+    def make_vectors_layer(self, vectors, name, **kwargs):
+        layer = Vectors(vectors, name=name, **kwargs)
         return layer
 
-    def make_shapes_layer(self, shape, shape_type, layer_name, **kwargs):
-        layer = Shapes(shape, shape_type, layer_name, **kwargs)
+    def make_shapes_layer(self, shape, shape_type, name, **kwargs):
+        layer = Shapes(shape, shape_type=shape_type, name=name, **kwargs)
         return layer
 
     def make_layers(self):
