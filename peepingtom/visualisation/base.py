@@ -2,32 +2,24 @@
 Depictor interfaces data classes to napari
 """
 
-from types import MethodType
-
 from napari.components.layerlist import LayerList
+from napari.layers import Points
 
-from ..core import GroupBlock
+from ..core import MultiBlock
 
 
 class Depictor:
     """
-    Depictors are DataBlock or GroupBlock wrappers able controlling depiction of their contents in napari
+    Depictors are DataBlock or MultiBlock wrappers controlling depiction of their contents
     """
-    def __init__(self, datablock, peeper, name='NoName'):
+    def __init__(self, datablock, peeper=None, name='NoName'):
         self.datablock = datablock
-
-        # this hack updates DataBlock.updated() with a new version that calls Depictor.update()
-        def updated_patch(slf):
-            slf.depictor.update()
-
-        if isinstance(self.datablock, GroupBlock):
-            for child in self.datablock.children:
-                child.updated = MethodType(updated_patch, child)
-                child.depictor = self
-        self.datablock.updated = MethodType(updated_patch, self.datablock)
 
         # hook self to the datablock
         self.datablock.depictor = self
+        if isinstance(self.datablock, MultiBlock):
+            for block in self.datablock.blocks:
+                block.depictor = self
 
         self.name = name
         self.peeper = peeper
