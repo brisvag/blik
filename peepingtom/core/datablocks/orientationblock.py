@@ -135,12 +135,12 @@ class OrientationBlock(DataBlock):
         return kwargs
 
     @staticmethod
-    def _merge(db1, db2):
-        return np.concatenate([db1.data, db2.data])
+    def _merge_data(self, datablocks):
+        return np.concatenate([db.data for db in datablocks])
 
     @staticmethod
-    def _stack(db1, db2):
-        return np.concatenate([db1.data, db2.data])
+    def _stack_data(self, datablocks):
+        return np.concatenate([db.data for db in datablocks])
 
     def __repr__(self):
         return f'<{type(self).__name__}({self.n}, {self.ndim})>'

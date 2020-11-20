@@ -81,43 +81,70 @@ class DataBlock(ABC):
         return NotImplemented
 
     @staticmethod
-    def _merge(db1, db2):
+    def _merge_data(datablocks):
         """
-        merge two datablocks of the same type into one, within the same ndimensional space
+        convenience method to merge the data of several datablocks
+        of the same type into one, within the same ndimensional space
+        used by merge and imerge.
         """
         return NotImplemented
 
     @staticmethod
-    def _stack(db1, db2):
+    def _stack_data(datablocks):
         """
-        stack two Datablock objects into one. If dimensionality is the same,
-        add a new dimension; otherwise, use the next available dimension for the
-        datablock with smaller dimensionality
+        convenience method to stack the data of several datablocks into one.
+        If dimensionality is the same, add a new dimension; otherwise,
+        use the next available dimension for the datablocks with smaller dimensionality
+        used by stack and istack.
         """
         return NotImplemented
 
+    def _merge(self, datablocks):
+        """
+        merge several datablocks and return a `newlike` object
+        """
+        return self.__newlike__(self._merge_data([self] + datablocks))
+
+    def _stack(self, datablocks):
+        """
+        stack several datablocks and return a `newlike` object
+        """
+        return self.__newlike__(self._stack_data([self] + datablocks))
+
+    def _imerge(self, datablocks):
+        """
+        like merge, but inplace
+        """
+        self.data = self._merge_data([self] + datablocks)
+
+    def _istack(self, datablocks):
+        """
+        like stack, but inplace
+        """
+        self.data = self._stack_data([self] + datablocks)
+
     def __add__(self, other):
         if isinstance(other, type(self)):
-            return self.__newlike__(self._merge(self, other))
+            return self._merge([self, other])
         else:
             return NotImplemented
 
     def __iadd__(self, other):
         if isinstance(other, type(self)):
-            self.data = self._merge(self, other)
+            self._imerge([other])
             return self
         else:
             return NotImplemented
 
     def __or__(self, other):
         if isinstance(other, type(self)):
-            return self.__newlike__(self._stack(self, other))
+            return self._stack([self, other])
         else:
             return NotImplemented
 
     def __ior__(self, other):
         if isinstance(other, type(self)):
-            self.data = self._stack(self, other)
+            self._istack([other])
             return self
         else:
             return NotImplemented
@@ -136,55 +163,34 @@ class GroupBlock(DataBlock, ABC):
         return cls(parent=self.parent, *args, **kwargs)
 
     @staticmethod
-    def _merge(db1, db2):
-        blocks = []
-        for block1, block2 in zip(db1.children, db2.children):
-            blocks.append(block1 + block2)
-        return blocks
+    def _merge_data(datablocks):
+        children_data = []
+        for children in zip(*[db.children for db in datablocks]):
+            children_data.append(children[0]._merge_data(children))
+        return children_data
 
     @staticmethod
-    def _stack(db1, db2):
-        blocks = []
-        for block1, block2 in zip(db1.children, db2.children):
-            blocks.append(block1 | block2)
-        return blocks
+    def _stack_data(datablocks):
+        children_data = []
+        for children in zip(*[db.children for db in datablocks]):
+            children_data.append(children[0]._stack_data(children))
+        return children_data
 
-    @staticmethod
-    def _imerge(db1, db2):
-        for block1, block2 in zip(db1.children, db2.children):
-            block1 += block2
+    def _merge(self, datablocks):
+        return self.__newlike__(*self._merge_data([self] + datablocks))
 
-    @staticmethod
-    def _istack(db1, db2):
-        for block1, block2 in zip(db1.children, db2.children):
-            block1 |= block2
+    def _stack(self, datablocks):
+        return self.__newlike__(*self._stack_data([self] + datablocks))
 
-    def __add__(self, other):
-        if isinstance(other, type(self)):
-            return self.__newlike__(*self._merge(self, other))
-        else:
-            return NotImplemented
+    def _imerge(self, datablocks):
+        new_data = self._merge_data([self] + datablocks)
+        for child, data in zip(self.children, new_data):
+            child.data = data
 
-    def __iadd__(self, other):
-        if isinstance(other, type(self)):
-            self._imerge(self, other)
-            return self
-        else:
-            return NotImplemented
-
-    def __or__(self, other):
-        if isinstance(other, type(self)):
-            return self.__newlike__(*self._stack(self, other))
-        else:
-            return NotImplemented
-
-    def __ior__(self, other):
-        if isinstance(other, type(self)):
-            self._istack(self, other)
-            return self
-        else:
-            return NotImplemented
-
+    def _istack(self, datablocks):
+        new_data = self._stack_data([self] + datablocks)
+        for child, data in zip(self.children, new_data):
+            child.data = data
 
 
 class DataCrate(list):
