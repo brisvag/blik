@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .base import GroupBlock
+from .base import MultiBlock
 from .orientationblock import OrientationBlock
 from .pointblock import PointBlock
 from .propertyblock import PropertyBlock
