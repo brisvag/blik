@@ -9,7 +9,7 @@ class PointDepictor(Depictor):
         pkwargs.update(point_kwargs)
         vkwargs.update(vector_kwargs)
 
-        layer = self.make_points_layer(self.datablock.zyx,
+        layer = self.make_points_layer(self.datablock.as_zyx(),
                                        name=f'{self.name}',
                                        **pkwargs)
         self.layers.append(layer)

@@ -50,7 +50,7 @@ class Peeper:
     def _get_datablocks(self, block_type):
         return AttributedList(datablock for datablock in self.datablocks if isinstance(datablock, block_type))
 
-    def peep(self, viewer=None):
+    def _init_viewer(self, viewer=None):
         # create a new viewer if necessary
         if viewer is not None:
             self.viewer = viewer
@@ -63,6 +63,8 @@ class Peeper:
         except RuntimeError:
             self.viewer = napari.Viewer(ndisplay=3)
 
+    def peep(self, viewer=None):
+        self._init_viewer(viewer)
         self.depictors.draw()
 
     def hide(self):

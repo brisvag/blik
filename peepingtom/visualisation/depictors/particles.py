@@ -12,16 +12,19 @@ class ParticleDepictor(Depictor):
         pkwargs.update(point_kwargs)
         vkwargs.update(vector_kwargs)
 
-        p_layer = self.make_points_layer(self.datablock.positions.zyx,
+        p_layer = self.make_points_layer(self.datablock.positions.as_zyx(),
                                          name=f'{self.name} - particle positions',
                                          properties=self.datablock.properties.data,
                                          **pkwargs)
         self.layers.append(p_layer)
 
         # get positions and 'projection' vectors
-        positions = self.datablock.positions.zyx
+        positions = self.datablock.positions.as_zyx()
         unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors('z').reshape((-1, 3))
         unit_z_rotated_order_zyx = unit_z_rotated_order_xyz[:, ::-1]
+        # attach appropriate higher dimensions indeces to vectors
+        if self.datablock.positions.ndim > 3:
+            unit_z_rotated_order_zyx = np.concatenate([positions[:, :-3], unit_z_rotated_order_zyx], axis=1)
 
         napari_vectors = np.stack([positions, unit_z_rotated_order_zyx], axis=1)
         v_layer = self.make_vectors_layer(napari_vectors,

@@ -4,3 +4,5 @@ from .datablocks import DataBlock, GroupBlock, DataCrate, PointBlock, \
     ParticleBlock, MeshBlock
 from .datablocks.base import DataCrate
 from .models import Model
+
+from .functions import merge, stack
