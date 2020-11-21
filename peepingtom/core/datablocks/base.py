@@ -264,5 +264,8 @@ class DataCrate(AttributedList):
         else:
             return NotImplemented
 
+    def __base_repr__(self):
+        return f'{type(self).__name__}({len(self)})'
+
     def __repr__(self):
-        return f'<DataCrate({len(self)}): [{", ".join([datablock.__base_repr__() for datablock in self])}]>'
+        return f'<{self.__base_repr__()}: [{", ".join([datablock.__base_repr__() for datablock in self])}]>'

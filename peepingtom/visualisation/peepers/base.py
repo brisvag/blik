@@ -4,7 +4,7 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ...core import DataCrate, ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
 from ...utils.containers import AttributedList
 
@@ -15,7 +15,7 @@ class Peeper:
     expose the datasets to visualization and analysis tools
     """
     def __init__(self, crates, viewer=None):
-        self.crates = crates
+        self.crates = AttributedList(crates)
         self.viewer = viewer
         # initialise depictors
         for crate in crates:

@@ -8,7 +8,14 @@ class AttributedList(list):
             return super().__getattribute__(name)
         except AttributeError as e:
             try:
-                return AttributedList(item.__getattribute__(name) for item in self)
+                attrs = AttributedList()
+                for item in self:
+                    # this lets us go as deep as needed, if working with nested lists
+                    if isinstance(item, AttributedList):
+                        attrs.extend(sub_item.__getattribute__(name) for sub_item in item)
+                    else:
+                        attrs.append(item.__getattribute__(name))
+                return attrs
             except AttributeError:
                 raise e
 
