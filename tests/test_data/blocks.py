@@ -9,11 +9,11 @@ from peepingtom.utils.helpers import linalg_helper
 # points
 n = 100
 
-x = np.random.normal(0, 10, n)
-y = np.random.normal(0, 10, n)
-v = np.random.normal(0, 50, n)
+x = np.random.normal(0, 30, n)
+y = np.random.normal(0, 30, n)
+z = np.random.normal(0, 50, n)
 
-xyz = np.column_stack([x, y, v])
+xyz = np.column_stack([x, y, z])
 
 pointblock = PointBlock(xyz)
 

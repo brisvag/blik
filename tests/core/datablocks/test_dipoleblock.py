@@ -33,10 +33,9 @@ def test_dipoleblock_normalised_orientation_vector():
 def test_dipoleblock_rotation_matrices():
     block = DipoleBlock(test_centers, test_endpoints)
 
-
     # calculate rotation matrices to align test vector to each dipole in block
     vector_to_align = np.array([0, 2, 1]).reshape(1, 3, 1)
-    rotation_matrices = block.rotation_matrices(vector_to_align)
+    rotation_matrices = block.calculate_orientation_block(vector_to_align)
 
     # calculate vector to aligns new position after rotation by rotation_matrix
     aligned_vectors = rotation_matrices @ vector_to_align

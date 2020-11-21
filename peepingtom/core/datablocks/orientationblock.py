@@ -131,7 +131,7 @@ class OrientationBlock(DataBlock):
 
     def dump(self):
         kwargs = super().dump()
-        kwargs.update({'rotation_matrices': self.data})
+        kwargs.update({'orientation_block': self.data})
         return kwargs
 
     @staticmethod

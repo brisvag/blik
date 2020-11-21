@@ -2,6 +2,7 @@ import numpy as np
 
 from .base import GroupBlock
 from .pointblock import PointBlock
+from .orientationblock import OrientationBlock
 from peepingtom.utils.helpers.linalg_helper import align_vectors
 
 
@@ -49,7 +50,7 @@ class DipoleBlock(GroupBlock):
         else:
             return True
 
-    def rotation_matrices(self, vector: np.ndarray):
+    def calculate_orientation_block(self, vector: np.ndarray):
         """
         Parameters
         -------
@@ -58,9 +59,9 @@ class DipoleBlock(GroupBlock):
 
         Returns
         -------
-        rotation_matrices : (n, 3, 3) set of rotation matrices
-                            Rotation matrices premultiply 'vector' to align it with the
-                            orientation vectors of each dipole in this object
+        orientation_block : OrientationBlock
+                            DataBlock containint rotation matrices which premultiply 'vector' to
+                            align it with the orientation vectors of each dipole in this object
         """
         # only implemented for 3d rotations
         if self.centers.data.shape[1] != 3:
@@ -74,5 +75,5 @@ class DipoleBlock(GroupBlock):
 
         # calculate rotation matrices
         rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors)
-        return rotation_matrices
+        return OrientationBlock(rotation_matrices, parent=self)
 
