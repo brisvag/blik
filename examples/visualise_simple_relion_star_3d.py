@@ -1,8 +1,7 @@
-from peepingtom import data_star_to_crate, Peeper
+from peepingtom import data_star_to_crate, ParticlePeeper
 
-star_file = '../test_data/relion_3d_simple.star'
-crates = star_to_crates(star_file)
-p = Peeper(crates)
+star_file = '../tests/test_data/relion_3d_simple.star'
+p = ParticlePeeper(star_file)
 p.peep()
 
 # Access properties of layers

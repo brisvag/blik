@@ -12,20 +12,14 @@ class DipoleBlock(MultiBlock):
     defined by start points and end points
     """
 
-    def __init__(self, startpoints: PointBlock, endpoints: PointBlock):
+    def __init__(self, startpoints: PointBlock, endpoints: PointBlock, **kwargs):
+        super().__init__(**kwargs)
         # Set dipole info
         self.startpoints = PointBlock(startpoints)
         self.endpoints = PointBlock(endpoints)
 
-        # Check endpoint shape matches that of centers centers
+        # Check endpoint shape matches that of startpoints
         self._check_shapes()
-
-        # Set blocks for GroupBlock
-        children = [self.startpoints, self.endpoints]
-        super().__init__(children)
-
-    def _data_setter(self, data):
-        self._data = data
 
     @property
     def orientation_vectors(self):

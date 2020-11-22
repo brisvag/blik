@@ -195,20 +195,28 @@ class DataBlock(BaseBlock, ABC):
 
 class MultiBlock(BaseBlock, ABC):
     """
-    unites multiple DataBlocks to construct a more complex data object
-    constructor requires a list of references to the component DataBlocks
-    in order to know where to find them
-    """
-    def __init__(self, blocks: List[DataBlock], **kwargs):
-        """
+    Unites multiple DataBlocks into a more complex data object
 
+    Note: classes which inherit from 'MultiBlock' should call Super().__init__
+    first in their constructors so that references to blocks are correctly defined
+    """
+    def __init__(self, **kwargs):
+        """
         Parameters
         ----------
-        blocks : list of DataBlock objects
-        kwargs
+        kwargs : keyword arguments which get passed down to BaseBlock
         """
         super().__init__(**kwargs)
-        self.blocks = blocks
+        self.blocks = []
+
+    def __setattr__(self, name, value):
+        """
+        Extend the functionality of __setattr__ to automatically add datablocks to the
+        'blocks' attribute of a 'MultiBlock' when set
+        """
+        if isinstance(value, BaseBlock):
+            self._add_block(value)
+        super().__setattr__(name, value)
 
     @property
     def blocks(self):
@@ -268,8 +276,6 @@ class MultiBlock(BaseBlock, ABC):
         new_data = self._stack_data([self] + multiblocks)
         for block, data in zip(self.blocks, new_data):
             block.data = data
-
-
 
 
 class DataCrate(AttributedList):

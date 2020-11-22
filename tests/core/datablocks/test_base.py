@@ -36,7 +36,7 @@ def test_datablock():
         subblock = SubBlock()
 
 
-def test_groupblock():
+def test_multiblock():
     # assert that MultiBlock class cannot be instantiated directly
     with pytest.raises(TypeError):
         block = MultiBlock()
