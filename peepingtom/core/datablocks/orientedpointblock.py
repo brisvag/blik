@@ -1,6 +1,8 @@
 import numpy as np
 
-from peepingtom.core import MultiBlock, PointBlock, OrientationBlock
+from .base import MultiBlock
+from .orientationblock import OrientationBlock
+from .pointblock import PointBlock
 
 
 class OrientedPointBlock(MultiBlock):

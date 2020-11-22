@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .orientationblock import OrientationBlock
 from .orientedpointblock import OrientedPointBlock
-from .pointblock import PointBlock
 from .propertyblock import PropertyBlock
 from peepingtom.utils.helpers import dataframe_helper
 
