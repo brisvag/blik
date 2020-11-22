@@ -9,30 +9,29 @@ class OrientationBlock(DataBlock):
     OrientationBlock objects represent orientations in a 2d or 3d space
 
     Contains factory methods for instantiation from eulerian angles
+
+    rotation_matrices : (n, 2, 2) or (n, 3, 3) array of rotation matrices R
+                        R should satisfy Rv = v' where v is a column vector
+
     """
-    def __init__(self, rotation_matrices: np.ndarray, **kwargs):
-        """
-
-        Parameters
-        ----------
-        rotation_matrices : (n, 2, 2) or (n, 3, 3) array of rotation matrices R
-                            R should satisfy Rv = v' where v is a column vector
-        kwargs
-        """
-        super().__init__(**kwargs)
-        self.data = rotation_matrices
-
-    def _data_setter(self, rotation_matrices: np.ndarray):
+    def _data_setter(self, data: np.ndarray):
+        data = np.array(data)
         # check for single matrix case and assert dimensionality
-        if not rotation_matrices.shape[-1] == rotation_matrices.shape[-2]:
-            raise ValueError(
-                f'rotation matrices should be of shape (n, 2, 2) or (n, 3, 3), not {rotation_matrices.shape}')
+        val_error = ValueError(f'rotation matrices should be of shape '
+                               f'(2, 2), (3, 3), (n, 2, 2) or (n, 3, 3), '
+                               f'not {data.shape}')
+        if data.ndim == 1:
+            raise val_error
+        if not data.shape[-1] == data.shape[-2]:
+            raise val_error
+        if not data.shape[-1] in (2, 3):
+            raise val_error
 
-        if rotation_matrices.ndim == 2:
-            m = rotation_matrices.shape[-1]
-            rotation_matrices = rotation_matrices.reshape((1, m, m))
+        if data.ndim == 2:
+            m = data.shape[-1]
+            data = data.reshape((1, m, m))
 
-        return rotation_matrices
+        return data
 
     @property
     def n(self):
@@ -135,12 +134,12 @@ class OrientationBlock(DataBlock):
         return kwargs
 
     @staticmethod
-    def _merge(db1, db2):
-        return np.concatenate([db1.data, db2.data])
+    def _merge_data(datablocks):
+        return np.concatenate([db.data for db in datablocks])
 
     @staticmethod
-    def _stack(db1, db2):
-        return np.concatenate([db1.data, db2.data])
+    def _stack_data(datablocks):
+        return np.concatenate([db.data for db in datablocks])
 
-    def __repr__(self):
-        return f'<{type(self).__name__}({self.n}, {self.ndim})>'
+    def __shape_repr__(self):
+        return f'({self.n}, {self.ndim})'

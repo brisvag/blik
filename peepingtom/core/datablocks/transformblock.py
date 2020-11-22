@@ -3,7 +3,7 @@ import numpy as np
 from .particleblock import ParticleBlock
 from .pointblock import PointBlock
 from .orientationblock import OrientationBlock
-
+from .base import MultiBlock
 
 class TransformBlock(ParticleBlock):
     """
@@ -59,4 +59,4 @@ class TransformBlock(ParticleBlock):
         points = PointBlock(output_positions.reshape((-1, 3)))
         orientations = OrientationBlock(output_orientations.reshape(-1, 3, 3))
 
-        return ParticleBlock(points, orientations, None)
+        return ParticleBlock(points, orientations, {})

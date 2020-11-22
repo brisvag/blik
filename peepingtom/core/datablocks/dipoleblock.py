@@ -1,27 +1,27 @@
 import numpy as np
 
-from .base import GroupBlock
+from .base import MultiBlock
 from .pointblock import PointBlock
 from .orientationblock import OrientationBlock
 from peepingtom.utils.helpers.linalg_helper import align_vectors
 
 
-class DipoleBlock(GroupBlock):
+class DipoleBlock(MultiBlock):
     """
     A DipoleBlock represents a set of n dipoles in an m-dimensional space
-    defined by center points and end points
+    defined by start points and end points
     """
 
-    def __init__(self, centers: PointBlock, endpoints: PointBlock):
+    def __init__(self, startpoints: PointBlock, endpoints: PointBlock):
         # Set dipole info
-        self.centers = PointBlock(centers)
+        self.startpoints = PointBlock(startpoints)
         self.endpoints = PointBlock(endpoints)
 
         # Check endpoint shape matches that of centers centers
         self._check_shapes()
 
         # Set blocks for GroupBlock
-        children = [centers, endpoints]
+        children = [self.startpoints, self.endpoints]
         super().__init__(children)
 
     def _data_setter(self, data):
@@ -30,9 +30,9 @@ class DipoleBlock(GroupBlock):
     @property
     def orientation_vectors(self):
         """
-        Vectors describing shifts to apply on centers to arrive at endpoints
+        Vectors describing shifts to apply on start points to arrive at end points
         """
-        return self.endpoints.data - self.centers.data
+        return self.endpoints.data - self.startpoints.data
 
     @property
     def normalised_orientation_vectors(self):
@@ -45,7 +45,7 @@ class DipoleBlock(GroupBlock):
         return self.orientation_vectors / norm
 
     def _check_shapes(self):
-        if self.centers.data.shape != self.endpoints.data.shape:
+        if self.startpoints.data.shape != self.endpoints.data.shape:
             raise ValueError('Shapes of centers and endpoints do not match')
         else:
             return True
@@ -64,7 +64,7 @@ class DipoleBlock(GroupBlock):
                             align it with the orientation vectors of each dipole in this object
         """
         # only implemented for 3d rotations
-        if self.centers.data.shape[1] != 3:
+        if self.startpoints.data.shape[1] != 3:
             raise NotImplementedError
 
         # force ndarray
