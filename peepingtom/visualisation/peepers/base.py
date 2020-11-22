@@ -4,8 +4,9 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ..core import DataBlock, ImageBlock, ParticleBlock, PointBlock, LineBlock
-from .depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
+from ...core import DataCrate, ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
+from ...utils.containers import AttributedList
 
 
 class Peeper:
@@ -14,7 +15,7 @@ class Peeper:
     expose the datasets to visualization and analysis tools
     """
     def __init__(self, crates, viewer=None):
-        self.crates = crates
+        self.crates = AttributedList(crates)
         self.viewer = viewer
         # initialise depictors
         for crate in crates:
@@ -28,27 +29,28 @@ class Peeper:
             PointBlock: PointDepictor,
             LineBlock: LineDepictor,
         }
-        for b_type, d_type in depictor_type.items():
-            if isinstance(datablock, b_type):
-                # don't store a reference to it, cause it hooks itself on the datablock
-                d_type(datablock, peeper=self)
+        try:
+            # don't store a reference to it, cause it hooks itself on the datablock
+            depictor_type[type(datablock)](datablock, peeper=self)
+        except KeyError:
+            raise TypeError(f'cannot find a Depictor for datablock of type {type(datablock)}')
 
     @property
     def datablocks(self):
-        return [datablock for crate in self.crates for datablock in crate]
+        return AttributedList(datablock for crate in self.crates for datablock in crate)
 
     @property
     def depictors(self):
-        return [datablock.depictor for datablock in self.datablocks]
+        return self.datablocks.depictor
 
     @property
     def depictor_layers(self):
-        return [depictor.layers for depictor in self.depictors]
+        return self.depictors.layers
 
-    def _get_datablocks(self, block_type=DataBlock):
-        return [datablock for datablock in self.datablocks if isinstance(datablock, block_type)]
+    def _get_datablocks(self, block_type):
+        return AttributedList(datablock for datablock in self.datablocks if isinstance(datablock, block_type))
 
-    def peep(self, viewer=None):
+    def _init_viewer(self, viewer=None):
         # create a new viewer if necessary
         if viewer is not None:
             self.viewer = viewer
@@ -61,13 +63,12 @@ class Peeper:
         except RuntimeError:
             self.viewer = napari.Viewer(ndisplay=3)
 
-        for depictor in self.depictors:
-            depictor.draw()
+    def peep(self, viewer=None):
+        self._init_viewer(viewer)
+        self.depictors.draw()
 
-    def hide(self, crates='all'):
-        for depictor in self.depictors:
-            depictor.hide()
+    def hide(self):
+        self.depictors.hide()
 
     def update(self):
-        for depictor in self.depictors:
-            depictor.update()
+        self.depictors.update()

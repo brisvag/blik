@@ -1,4 +1,2 @@
-from .base import Depictor
-from .depictors import ImageDepictor, ParticleDepictor, LineDepictor, PointDepictor
-from .peeper import Peeper
-from .peepers import ParticlePeeper
+from .depictors import Depictor, ImageDepictor, ParticleDepictor, LineDepictor, PointDepictor
+from .peepers import Peeper, ParticlePeeper

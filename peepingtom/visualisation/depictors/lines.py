@@ -1,10 +1,10 @@
 from napari.layers import Points, Shapes
 
-from ..base import Depictor
+from .base import Depictor
 
 
 class LineDepictor(Depictor):
-    def make_layers(self, point_kwargs={}, backbone_kwargs={}):
+    def init_layers(self, point_kwargs={}, backbone_kwargs={}):
         # default keyword arguments
         pkwargs = {'size': 3,
                    'face_color': 'cornflowerblue'}
@@ -22,17 +22,17 @@ class LineDepictor(Depictor):
         backbone_data = self.datablock.smooth_backbone[:, ::-1]
 
         # draw points layer in napari
-        points = Points(points_data,
-                        name=f'{self.name} - points',
-                        **pkwargs)
+        points = self.make_points_layer(points_data,
+                                        name=f'{self.name} - points',
+                                        **pkwargs)
 
         self.layers.append(points)
 
         # draw line as path in napari
-        backbone = Shapes(backbone_data,
-                          shape_type='path',
-                          name=f'{self.name} - line',
-                          **bkwargs)
+        backbone = self.make_shapes_layer(backbone_data,
+                                          shape_type='path',
+                                          name=f'{self.name} - line',
+                                          **bkwargs)
 
         self.layers.append(backbone)
 

@@ -1,6 +1,6 @@
-from .base import GroupBlock
+from .base import MultiBlock
 
-class TransformBlock(GroupBlock):
+class TransformBlock(MultiBlock):
     """
 
     """
