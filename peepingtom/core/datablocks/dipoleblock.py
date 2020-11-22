@@ -12,7 +12,7 @@ class DipoleBlock(MultiBlock):
     defined by start points and end points
     """
 
-    def __init__(self, startpoints: PointBlock, endpoints: PointBlock, **kwargs):
+    def __init__(self, startpoints: np.ndarray, endpoints: np.ndarray, **kwargs):
         super().__init__(**kwargs)
         # Set dipole info
         self.startpoints = PointBlock(startpoints)
