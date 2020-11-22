@@ -74,24 +74,26 @@ class BaseBlock(ABC):
     def _merge(self, datablocks):
         """
         merge several datablocks and return a `newlike` object
+        self is not part of merged objects
         """
         return NotImplemented
 
     def _stack(self, datablocks):
         """
         stack several datablocks and return a `newlike` object
+        self is not part of stacked objects
         """
         return NotImplemented
 
     def _imerge(self, datablocks):
         """
-        like merge, but inplace
+        like merge, but inplace. Self is part of merged objects.
         """
         return NotImplemented
 
     def _istack(self, datablocks):
         """
-        like stack, but inplace
+        like stack, but inplace. Self is part of stacked objects.
         """
         return NotImplemented
 
@@ -179,10 +181,10 @@ class DataBlock(BaseBlock, ABC):
         return self.data.__reversed__()
 
     def _merge(self, datablocks):
-        return self.__newlike__(self._merge_data([self] + datablocks))
+        return self.__newlike__(self._merge_data(datablocks))
 
     def _stack(self, datablocks):
-        return self.__newlike__(self._stack_data([self] + datablocks))
+        return self.__newlike__(self._stack_data(datablocks))
 
     def _imerge(self, datablocks):
         self.data = self._merge_data([self] + datablocks)
@@ -226,10 +228,10 @@ class MultiBlock(BaseBlock, ABC):
         return blocks_data
 
     def _merge(self, multiblocks):
-        return self.__newlike__(*self._merge_data([self] + multiblocks))
+        return self.__newlike__(*self._merge_data(multiblocks))
 
     def _stack(self, multiblocks):
-        return self.__newlike__(*self._stack_data([self] + multiblocks))
+        return self.__newlike__(*self._stack_data(multiblocks))
 
     def _imerge(self, multiblocks):
         new_data = self._merge_data([self] + multiblocks)
