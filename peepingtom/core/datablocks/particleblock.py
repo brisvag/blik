@@ -1,21 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from .base import MultiBlock
 from .orientationblock import OrientationBlock
+from .orientedpointblock import OrientedPointBlock
 from .pointblock import PointBlock
 from .propertyblock import PropertyBlock
 from peepingtom.utils.helpers import dataframe_helper
-
-
-class OrientedPointBlock(MultiBlock):
-    def __init__(self, positions: np.ndarray, orientations: np.ndarray, **kwargs):
-        super().__init__(**kwargs)
-        self.positions = PointBlock(positions)
-        self.orientations = OrientationBlock(orientations)
-
-    def __shape_repr__(self):
-        return f'{self.positions.data.shape}'
 
 
 class ParticleBlock(OrientedPointBlock):
@@ -48,9 +38,9 @@ class ParticleBlock(OrientedPointBlock):
         if 'data_columns' in kwargs:
             data_columns = kwargs.pop('data_columns')
 
-        positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
-        orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
-        properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
+        positions = dataframe_helper.df_to_xyz(df, mode)
+        orientations = dataframe_helper.df_to_rotation_matrices(df, mode)
+        properties = dataframe_helper.df_to_dict_of_arrays(df[data_columns])
         return cls(positions, orientations, properties, **kwargs)
 
     def __shape_repr__(self):
