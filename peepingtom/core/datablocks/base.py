@@ -27,8 +27,9 @@ class BaseBlock:
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
         # _merge or _stack return notimplemented
-        if args[0] is NotImplemented:
-            return NotImplemented
+        if args:
+            if args[0] is NotImplemented:
+                return NotImplemented
         cls = type(self)
         return cls(parent=self.parent, *args, **kwargs)
 
@@ -218,8 +219,9 @@ class MultiBlock(BaseBlock):
         Extend the functionality of __setattr__ to automatically add datablocks to the
         'blocks' attribute of a 'MultiBlock' when set
         """
-        if isinstance(value, BaseBlock):
+        if isinstance(value, DataBlock):
             self._add_block(value)
+            print(name, value)
         super().__setattr__(name, value)
 
     @property
@@ -239,7 +241,7 @@ class MultiBlock(BaseBlock):
         This is particularly useful when extending the functionality of an existing
         MultiBlock object by inheritance
         """
-        self.blocks.append(block)
+        self._blocks.append(block)
 
     @staticmethod
     def _merge_data(multiblocks):
@@ -269,6 +271,7 @@ class MultiBlock(BaseBlock):
         return self.__newlike__(*self._merge_data(multiblocks))
 
     def _stack(self, multiblocks):
+        breakpoint()
         return self.__newlike__(*self._stack_data(multiblocks))
 
     def _imerge(self, multiblocks):
