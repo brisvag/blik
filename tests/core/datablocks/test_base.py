@@ -50,4 +50,4 @@ def test_datacrate():
 def test_model():
     # assert that Model class cannot be instantiated directly
     with pytest.raises(TypeError):
-        model = Model()
+        Model()

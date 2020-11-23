@@ -16,11 +16,11 @@ point_nd = np.arange(48).reshape(6, 8)
 
 def test_pointblock_instantiation():
     # test instantiation for 2d, 3d and nd points
-    block = PointBlock(single_point_2d)
-    block = PointBlock(points_2d)
-    block = PointBlock(single_point_3d)
-    block = PointBlock(points_3d)
-    block = PointBlock(point_nd)
+    PointBlock(single_point_2d)
+    PointBlock(points_2d)
+    PointBlock(single_point_3d)
+    PointBlock(points_3d)
+    PointBlock(point_nd)
 
 
 def test_pointblock_xyz():

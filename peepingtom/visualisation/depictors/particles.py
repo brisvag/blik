@@ -1,5 +1,4 @@
 import numpy as np
-from napari.layers import Points, Vectors
 
 from .base import Depictor
 

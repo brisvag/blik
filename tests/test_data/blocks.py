@@ -49,5 +49,5 @@ propertyblock = PropertyBlock(p_dict)
 particleblock = ParticleBlock(pointblock, orientationblock, propertyblock)
 
 # image
-img = np.ones((10,10,10))
+img = np.ones((10, 10, 10))
 imageblock = ImageBlock(img)

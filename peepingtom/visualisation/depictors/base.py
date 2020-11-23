@@ -77,14 +77,14 @@ class Depictor:
         layer_id can be the index or name of a layer or a list of ids
         """
         if layers is None:
-            layers = [l for l in self.layers]
+            layers = [layer for layer in self.layers]
         if not isinstance(layers, list):
             layers = [layers]
-        for l in layers:
-            if l in self.layers:
-                self.viewer.layers.remove(l)
+        for layer in layers:
+            if layer in self.layers:
+                self.viewer.layers.remove(layer)
                 if delete_layers:
-                    self.layers.remove(l)
+                    self.layers.remove(layer)
 
     def update(self):
         """

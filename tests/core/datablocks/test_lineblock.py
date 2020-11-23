@@ -10,8 +10,8 @@ line_3d = np.column_stack([v, np.sin(v), np.cos(v)])
 
 def test_lineblock_instantiation():
     # test LineBlock instantiation
-    block = LineBlock(line_2d)
-    block = LineBlock(line_3d)
+    LineBlock(line_2d)
+    LineBlock(line_3d)
 
 
 def test_lineblock_fit_spline():

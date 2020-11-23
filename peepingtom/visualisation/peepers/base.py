@@ -4,7 +4,7 @@ main class that interfaces visualization, analysis and data manipulation
 
 import napari
 
-from ...core import DataCrate, ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
 from ...utils.containers import AttributedList
 

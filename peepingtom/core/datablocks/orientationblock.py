@@ -54,21 +54,24 @@ class OrientationBlock(DataBlock):
         Parameters
         ----------
         euler_angles : ndarray, (n, 3) array of n sets of eulerian angles in degrees
-        axes : str, 3 characters from 'x', 'y' and 'z' representing axes around which rotations occur in the euler angles
-        intrinsic : bool, are the euler angles describing a set of intrinsic (rotating reference frame) or extrinsic
-                    (fixed reference frame) rotations
-        positive_ccw : bool, are positive euler angles referring to counterclockwise rotations of vectors when looking
-                       from a positive point along the axis towards the origin
+        axes : str, 3 characters from 'x', 'y' and 'z' representing axes around which rotations
+               occur in the euler angles
+        intrinsic : bool, are the euler angles describing a set of intrinsic (rotating reference frame)
+                    or extrinsic (fixed reference frame) rotations
+        positive_ccw : bool, are positive euler angles referring to counterclockwise rotations of vectors
+                       when looking from a positive point along the axis towards the origin
         invert_matrix : bool, should the matrix be inverted?
-                        this is useful if your euler angles describe the rotation of a target to a source but you would
-                        like your rotation matrices to describe the rotation of a source to align it with a target
+                        this is useful if your euler angles describe the rotation of a target to a source
+                        but you would like your rotation matrices to describe the rotation of a source to
+                        align it with a target
 
         Returns
         -------
 
         """
         # Calculate rotation matrices
-        rotation_matrices = euler2matrix(euler_angles, axes=axes, intrinsic=intrinsic, positive_ccw=positive_ccw)
+        rotation_matrices = euler2matrix(euler_angles, axes=axes, intrinsic=intrinsic,
+                                         positive_ccw=positive_ccw)
 
         # invert matrix if required
         if invert_matrix:
@@ -78,7 +81,8 @@ class OrientationBlock(DataBlock):
 
     def _calculate_matrix_product(self, vector: np.ndarray):
         """
-        Calculates the matrix product (v') of the orientation matrices (R) in this VectorBlock object with a given vector (v)
+        Calculates the matrix product (v') of the orientation matrices (R) in this
+        VectorBlock object with a given vector (v)
         Rv = v'
 
         Parameters
@@ -105,8 +109,8 @@ class OrientationBlock(DataBlock):
         """
         # check dimensionality
         if self.ndim > 3:
-            raise NotImplementedError(
-                'Unit vector generation for objects with greater than 3 spatial dimensions is not implemented')
+            raise NotImplementedError('Unit vector generation for objects with greater '
+                                      'than 3 spatial dimensions is not implemented')
 
         # initialise unit vector array
         unit_vector = np.zeros((self.ndim, 1))

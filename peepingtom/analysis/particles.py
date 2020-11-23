@@ -15,7 +15,7 @@ def classify_radial_distance(particles, class_tag='class_radial', max_r=50, n_sh
     """
     classify particles based on the number of neighbors in radial shells
     """
-    shell_thickness = max_r / n_shells
+    shell_width = max_r / n_shells
     binned = []
     # calculate adjacency matrix or reuse old one
     for part in particles:
@@ -33,7 +33,7 @@ def classify_radial_distance(particles, class_tag='class_radial', max_r=50, n_sh
 
         # calculate shells
 
-        shells = [np.sum((adj_matrix > i * shell_thickness) & (adj_matrix <= (i + 1) * shell_thickness), axis=1)
+        shells = [np.sum((adj_matrix > i * shell_width) & (adj_matrix <= (i + 1) * shell_width), axis=1)
                   for i in range(n_shells)]
         binned.append(np.stack(shells, axis=1).astype(float))
     binned = np.concatenate(binned)

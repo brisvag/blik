@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from peepingtom.core.datablocks import ParticleBlock, PointBlock, OrientationBlock, PropertyBlock
 from peepingtom.analysis.particles import classify_radial_distance

@@ -165,7 +165,8 @@ class PointBlock(DataBlock):
         point = np.asarray(point)
         if not point.shape == self.center_of_mass.shape:
             raise ValueError(
-                f"shape of point '{point.shape}' does not match shape of center of mass '{self.center_of_mass.shape}'")
+                f"shape of point '{point.shape}' does not match shape of center of mass "
+                f"'{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
     def dump(self):
@@ -195,7 +196,7 @@ class PointBlock(DataBlock):
                 if len(np.unique(db.data)) != 1:
                     raise ValueError(f'cannot stack: dimension #{db.ndim} of {db} is not an index')
                 # if the given data is not in order, just give up. TODO: implement something smarter!
-                elif db.data[0,0] != idx:
+                elif db.data[0, 0] != idx:
                     raise ValueError(f'cannot stack: the index ({db.data[0,0]}) of {db} does not match')
                 else:
                     stacked[previous:current] = db.data

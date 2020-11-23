@@ -7,7 +7,7 @@ df = pd.DataFrame({0: [0], 1: [1]})
 
 
 def test_columns_in_df():
-    assert columns_in_df([0, 1], df) == True
-    assert columns_in_df([0, 3], df) == False
-    assert columns_in_df([0, 0, 0], df) == True
-    assert columns_in_df([5], df) == False
+    assert columns_in_df([0, 1], df) is True
+    assert columns_in_df([0, 3], df) is False
+    assert columns_in_df([0, 0, 0], df) is True
+    assert columns_in_df([5], df) is False

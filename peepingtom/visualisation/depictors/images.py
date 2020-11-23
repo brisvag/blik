@@ -1,5 +1,3 @@
-from napari.layers import Image
-
 from .base import Depictor
 
 

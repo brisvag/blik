@@ -19,8 +19,8 @@ class ParticleBlock(OrientedPointBlock):
         """
         Create a ParticleBlock instance from a DataFrame in a known mode
 
-        This method expects the DataFrame to already represent the desired subset of particles in the case where data
-        contains particles from multiple volumes
+        This method expects the DataFrame to already represent the desired subset of particles
+        in the case where data contains particles from multiple volumes
 
         Parameters
         ----------
