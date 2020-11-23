@@ -5,7 +5,7 @@ import mrcfile
 import pandas as pd
 import starfile
 
-from peepingtom.core import ImageBlock, ParticleBlock, DataCrate
+from ..core import ImageBlock, ParticleBlock, DataCrate
 from .utils import _path
 
 

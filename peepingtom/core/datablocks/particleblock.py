@@ -3,7 +3,7 @@ import pandas as pd
 
 from .orientedpointblock import OrientedPointBlock
 from .propertyblock import PropertyBlock
-from peepingtom.utils.helpers import dataframe_helper
+from ...utils.helpers import dataframe_helper
 
 
 class ParticleBlock(OrientedPointBlock):
