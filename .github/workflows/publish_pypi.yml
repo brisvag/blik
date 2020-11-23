@@ -1,8 +1,9 @@
 name: Upload to pypi
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*' # version tags (e.g: v0.0.1)
 
 jobs:
   deploy:
