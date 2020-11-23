@@ -270,7 +270,6 @@ class MultiBlock(BaseBlock):
         return self.__newlike__(*self._merge_data(multiblocks))
 
     def _stack(self, multiblocks):
-        breakpoint()
         return self.__newlike__(*self._stack_data(multiblocks))
 
     def _imerge(self, multiblocks):
