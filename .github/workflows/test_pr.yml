@@ -17,6 +17,7 @@ jobs:
         run: |
             python -m pip install --upgrade pip
             pip install pytest
+            pip install pandas # needed for now because dynamotable install is broken
             pip install -r requirements.txt
       - name: Run tests
         run: pytest
