@@ -7,16 +7,16 @@ from tests.test_data.blocks import particleblock
 shifts = [
     [-1, 0, 0],
     [-1, 0, 1],
-    [-1, 0,-1],
+    [-1, 0, -1],
     [-1, 1, 0],
-    [-1,-1, 0],
-    [ 0, 0, 0],
+    [-1, -1, 0],
+    [0, 0, 0],
     [-2, 0, 0]
 ]
 test_shifts = PointBlock(np.asarray(shifts))
 
 test_endpoints = PointBlock(np.zeros((test_shifts.data.shape[0], 3)))
-test_orientations = DipoleBlock(test_shifts, test_endpoints).calculate_orientation_block([0,0,1])
+test_orientations = DipoleBlock(test_shifts, test_endpoints).calculate_orientation_block([0, 0, 1])
 
 
 def test_transformblock_instantiation():

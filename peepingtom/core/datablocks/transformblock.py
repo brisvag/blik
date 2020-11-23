@@ -3,7 +3,7 @@ import numpy as np
 from .particleblock import ParticleBlock
 from .pointblock import PointBlock
 from .orientationblock import OrientationBlock
-from .base import MultiBlock
+
 
 class TransformBlock(ParticleBlock):
     """
@@ -38,9 +38,6 @@ class TransformBlock(ParticleBlock):
         shift_vectors = self.positions.data.reshape(-1, 1, 3, 1)  # (m, 1, 3, 1) array
         transform_orientations = self.orientations.data.reshape(-1, 1, 3, 3)  # (m, 1, 3, 3) array of rotm
 
-        n = particle_positions.shape[0]
-        m = shift_vectors.shape[0]
-
         # Orient the shift vectors according to particle orientation
         oriented_shifts = particle_orientations @ shift_vectors  # (m, n, 3, 1)
 
@@ -53,7 +50,8 @@ class TransformBlock(ParticleBlock):
 
         # replace nan filled matrices with original particle orientations
         # this happens when vectors are already aligned (causes div0)
-        output_orientations = np.where(np.isnan(output_orientations), particle_orientations, output_orientations)
+        output_orientations = np.where(np.isnan(output_orientations), particle_orientations,
+                                       output_orientations)
 
         # Create and return ParticleBlock from output
         points = PointBlock(output_positions.reshape((-1, 3)))
