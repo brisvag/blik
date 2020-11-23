@@ -1,10 +1,9 @@
-from abc import ABC, abstractmethod
 from typing import List
 
 from ...utils.containers import AttributedList
 
 
-class BaseBlock(ABC):
+class BaseBlock:
     """
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
@@ -123,7 +122,7 @@ class BaseBlock(ABC):
             return NotImplemented
 
 
-class DataBlock(BaseBlock, ABC):
+class DataBlock(BaseBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
 
@@ -148,9 +147,11 @@ class DataBlock(BaseBlock, ABC):
             self._data = self._data_setter(data)
         self.updated()
 
-    @abstractmethod
     def _data_setter(self, data):
-        return data
+        """
+        takes raw data and returns it properly formatted to the DataBlock subclass specification.
+        """
+        raise NotImplementedError('DataBlocks must implement this method')
 
     def dump(self):
         kwargs = super().dump()
@@ -193,7 +194,7 @@ class DataBlock(BaseBlock, ABC):
         self.data = self._stack_data([self] + datablocks)
 
 
-class MultiBlock(BaseBlock, ABC):
+class MultiBlock(BaseBlock):
     """
     Unites multiple DataBlocks into a more complex data object
 
