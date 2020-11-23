@@ -1,4 +1,5 @@
 from typing import List
+from collections.abc import Iterable
 
 from ...utils.containers import AttributedList
 
@@ -287,6 +288,23 @@ class DataCrate(AttributedList):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
+    def __init__(self, iterable=()):
+        # recursively unpack the iterable into datablocks only
+        def unpack(iterable):
+            datablocks = []
+            for item in iterable:
+                if not isinstance(item, BaseBlock):
+                    if isinstance(item, Iterable):
+                        datablocks.extend(unpack(item))
+                    else:
+                        raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
+                else:
+                    datablocks.append(item)
+            return datablocks
+
+        items = unpack(iterable)
+        super().__init__(items)
+
     def __and__(self, other):
         if isinstance(other, DataCrate):
             return DataCrate(self + other)
