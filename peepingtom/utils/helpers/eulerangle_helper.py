@@ -23,10 +23,6 @@
 import numpy as np
 from eulerangles import matrix2euler, euler2matrix
 
-from ..constants.relion_constants import relion_euler_angle_convention
-from ..constants.dynamo_constants import dynamo_euler_angle_convention
-from ..constants.warp_constants import warp_euler_angle_convention
-
 
 class EulerAngleConvention:
     def __init__(self, axes: str, intrinsic: bool, positive_ccw: bool, rotate_reference: bool):
@@ -83,6 +79,11 @@ class EulerAngleHelper:
         """
         dict of supported Euler angle conventions
         """
+        # Import here to avoid circular imports
+        from ..constants.relion_constants import relion_euler_angle_convention
+        from ..constants.dynamo_constants import dynamo_euler_angle_convention
+        from ..constants.warp_constants import warp_euler_angle_convention
+
         conventions = {'relion': relion_euler_angle_convention,
                        'dynamo': dynamo_euler_angle_convention,
                        'warp': warp_euler_angle_convention}
@@ -162,7 +163,7 @@ class EulerAngleHelper:
         if convention.rotate_reference is not True:
             rotation_matrices = self.invert_rotation_matrices(rotation_matrices)
 
-        return self.rotation_matrices
+        return rotation_matrices
 
     def matrix2euler(self, mode: str):
         """
