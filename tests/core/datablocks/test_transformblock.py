@@ -4,13 +4,16 @@ from peepingtom.core import TransformBlock, DipoleBlock, PointBlock, ParticleBlo
 from tests.test_data.blocks import particleblock
 
 # test transform
-test_shifts = PointBlock(np.asarray([[0, 0, 0],
-                           [0,0, 1],
-                           [0,0,-1],
-                           [0,1, 0],
-                          [0, -1, 0],
-                          [1,0,0],
-                          [-1, 0,0 ]]))
+shifts = [
+    [-1, 0, 0],
+    [-1, 0, 1],
+    [-1, 0,-1],
+    [-1, 1, 0],
+    [-1,-1, 0],
+    [ 0, 0, 0],
+    [-2, 0, 0]
+]
+test_shifts = PointBlock(np.asarray(shifts))
 
 test_endpoints = PointBlock(np.zeros((test_shifts.data.shape[0], 3)))
 test_orientations = DipoleBlock(test_shifts, test_endpoints).calculate_orientation_block([0,0,1])
@@ -18,12 +21,12 @@ test_orientations = DipoleBlock(test_shifts, test_endpoints).calculate_orientati
 
 def test_transformblock_instantiation():
     # test that block instantiates properly
-    block = TransformBlock(test_shifts, test_orientations, None)
+    block = TransformBlock(test_shifts, test_orientations, {})
     assert isinstance(block, TransformBlock)
 
 
 def test_transformblock_application():
-    block = TransformBlock(test_shifts, test_orientations, None)
+    block = TransformBlock(test_shifts, test_orientations, {})
 
     # apply transformations in block on particles
     new_block = block.apply_on(particleblock)
