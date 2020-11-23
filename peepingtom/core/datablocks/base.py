@@ -128,7 +128,8 @@ class DataBlock(BaseBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
 
-    DataBlock objects must implement a data setter method as _data_setter which returns the appropriately formatted data
+    DataBlock objects must implement a data setter method as _data_setter which returns
+    the appropriately formatted data
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """

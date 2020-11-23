@@ -4,7 +4,7 @@ def merge(datablocks):
     """
     cls = type(datablocks[0])
     if not all(isinstance(db, cls) for db in datablocks):
-        raise TypeError(f'cannot merge datablocks of different types')
+        raise TypeError('cannot merge datablocks of different types')
     return datablocks[0]._merge(datablocks)
 
 
@@ -14,5 +14,5 @@ def stack(datablocks):
     """
     cls = type(datablocks[0])
     if not all(isinstance(db, cls) for db in datablocks):
-        raise TypeError(f'cannot stack datablocks of different types')
+        raise TypeError('cannot stack datablocks of different types')
     return datablocks[0]._stack(datablocks)

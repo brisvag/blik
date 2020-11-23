@@ -11,7 +11,7 @@ from ...test_data.blocks import pointblock, lineblock, orientationblock
 def test_datablock():
     # assert that BaseBlock class cannot be instantiated directly
     with pytest.raises(NotImplementedError):
-        block = DataBlock([])
+        DataBlock([])
 
     # assert that subclassing and implementing _data_setter works
     class SubBlock(DataBlock):
@@ -50,4 +50,4 @@ def test_datacrate():
 def test_model():
     # assert that Model class cannot be instantiated directly
     with pytest.raises(TypeError):
-        model = Model()
+        Model()

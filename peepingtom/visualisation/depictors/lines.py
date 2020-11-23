@@ -1,5 +1,3 @@
-from napari.layers import Points, Shapes
-
 from .base import Depictor
 
 

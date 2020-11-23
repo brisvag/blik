@@ -14,4 +14,3 @@ def columns_in_df(columns: list, df: pd.DataFrame):
 
     """
     return all([col in df for col in columns])
-

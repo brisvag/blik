@@ -1,4 +1,4 @@
-### QUICK SUMMARY
+# QUICK SUMMARY
 # If you want to generate relion euler angles from matrices which align references to particles
 # use:
 # matrix2euler zyz intrinsic positive_ccw
@@ -40,12 +40,13 @@ class EulerAngleConvention:
                     False if angles represent extrinsic rotations (axes do not move with the object)
 
         positive_ccw : bool
-                       True if a positive angle means a counter clockwise rotation when looking at the origin from
-                       a positive point along an axis
+                       True if a positive angle means a counter clockwise rotation when looking at
+                       the origin from a positive point along an axis
                        False otherwise
 
         rotate_reference : bool
-                           True if the Euler angles define a rotation which rotates a reference onto a particle
+                           True if the Euler angles define a rotation which rotates a reference
+                           onto a particle
                            False otherwise
         """
         self.axes = axes
@@ -138,7 +139,8 @@ class EulerAngleHelper:
     def euler2matrix(self, mode: str):
         """
         Converts a set of Euler angles from a piece of software (given by 'mode')
-        into a set of rotation matrices which rotate unit vectors into the aligned particle reference frame
+        into a set of rotation matrices which rotate unit vectors into the aligned particle
+        reference frame
 
         Parameters
         ----------
@@ -148,7 +150,8 @@ class EulerAngleHelper:
         Returns
         ----------
         rotation_matrices : (n, 3, 3) array of float
-                            n rotation matrices which rotate unit vectors into the aligned particle reference frame
+                            n rotation matrices which rotate unit vectors into the aligned particle
+                            reference frame
         """
         convention = self.get_convention(mode)
 
@@ -167,7 +170,8 @@ class EulerAngleHelper:
 
     def matrix2euler(self, mode: str):
         """
-        Converts a set of rotation matrices which rotate unit vectors into the aligned particle reference frame
+        Converts a set of rotation matrices which rotate unit vectors into the aligned particle
+        reference frame
         into a set of Euler angles from a piece of software (given by 'mode')
         Parameters
         ----------
@@ -193,5 +197,3 @@ class EulerAngleHelper:
                                     target_positive_ccw=convention.positive_ccw)
 
         return euler_angles
-
-

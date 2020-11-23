@@ -3,7 +3,7 @@ import pandas as pd
 
 from .orientedpointblock import OrientedPointBlock
 from .propertyblock import PropertyBlock
-from peepingtom.utils.helpers import dataframe_helper
+from ...utils.helpers import dataframe_helper
 
 
 class ParticleBlock(OrientedPointBlock):
@@ -19,8 +19,8 @@ class ParticleBlock(OrientedPointBlock):
         """
         Create a ParticleBlock instance from a DataFrame in a known mode
 
-        This method expects the DataFrame to already represent the desired subset of particles in the case where data
-        contains particles from multiple volumes
+        This method expects the DataFrame to already represent the desired subset of particles
+        in the case where data contains particles from multiple volumes
 
         Parameters
         ----------

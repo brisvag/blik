@@ -5,7 +5,7 @@ import mrcfile
 import pandas as pd
 import starfile
 
-from peepingtom.core import ImageBlock, ParticleBlock, DataCrate
+from ..core import ImageBlock, ParticleBlock, DataCrate
 from .utils import _path
 
 
@@ -33,8 +33,8 @@ def read_mrc_file(image_paths: Union[str, List[str], Path], sort=True) -> List[I
 
 def _read_relion_star_file(star_path) -> List[Tuple[str, pd.DataFrame]]:
     """
-    read a single star file and return a list containing each dataset found in the file, as a separate
-    (name, dataframe) tuple
+    read a single star file and return a list containing each dataset found in the file,
+    as a separate (name, dataframe) tuple
 
     Parameters
     ----------
@@ -53,8 +53,8 @@ def _read_relion_star_file(star_path) -> List[Tuple[str, pd.DataFrame]]:
         return [(str(star_path), df)]
 
 
-def data_star_to_particleblock(star_paths: Union[str, List[str], Path], sort=True, data_columns=None, mode='relion') -> \
-        List[ParticleBlock]:
+def data_star_to_particleblock(star_paths: Union[str, List[str], Path], sort=True,
+                               data_columns=None, mode='relion') -> List[ParticleBlock]:
     """
     read a number of STAR files and return a list of ParticleBlock objects
 
@@ -83,9 +83,8 @@ def data_star_to_particleblock(star_paths: Union[str, List[str], Path], sort=Tru
     return particles
 
 
-def data_star_to_crate(star_paths: Union[Path, str, List[str], List[Path]], data_columns: List[str] = [],
-                       mode='relion') -> \
-        List[DataCrate]:
+def data_star_to_crate(star_paths: Union[Path, str, List[str], List[Path]],
+                       data_columns: List[str] = [], mode='relion') -> List[DataCrate]:
     """
     Reads an arbitrary number of _data.star type STAR files into a list of DataCrate objects
 

@@ -22,11 +22,11 @@ xyz_backbone = np.column_stack([x_backbone, y_backbone, z])
 
 # calculate directions from backbone to points on helix
 orientation_vectors = xyz - xyz_backbone
-orientation_vectors_normalised = orientation_vectors / np.linalg.norm(orientation_vectors, axis=1).reshape((-1, 1))
+orientation_vectors_norm = orientation_vectors / np.linalg.norm(orientation_vectors, axis=1).reshape((-1, 1))
 unit_z = np.array([0, 0, 1])
 
 # calculate rotation matrices to align unit vector to direction away from backbone
-rotation_matrices = align_vectors(unit_z, orientation_vectors_normalised)
+rotation_matrices = align_vectors(unit_z, orientation_vectors_norm)
 
 # calculate eulers from rotation matrices
 euler_angles_rln = EulerAngleHelper(rotation_matrices=rotation_matrices).matrix2euler('relion')
