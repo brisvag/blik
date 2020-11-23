@@ -5,3 +5,7 @@ dist/
 build/
 __pycache__/
 *.ipynb
+
+# test data
+*.mrc
+*.star
