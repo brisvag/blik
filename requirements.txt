@@ -10,7 +10,7 @@ cycler==0.10.0
 dask==2.30.0
 decorator==4.4.2
 docutils==0.16
-dynamotable==0.2
+dynamotable==0.2.2
 eulerangles==0.1
 freetype-py==2.2.0
 HeapDict==1.0.1
