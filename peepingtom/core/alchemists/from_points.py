@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..datablocks import LineBlock, ParticleBlock, PointBlock, OrientationBlock, PropertyBlock
+from peepingtom.core.datablocks import LineBlock, ParticleBlock, PointBlock, OrientationBlock, PropertyBlock
 from .base import Alchemist
 
 

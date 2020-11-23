@@ -1,9 +1,9 @@
 import numpy as np
 
-from .base import DataBlock
+from .pointblock import PointBlock
 
 
-class MeshBlock(DataBlock):
+class MeshBlock(PointBlock):
     """
     Data structure for holding n-dimensional mesh data
     """
@@ -18,13 +18,10 @@ class MeshBlock(DataBlock):
                 array of indices into the vertices defining connectivity
         kwargs : keyword arguments passed to DataBlock
         """
-        super().__init__(**kwargs)
+        super().__init__(data=vertices, **kwargs)
         self.vertices = vertices
         self.faces = faces
         self.data = self.vertices
-
-    def _data_setter(self, vertices):
-        self._data = vertices
 
     @property
     def vertices(self):

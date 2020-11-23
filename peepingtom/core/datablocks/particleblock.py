@@ -1,18 +1,18 @@
+import numpy as np
 import pandas as pd
 
-from .base import MultiBlock
-from .orientationblock import OrientationBlock
-from .pointblock import PointBlock
+from .orientedpointblock import OrientedPointBlock
 from .propertyblock import PropertyBlock
-from ...utils.helpers import dataframe_helper
+from peepingtom.utils.helpers import dataframe_helper
 
 
-class ParticleBlock(MultiBlock):
-    def __init__(self, positions: PointBlock, orientations: OrientationBlock, properties: PropertyBlock, **kwargs):
-        self.positions = PointBlock(positions)
-        self.orientations = OrientationBlock(orientations)
+class ParticleBlock(OrientedPointBlock):
+    def __init__(self, positions: np.ndarray, orientations: np.ndarray, properties: dict, **kwargs):
+        # Initialise OrientedPointBlock
+        super().__init__(positions, orientations, **kwargs)
+
+        # Add PropertyBlock
         self.properties = PropertyBlock(properties)
-        super().__init__(blocks=[self.positions, self.orientations, self.properties], **kwargs)
 
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, mode: str, **kwargs):
@@ -36,9 +36,9 @@ class ParticleBlock(MultiBlock):
         if 'data_columns' in kwargs:
             data_columns = kwargs.pop('data_columns')
 
-        positions = PointBlock(dataframe_helper.df_to_xyz(df, mode))
-        orientations = OrientationBlock(dataframe_helper.df_to_rotation_matrices(df, mode))
-        properties = PropertyBlock(dataframe_helper.df_to_dict_of_arrays(df[data_columns]))
+        positions = dataframe_helper.df_to_xyz(df, mode)
+        orientations = dataframe_helper.df_to_rotation_matrices(df, mode)
+        properties = dataframe_helper.df_to_dict_of_arrays(df[data_columns])
         return cls(positions, orientations, properties, **kwargs)
 
     def __shape_repr__(self):

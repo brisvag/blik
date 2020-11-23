@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-from eulerangles import euler2matrix
 
 from ..validators import columns_in_df
 from ..constants import relion_coordinate_headings_3d, relion_shift_headings_3d, \
     relion_euler_angle_headings, dynamo_table_coordinate_headings, dynamo_table_shift_headings, \
     dynamo_euler_angle_headings
-
+from .eulerangle_helper import EulerAngleHelper
 from ..exceptions import DataFrameError
 
 
@@ -75,18 +74,18 @@ def euler_angles_to_rotation_matrices(euler_angles: np.ndarray, mode: str):
 
     Parameters
     ----------
-    euler_angles : (n, 3) ndarray or RELION euler angles
+    euler_angles : (n, 3) array of float
+                   of Euler angles in a mode EulerAngleHelper can handle
 
-    Returns (n, 3, 3) ndarray of rotation matrices which premultiply column vectors [x, y, z]
+    Returns
+    rotation_matrices : (n, 3, 3) array of float
+                        rotation matrices which premultiply column vectors [x, y, z] to align them with the
+                        reference frame of a particle
     -------
 
     """
-    euler_kwargs = {
-        'relion': {'axes': 'zyz', 'intrinsic': True, 'positive_ccw': True},
-        'dynamo': {'axes': 'zxz', 'intrinsic': True, 'positive_ccw': True}
-    }
-    _check_mode(mode)
-    return euler2matrix(euler_angles, **euler_kwargs[mode])
+    rotation_matrices = EulerAngleHelper(euler_angles=euler_angles).euler2matrix(mode)
+    return rotation_matrices
 
 
 def df_to_rotation_matrices(df: pd.DataFrame, mode: str):
@@ -96,9 +95,10 @@ def df_to_rotation_matrices(df: pd.DataFrame, mode: str):
     ----------
     df : RELION format STAR file as DataFrame (usually the result of starfile.read)
 
-    Returns : (n, 3, 3) ndarray of rotation matrices which premultiply column vectors [x, y, z]
+    Returns
     -------
-
+    rotation_matrices: (n, 3, 3) ndarray of float
+                       rotation matrices which premultiply column vectors [x, y, z]
     """
     euler_angles = df_to_euler_angles(df, mode)
     rotation_matrices = euler_angles_to_rotation_matrices(euler_angles, mode)

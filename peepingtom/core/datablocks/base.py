@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
+from typing import List
 
 from ...utils.containers import AttributedList
 
 
-class BaseBlock(ABC):
+class BaseBlock:
     """
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
@@ -124,7 +124,7 @@ class BaseBlock(ABC):
             return NotImplemented
 
 
-class DataBlock(BaseBlock, ABC):
+class DataBlock(BaseBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
 
@@ -132,6 +132,7 @@ class DataBlock(BaseBlock, ABC):
 
     Calling __getitem__ on a DataBlock will call __getitem__ on its data property
     """
+
     def __init__(self, data, **kwargs):
         super().__init__(**kwargs)
         self.data = data
@@ -148,9 +149,11 @@ class DataBlock(BaseBlock, ABC):
             self._data = self._data_setter(data)
         self.updated()
 
-    @abstractmethod
     def _data_setter(self, data):
-        return data
+        """
+        takes raw data and returns it properly formatted to the DataBlock subclass specification.
+        """
+        raise NotImplementedError('DataBlocks must implement this method')
 
     def dump(self):
         kwargs = super().dump()
@@ -193,15 +196,49 @@ class DataBlock(BaseBlock, ABC):
         self.data = self._stack_data([self] + datablocks)
 
 
-class MultiBlock(BaseBlock, ABC):
+class MultiBlock(BaseBlock):
     """
-    unites multiple DataBlocks to construct a more complex data object
-    constructor requires a list of references to the component DataBlocks
-    in order to know where to find them
+    Unites multiple DataBlocks into a more complex data object
+
+    Note: classes which inherit from 'MultiBlock' should call Super().__init__
+    first in their constructors so that references to blocks are correctly defined
     """
-    def __init__(self, blocks, **kwargs):
+    def __init__(self, **kwargs):
+        """
+        Parameters
+        ----------
+        kwargs : keyword arguments which get passed down to BaseBlock
+        """
         super().__init__(**kwargs)
-        self.blocks = blocks
+        self.blocks = []
+
+    def __setattr__(self, name, value):
+        """
+        Extend the functionality of __setattr__ to automatically add datablocks to the
+        'blocks' attribute of a 'MultiBlock' when set
+        """
+        if isinstance(value, BaseBlock):
+            self._add_block(value)
+        super().__setattr__(name, value)
+
+    @property
+    def blocks(self):
+        return self._blocks
+
+    @blocks.setter
+    def blocks(self, blocks: List[DataBlock]):
+        if not isinstance(blocks, list):
+            raise ValueError("blocks in a multiblock object must be a list of 'DataBlock' objects")
+        self._blocks = blocks
+
+    def _add_block(self, block: DataBlock):
+        """
+        Adds a block to an existing list of DataBlocks in a MultiBlock
+
+        This is particularly useful when extending the functionality of an existing
+        MultiBlock object by inheritance
+        """
+        self.blocks.append(block)
 
     @staticmethod
     def _merge_data(multiblocks):
