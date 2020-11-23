@@ -193,5 +193,3 @@ class EulerAngleHelper:
                                     target_positive_ccw=convention.positive_ccw)
 
         return euler_angles
-
-

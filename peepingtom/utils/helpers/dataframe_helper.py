@@ -41,9 +41,9 @@ def df_to_xyz(df: pd.DataFrame, mode: str):
     if not columns_in_df(coord_columns[mode], df):
         raise DataFrameError("Could not get coordinates from DataFrame")
 
-    positions = df[coord_columns[mode]] + df.get(shift_columns[mode], 0)
+    positions = df[coord_columns[mode]].to_numpy() + df.get(shift_columns[mode], 0).to_numpy()
 
-    return positions.to_numpy()
+    return positions
 
 
 def df_to_euler_angles(df: pd.DataFrame, mode: str):
