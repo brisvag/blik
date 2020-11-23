@@ -9,3 +9,4 @@ __pycache__/
 # test data
 *.mrc
 *.star
+*.tbl
