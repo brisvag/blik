@@ -221,7 +221,6 @@ class MultiBlock(BaseBlock):
         """
         if isinstance(value, DataBlock):
             self._add_block(value)
-            print(name, value)
         super().__setattr__(name, value)
 
     @property
