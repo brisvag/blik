@@ -22,8 +22,11 @@ class ParticleDepictor(Depictor):
         unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors('z').reshape((-1, 3))
         unit_z_rotated_order_zyx = unit_z_rotated_order_xyz[:, ::-1]
         # attach appropriate higher dimensions indeces to vectors
+        # TODO: make more general
         if self.datablock.positions.ndim > 3:
-            unit_z_rotated_order_zyx = np.concatenate([positions[:, :-3], unit_z_rotated_order_zyx], axis=1)
+            padded = np.zeros_like(self.datablock.positions.data)
+            padded[:, -3:] = unit_z_rotated_order_zyx
+            unit_z_rotated_order_zyx = padded
 
         napari_vectors = np.stack([positions, unit_z_rotated_order_zyx], axis=1)
         v_layer = self.make_vectors_layer(napari_vectors,
