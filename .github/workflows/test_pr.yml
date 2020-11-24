@@ -2,7 +2,7 @@ name: Test PR
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches: [ master, develop ]
 
 jobs:
   test:
@@ -21,6 +21,8 @@ jobs:
       - name: Run tests
         run: |
           pytest --cov=./peepingtom
-          codecov
       - name: Upload to codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        if: github.event.pull_request.merged == true
+        run: |
+          codecov
+          bash <(curl -s https://codecov.io/bash)
