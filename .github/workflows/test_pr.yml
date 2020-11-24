@@ -2,7 +2,7 @@ name: Test PR
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches: [ master, develop ]
 
 jobs:
   test:
@@ -16,7 +16,13 @@ jobs:
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
+          pip install pytest-cov codecov
           pip install -r requirements.txt
       - name: Run tests
-        run: pytest
+        run: |
+          pytest --cov=./peepingtom
+      - name: Upload to codecov
+        if: github.event.pull_request.merged == true
+        run: |
+          codecov
+          bash <(curl -s https://codecov.io/bash)
