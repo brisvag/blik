@@ -6,7 +6,8 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  test:
+  codecov:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,8 +23,7 @@ jobs:
       - name: Run tests
         run: |
           pytest --cov=./peepingtom
-      - name: Upload report to codecov
-        if: github.event.pull_request.merged == true
-        run: |
           codecov
+      - name: Upload report to codecov
+        run: |
           bash <(curl -s https://codecov.io/bash)
