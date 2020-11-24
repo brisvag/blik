@@ -1,4 +1,5 @@
 from typing import List
+from collections.abc import Iterable
 
 from ...utils.containers import AttributedList
 
@@ -27,8 +28,9 @@ class BaseBlock:
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
         # _merge or _stack return notimplemented
-        if args[0] is NotImplemented:
-            return NotImplemented
+        if args:
+            if args[0] is NotImplemented:
+                return NotImplemented
         cls = type(self)
         return cls(parent=self.parent, *args, **kwargs)
 
@@ -218,7 +220,7 @@ class MultiBlock(BaseBlock):
         Extend the functionality of __setattr__ to automatically add datablocks to the
         'blocks' attribute of a 'MultiBlock' when set
         """
-        if isinstance(value, BaseBlock):
+        if isinstance(value, DataBlock):
             self._add_block(value)
         super().__setattr__(name, value)
 
@@ -239,7 +241,7 @@ class MultiBlock(BaseBlock):
         This is particularly useful when extending the functionality of an existing
         MultiBlock object by inheritance
         """
-        self.blocks.append(block)
+        self._blocks.append(block)
 
     @staticmethod
     def _merge_data(multiblocks):
@@ -286,6 +288,23 @@ class DataCrate(AttributedList):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
+    def __init__(self, iterable=()):
+        # recursively unpack the iterable into datablocks only
+        def unpack(iterable):
+            datablocks = []
+            for item in iterable:
+                if not isinstance(item, BaseBlock):
+                    if isinstance(item, Iterable):
+                        datablocks.extend(unpack(item))
+                    else:
+                        raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
+                else:
+                    datablocks.append(item)
+            return datablocks
+
+        items = unpack(iterable)
+        super().__init__(items)
+
     def __and__(self, other):
         if isinstance(other, DataCrate):
             return DataCrate(self + other)
