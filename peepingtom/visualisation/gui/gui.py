@@ -25,38 +25,41 @@ def make_property_widgets(points_layer, property_conditions: dict, output_layer=
         - >, <, >=, <=: continuous properties, make sliders to set the cutoff
         - 'check': property is categorical, make a checkbox for each unique value
     """
-    continuous_props = []
+    available_conds = ('>', '<', '==', '<=', '>=')
+    #sanity check:
     categorical_props = {}
+    continuous_props = {}
     for p, c in property_conditions.items():
+        if p not in points_layer.properties:
+            raise ValueError(f'{p} is not a property of {points_layer}')
         if c == 'check':
-            categorical_props.append(p)
-        else:
+            categorical_props[p] = {}
+            categorical_props[p]['values'] = np.unique(points_layer.properties[p])
+        elif c in available_conds:
             continuous_props[p] = {}
             continuous_props[p]['cond'] = c
-
-    for prop, params in continuous_props:
-        params['min'] = points_layer.properties[prop].min()
-        params['max'] = points_layer.properties[prop].max()
+            continuous_props[p]['min'] = points_layer.properties[p].min()
+            continuous_props[p]['max'] = points_layer.properties[p].max()
+        else:
+            raise ValueError("conditions can only be 'check' or one of {available_conds}")
 
     magic_kwargs = {}
-    for prop, params in continuous_props:
+    for prop, params in continuous_props.items():
         magic_kwargs[prop] = {'widget_type': MySlider, 'minimum': params['min'], 'maximum': params['max']}
-    for prop in categorical_props:
-        pass
     # programmatically generate function call
     func_lines = []
-    func_lines.append(f'def magic_slider(layer: Points, {": float, ".join(property_names)}: float) -> Layer:')
+    func_lines.append(f'def magic_widget(layer: Points, {": float, ".join(continuous_props)}: float) -> Layer:')
     func_lines.append(f'sele = np.ones(len(layer.data))')
-    for prop, cond in zip(property_names, conditions):
-        func_lines.append(f'sele_{prop} = layer.properties["{prop}"] {cond} {prop}')
+    for prop, params in continuous_props.items():
+        func_lines.append(f'sele_{prop} = layer.properties["{prop}"] {params["cond"]} {prop}')
         func_lines.append(f'sele = np.logical_and(sele, sele_{prop})')
     func_lines.append(f'return [(layer.data[sele], {{"name": "{output_layer}", "size": 3 }}, "points")]')
     func = '\n    '.join(func_lines)
     # make the widget
     exec(func, globals())
-    slider_gui = magicgui(magic_slider, auto_call=True, **magic_kwargs)
+    widget_gui = magicgui(magic_widget, auto_call=True, **magic_kwargs)
 
-    return slider_gui.Gui()
+    return widget_gui.Gui()
 
 
 @magicgui(auto_call=True)
