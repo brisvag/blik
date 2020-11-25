@@ -2,6 +2,8 @@ name: Upload to pypi
 
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*' # version tags (e.g: v0.0.1)
 
