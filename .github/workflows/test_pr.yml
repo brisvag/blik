@@ -16,8 +16,12 @@ jobs:
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
+          pip install pytest-cov codecov
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          pytest
+          pytest --cov=./peepingtom
+          codecov
+      - name: Upload report to codecov
+        run: |
+          bash <(curl -s https://codecov.io/bash)
