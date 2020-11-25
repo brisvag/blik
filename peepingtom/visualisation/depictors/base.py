@@ -24,32 +24,29 @@ class Depictor:
         self.name = name
         self.peeper = peeper
 
-        self.layers = LayerList()
+        self.layers = []
 
     @property
     def viewer(self):
         return self.peeper.viewer
 
     def make_image_layer(self, image, name, **kwargs):
-        layer = Image(image, name=name, **kwargs)
-        return layer
+        return Image(image, name=name, **kwargs)
 
     def make_points_layer(self, points, name, **kwargs):
-        layer = Points(points, name=name, **kwargs)
-        return layer
+        return  Points(points, name=name, **kwargs)
 
     def make_vectors_layer(self, vectors, name, **kwargs):
-        layer = Vectors(vectors, name=name, **kwargs)
-        return layer
+        return Vectors(vectors, name=name, **kwargs)
 
     def make_shapes_layer(self, shape, shape_type, name, **kwargs):
-        layer = Shapes(shape, shape_type=shape_type, name=name, **kwargs)
-        return layer
+        return Shapes(shape, shape_type=shape_type, name=name, **kwargs)
 
-    def make_layers(self):
+    def init_layers(self):
         """
         generate the appropriate napari layers and store them
         """
+        raise NotImplementedError
 
     def connect_layers(self):
         """

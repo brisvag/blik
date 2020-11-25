@@ -30,10 +30,10 @@ class ParticlePeeper(Peeper):
             self.depictors.draw()
 
     def classify_radial_distance(self, **kwargs):
-        n_classes = kwargs.get('n_classes', 5)
-        class_tag = kwargs.get('class_tag', 'class_radial')
+        n_classes = kwargs.pop('n_classes', 5)
+        class_tag = kwargs.pop('class_tag', 'class_radial')
         colors = [list(x) for x in color_palette('colorblind', n_colors=n_classes)]
-        classify_radial_distance(self.particles)
+        classify_radial_distance(self.particles, n_classes=n_classes, class_tag=class_tag, **kwargs)
         for d in self.depictors:
             d.point_layer.face_color = class_tag
             d.point_layer.face_color_cycle = colors
