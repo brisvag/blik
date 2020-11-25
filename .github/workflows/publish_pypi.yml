@@ -9,7 +9,9 @@ on:
 
 jobs:
   deploy:
+    name: Create Release
     runs-on: ubuntu-latest
+    if: github.repository == 'gutsche-lab/peepingtom'
     steps:
     - uses: actions/checkout@v2
     - name: Install Python 3
