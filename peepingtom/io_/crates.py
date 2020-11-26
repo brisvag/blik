@@ -1,5 +1,5 @@
 """
-Functions to construct DataCrates from collections of DataBlocks
+Functions to construct DataCrates from files
 """
 
 from pathlib import Path
