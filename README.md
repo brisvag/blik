@@ -8,7 +8,7 @@ Peeping at Tomography data.
 
 **DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Feel free to report them on the issue tracker.
 
-**PeepingTom** is a python tool that leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari), and the scientific python stack to add interactivity to the visualisation of tomography data.
+**PeepingTom** is a python tool to simplify and enable interaction with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
 
 ## Installation
 
@@ -24,4 +24,3 @@ While the higher level API is still in early development, some tools are already
 from peepingtom import ParticlePeeper
 p = ParticlePeeper(path_to_data.star)
 ```
-
