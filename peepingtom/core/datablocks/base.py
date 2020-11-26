@@ -47,7 +47,7 @@ class BaseBlock:
         if isinstance(other, BaseBlock):
             return DataCrate([self, other])
         elif isinstance(other, DataCrate):
-            return DataCrate([self]) + other
+            return DataCrate(self) + other
         else:
             return NotImplemented
 
@@ -288,13 +288,13 @@ class DataCrate(AttributedList):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
-    def __init__(self, iterable=()):
+    def __init__(self, iterable_or_baseblock=()):
         # recursively unpack the iterable into datablocks only
-        def unpack(iterable):
+        def unpack(iterable_or_baseblock):
             datablocks = []
-            for item in iterable:
-                if not isinstance(item, BaseBlock):
-                    if isinstance(item, Iterable):
+            for item in iterable_or_baseblock:
+                if isinstance(item, Iterable):
+                    if not isinstance(item, BaseBlock):
                         datablocks.extend(unpack(item))
                     else:
                         raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
@@ -302,23 +302,36 @@ class DataCrate(AttributedList):
                     datablocks.append(item)
             return datablocks
 
-        items = unpack(iterable)
+        items = unpack([iterable_or_baseblock])
         super().__init__(items)
 
+    def __add__(self, other):
+        if isinstance(other, list):
+            return DataCrate(super().__add__(other))
+        if isinstance(other, BaseBlock):
+            return self + DataCrate([other])
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, list):
+            super().__iadd__(other)
+            return self
+        if isinstance(other, BaseBlock):
+            super().__iadd__([other])
+            return self
+        else:
+            return NotImplemented
+
     def __and__(self, other):
-        if isinstance(other, DataCrate):
-            return DataCrate(self + other)
-        elif isinstance(other, DataBlock):
-            return DataCrate(self + [other])
+        if isinstance(other, (list, BaseBlock)):
+            return self + other
         else:
             return NotImplemented
 
     def __iand__(self, other):
-        if isinstance(other, DataCrate):
+        if isinstance(other, (list, BaseBlock)):
             self += other
-            return self
-        elif isinstance(other, DataBlock):
-            self += DataCrate([other])
             return self
         else:
             return NotImplemented
