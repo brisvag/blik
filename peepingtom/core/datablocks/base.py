@@ -296,17 +296,23 @@ class DataCrate(AttributedList):
                 if isinstance(item, Iterable):
                     if not isinstance(item, BaseBlock):
                         datablocks.extend(unpack(item))
-                    else:
-                        raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
                 else:
                     datablocks.append(item)
             return datablocks
 
         items = unpack([iterable_or_baseblock])
+        self._checktypes(items)
         super().__init__(items)
+
+    @staticmethod
+    def _checktypes(items):
+        for item in items:
+            if not isinstance(item, BaseBlock):
+                raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
 
     def __add__(self, other):
         if isinstance(other, list):
+            self._checktypes(other)
             return DataCrate(super().__add__(other))
         if isinstance(other, BaseBlock):
             return self + DataCrate([other])
@@ -315,6 +321,7 @@ class DataCrate(AttributedList):
 
     def __iadd__(self, other):
         if isinstance(other, list):
+            self._checktypes(other)
             super().__iadd__(other)
             return self
         if isinstance(other, BaseBlock):

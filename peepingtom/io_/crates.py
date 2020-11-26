@@ -7,7 +7,7 @@ from typing import Union, List
 from itertools import zip_longest
 
 from ..core import DataCrate
-from .read import mrc_to_imageblock, data_star_to_particleblock
+from .blocks import mrc_to_imageblock, data_star_to_particleblock
 
 
 def star_to_crates(star_paths: Union[Path, str, List[str], List[Path]],
