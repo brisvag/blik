@@ -9,6 +9,12 @@ def _path(path):
     return Path(path).expanduser().resolve()
 
 
+known_filetypes = (
+    '.mrc',
+    '.star',
+)
+
+
 def guess_name(thing):
     """
     guess an appropriate name based on the input
