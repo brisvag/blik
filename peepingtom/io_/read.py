@@ -10,7 +10,6 @@ def find_files(path, recursive=False):
 
     files = []
     if path.is_file():
-        print(path)
         if path.suffix in known_filetypes:
             files.append(path)
         else:
@@ -36,7 +35,7 @@ def mrc_reader(paths_by_ext):
 
 
 def star_reader(paths_by_ext):
-    return mrc_to_crates(paths_by_ext['.star'])
+    return star_to_crates(paths_by_ext['.star'])
 
 
 def zip_mrc_star_reader(paths_by_ext):
@@ -52,7 +51,7 @@ readers = {
 }
 
 
-def get_reader(files):
+def dispatch(files):
     """
     guess the appropriate reader function to use based on the file paths provided
     """
@@ -61,18 +60,21 @@ def get_reader(files):
     for file_path in files:
         if file_path.suffix not in files_by_ext:
             files_by_ext[file_path.suffix] = []
-        files_by_ext.append(file_path)
+        files_by_ext[file_path.suffix].append(file_path)
 
-    filetypes = set(files_by_ext.keys)
+    filetypes = set(files_by_ext.keys())
     files = set(files)
 
+    reader = None
     if len(filetypes) == 1:
-        return readers[filetypes.pop()]
-
+        reader = readers[filetypes.pop()]
     elif set(files_by_ext.keys()) == {'.mrc', '.star'}:
-        return readers['zip_mrc_star']
+        reader = readers['zip_mrc_star']
 
-    raise ValueError(f'could not guess how to open the given path(s)')
+    if reader is None:
+        raise ValueError(f'could not guess how to open the given path(s)')
+
+    return reader(files_by_ext)
 
 
 def read(paths):
@@ -81,6 +83,4 @@ def read(paths):
     peepingtom data structure.
     """
     files = find_files(paths)
-    reader = get_reader(files)
-
-    return reader(files)
+    return dispatch(files)
