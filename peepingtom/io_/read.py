@@ -1,4 +1,5 @@
 from .utils import _path, known_filetypes
+from .crates import star_to_crates, mrc_to_crates, zip_mrc_star_to_crates
 
 
 def find_files(path, recursive=False):
@@ -28,17 +29,50 @@ def find_files(path, recursive=False):
     return files
 
 
+# READERS
+
+def mrc_reader(paths_by_ext):
+    return mrc_to_crates(paths_by_ext['.mrc'])
+
+
+def star_reader(paths_by_ext):
+    return mrc_to_crates(paths_by_ext['.star'])
+
+
+def zip_mrc_star_reader(paths_by_ext):
+    mrc_files = paths_by_ext['.mrc']
+    star_files = paths_by_ext['.star']
+    return zip_mrc_star_to_crates(mrc_files, star_files)
+
+
+readers = {
+    '.mrc': mrc_reader,
+    '.star': star_reader,
+    'zip_mrc_star': zip_mrc_star_reader,
+}
+
+
 def get_reader(files):
     """
     guess the appropriate reader function to use based on the file paths provided
     """
-    if len(files) == 1:
-        return reader[files[0].extension]
-    else:
-        # split by extension
-        files_by_ext = {ext: [] for ext in known_filetypes}
-        for file_path in files:
-            files_by_ext.append(file_path)
+    # split by extension
+    files_by_ext = {}
+    for file_path in files:
+        if file_path.suffix not in files_by_ext:
+            files_by_ext[file_path.suffix] = []
+        files_by_ext.append(file_path)
+
+    filetypes = set(files_by_ext.keys)
+    files = set(files)
+
+    if len(filetypes) == 1:
+        return readers[filetypes.pop()]
+
+    elif set(files_by_ext.keys()) == {'.mrc', '.star'}:
+        return readers['zip_mrc_star']
+
+    raise ValueError(f'could not guess how to open the given path(s)')
 
 
 def read(paths):
@@ -47,9 +81,6 @@ def read(paths):
     peepingtom data structure.
     """
     files = find_files(paths)
+    reader = get_reader(files)
 
-reader = {
-    '.mrc': mrc_reader,
-    '.star': star_reader,
-
-}
+    return reader(files)
