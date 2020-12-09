@@ -12,15 +12,17 @@ Peeping at Tomography data.
 
 ## Installation
 
-```
+```bash
 pip install peepingtom
 ```
 
 ## Basic Usage
 
-While the higher level API is still in early development, some tools are already functional.
-
-```
-from peepingtom import ParticlePeeper
-p = ParticlePeeper(path_to_data.star)
+```python
+from peepingtom import peep
+p = peep(path_to_data.star)
+# or
+p = peep(path_to.mrc)
+# or
+p = peep(path_to_dir, recursive=True)
 ```

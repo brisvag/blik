@@ -75,10 +75,10 @@ class Peeper:
         self.depictors.update()
 
 
-def peep(path, force_mode=None):
+def peep(path, force_mode=None, **kwargs):
     """
     load path(s) as DataCrates into a Peeper object and display them in napari
     """
-    peeper = Peeper(build(path, mode=force_mode))
+    peeper = Peeper(build(path, mode=force_mode, **kwargs))
     peeper.peep()
     return peeper

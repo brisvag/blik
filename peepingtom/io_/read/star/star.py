@@ -58,7 +58,7 @@ def read_star(star_path, data_columns=[], name_regex=None, **kwargs):
         # try every type of starfile convention
         for star_type, params in star_types.items():
             # check if the necessary columns exist
-            if all(colname in dataframe.columns for colname in params['coords'] + params['angles']):
+            if all(colname in dataframe.columns for colname in params['coords']):
                 # split and guess names
                 named_dfs = split_and_name(dataframe, split_by=params['split_by'],
                                            basename=star_path, name_regex=name_regex)

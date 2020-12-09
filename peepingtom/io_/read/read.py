@@ -31,9 +31,10 @@ def read_file(file_path, **kwargs):
     raise ValueError(f'could not read {file_path}')
 
 
-def read(path, recursive=False, **kwargs):
+def read(path, recursive=False, strict=False, **kwargs):
     """
     read a generic path into the appropriate datablocks
+    strict: if set to False, ignore failures and read what possible
     """
     path = _path(path)
     if not path.exists():
@@ -49,14 +50,22 @@ def read(path, recursive=False, **kwargs):
             basedir = '**'
         known_formats = [ext for formats in readers for ext in formats]
         for ext in known_formats:
-            files.extend(file for file in path.glob(f'{basedir}/*.{ext}'))
+            files.extend(file for file in path.glob(f'{basedir}/*{ext}'))
     if not files:
         raise FileNotFoundError(f'{path} does not contain any files of a know type')
 
     datablocks = []
     for file in files:
-        dbs = read_file(path, **kwargs)
-        if not isinstance(dbs, list):
-            dbs = [dbs]
-        datablocks.extend(dbs)
+        print(file)
+        try:
+            dbs = read_file(file, **kwargs)
+            print(dbs)
+            if not isinstance(dbs, list):
+                dbs = [dbs]
+            datablocks.extend(dbs)
+        except ValueError:
+            if strict:
+                raise
+    if not datablocks:
+        raise ValueError(f'could not read any data from {path}')
     return datablocks
