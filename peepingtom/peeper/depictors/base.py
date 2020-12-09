@@ -9,7 +9,7 @@ from ...core import MultiBlock
 
 class Depictor:
     """
-    Depictors are DataBlock or MultiBlock wrappers controlling depiction of their contents
+    Depictors are SimpleBlock or MultiBlock wrappers controlling depiction of their contents
     """
     def __init__(self, datablock, peeper=None, name='NoName'):
         self.datablock = datablock

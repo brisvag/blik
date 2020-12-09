@@ -1,7 +1,7 @@
-from .base import DataBlock
+from .base import SimpleBlock
 
 
-class PropertyBlock(DataBlock):
+class PropertyBlock(SimpleBlock):
     """
     PropertyBlock is a simple dictionary wrapper for arbitrary data
     """

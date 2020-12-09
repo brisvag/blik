@@ -7,9 +7,10 @@ from itertools import zip_longest
 
 from ...core import DataCrate
 from ..read import read
+from ...utils import AttributedList
 
 
-def build(path, mode=None):
+def build(path, mode=None, **kwargs):
     """
     reads files and return a collection of datacrates
     modes:
@@ -22,15 +23,19 @@ def build(path, mode=None):
     if mode is not None and mode not in modes:
         raise ValueError(f'mode can only be one of {modes}')
 
-    datablocks = read(path)
+    datablocks = read(path, **kwargs)
     datablocks_by_type = defaultdict(list)
     for db in datablocks:
         datablocks_by_type[type(db)].append(db)
 
     if mode is None:
-        # check if the lengths are all the same
-        if len(set(len(db_type) for db_type in datablocks_by_type.values())) == 1:
-            mode = 'zip'
+        # check if there are multiple types and lengths are all the same
+        if len(datablocks_by_type) > 1:
+            count_per_type = [len(db_type) for db_type in datablocks_by_type.values()]
+            if len(set(count_per_type)) == 1:
+                mode = 'zip'
+            else:
+                mode = 'lone'
         else:
             mode = 'lone'
 
@@ -43,3 +48,5 @@ def build(path, mode=None):
         for dbs in zip_longest(datablocks_by_type.values()):
             crates.append(DataCrate(dbs))
         # TODO: add rescaling?
+
+    return AttributedList(crates)

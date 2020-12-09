@@ -1,9 +1,9 @@
 import numpy as np
 
-from .base import DataBlock
+from .base import SimpleBlock
 
 
-class SphereBlock(DataBlock):
+class SphereBlock(SimpleBlock):
     def __init__(self, center: np.ndarray, radius: float = None, **kwargs):
         super().__init__(**kwargs)
         # TODO: check if below works

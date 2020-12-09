@@ -1,30 +1,8 @@
-import re
-
 import starfile
 import eulerangles
 
 from ....core import ParticleBlock
-from ...utils import star_types
-
-
-# a list of commonly used base names for starfiles in regex form
-common_name_regexes = (
-    'TS_\d+',
-)
-
-
-def guess_name(string, name_regex=None):
-    """
-    guess an appropriate name based on the input path or string
-    """
-    possible_names = list(common_name_regexes)
-    if name_regex is not None:
-        possible_names.insert(0, name_regex)
-
-    for name in possible_names:
-        if match := re.search(name, str(string)):
-            return match.group(0)
-    return 'NoName'
+from ...utils import star_types, guess_name
 
 
 def split_and_name(dataframe, split_by, basename, name_regex=None):

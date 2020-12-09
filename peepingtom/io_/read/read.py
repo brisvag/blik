@@ -55,5 +55,8 @@ def read(path, recursive=False, **kwargs):
 
     datablocks = []
     for file in files:
-        datablocks.extend(read_file(path, **kwargs))
+        dbs = read_file(path, **kwargs)
+        if not isinstance(dbs, list):
+            dbs = [dbs]
+        datablocks.extend(dbs)
     return datablocks

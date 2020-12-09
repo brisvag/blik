@@ -1,9 +1,9 @@
 import numpy as np
 
-from .base import DataBlock
+from .base import SimpleBlock
 
 
-class ImageBlock(DataBlock):
+class ImageBlock(SimpleBlock):
     """
     n-dimensional image block
     data can be interpreted as n-dimensional images

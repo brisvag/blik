@@ -18,7 +18,7 @@ class AttributedList(list):
                 attrs = AttributedList()
                 for item in self:
                     # this lets us go as deep as needed, if working with nested lists
-                    if isinstance(item, Iterable):
+                    if isinstance(item, (list, AttributedList)):
                         for sub_item in AttributedList(item):
                             try:
                                 attrs.extend(sub_item.__getattribute__(name))

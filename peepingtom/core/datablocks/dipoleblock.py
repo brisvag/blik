@@ -54,7 +54,7 @@ class DipoleBlock(MultiBlock):
         Returns
         -------
         orientation_block : OrientationBlock
-                            DataBlock containint rotation matrices which premultiply 'vector' to
+                            SimpleBlock containint rotation matrices which premultiply 'vector' to
                             align it with the orientation vectors of each dipole in this object
         """
         # only implemented for 3d rotations

@@ -9,7 +9,7 @@ from ...test_data.blocks import pointblock, lineblock, orientationblock
 
 
 def test_datablock():
-    # assert that BaseBlock class cannot be instantiated directly
+    # assert that DataBlock class cannot be instantiated directly
     with pytest.raises(NotImplementedError):
         DataBlock([])
 

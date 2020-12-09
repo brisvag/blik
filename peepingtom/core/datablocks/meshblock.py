@@ -16,7 +16,7 @@ class MeshBlock(PointBlock):
                    v vertices in m dimensions
         faces : array of shape (f, 3)
                 array of indices into the vertices defining connectivity
-        kwargs : keyword arguments passed to DataBlock
+        kwargs : keyword arguments passed to SimpleBlock
         """
         super().__init__(data=vertices, **kwargs)
         self.vertices = vertices

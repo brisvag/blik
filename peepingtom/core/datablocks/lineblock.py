@@ -25,7 +25,7 @@ class LineBlock(PointBlock):
         ----------
         data : array-like objects of shape (n, m) representing n ordered points
         in m spatial dimensions
-        kwargs : kwargs are passed to DataBlock object
+        kwargs : kwargs are passed to SimpleBlock object
 
         """
         super().__init__(data, **kwargs)
