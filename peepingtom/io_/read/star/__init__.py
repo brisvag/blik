@@ -1,1 +1,1 @@
-from star import read_star
+from .star import read_star

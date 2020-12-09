@@ -5,7 +5,7 @@ Functions to construct DataCrates from paths
 from collections import defaultdict
 from itertools import zip_longest
 
-from ..core import DataCrate
+from ...core import DataCrate
 from ..read import read
 
 

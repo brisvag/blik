@@ -1,5 +1,5 @@
 from napari.layers import Shapes, Points
-from peepingtom.visualisation import LineDepictor
+from peepingtom.peeper import LineDepictor
 
 from ...test_data.blocks import lineblock
 

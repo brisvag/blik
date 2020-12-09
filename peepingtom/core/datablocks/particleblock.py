@@ -1,9 +1,7 @@
 import numpy as np
-import pandas as pd
 
 from .orientedpointblock import OrientedPointBlock
 from .propertyblock import PropertyBlock
-from ...utils.helpers import dataframe_helper
 
 
 class ParticleBlock(OrientedPointBlock):

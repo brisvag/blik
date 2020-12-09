@@ -1,2 +1,2 @@
 from .io_ import read, build
-from .visualisation import peep, Peeper, ParticlePeeper
+from .peeper import peep, Peeper

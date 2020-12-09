@@ -1,5 +1,5 @@
 from napari.layers import Points
-from peepingtom.visualisation import PointDepictor
+from peepingtom.peeper import PointDepictor
 
 from ...test_data.blocks import pointblock
 

@@ -1,5 +1,5 @@
 from napari.layers import Image
-from peepingtom.visualisation import ImageDepictor
+from peepingtom.peeper import ImageDepictor
 
 from ...test_data.blocks import imageblock
 

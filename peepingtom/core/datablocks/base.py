@@ -1,7 +1,7 @@
 from typing import List
 from collections.abc import Iterable
 
-from ...utils.containers import AttributedList
+from ...utils import AttributedList
 
 
 class BaseBlock:

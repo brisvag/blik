@@ -1,5 +1,5 @@
 from napari.layers import Vectors, Points
-from peepingtom.visualisation import ParticleDepictor
+from peepingtom.peeper import ParticleDepictor
 
 from ...test_data.blocks import particleblock
 

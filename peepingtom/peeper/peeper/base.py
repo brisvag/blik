@@ -6,7 +6,8 @@ import napari
 
 from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
-from ...utils.containers import AttributedList
+from ...utils import AttributedList
+from ...io_ import build
 
 
 class Peeper:
@@ -72,3 +73,12 @@ class Peeper:
 
     def update(self):
         self.depictors.update()
+
+
+def peep(path, force_mode=None):
+    """
+    load path(s) as DataCrates into a Peeper object and display them in napari
+    """
+    peeper = Peeper(build(path, force_mode=force_mode))
+    peeper.peep()
+    return peeper

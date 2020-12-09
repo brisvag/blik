@@ -1,6 +1,6 @@
 import mrcfile
 
-from ...core import ImageBlock
+from ....core import ImageBlock
 
 
 def read_mrc(image_path):

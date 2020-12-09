@@ -2,8 +2,7 @@ import re
 
 import starfile
 
-from ...core import ParticleBlock
-from ...utils.helpers import dataframe_helper
+from ....core import ParticleBlock
 from .constants import star_types
 from ...utils import EulerAngleHelper
 

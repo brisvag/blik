@@ -3,7 +3,7 @@ import numpy as np
 from .base import MultiBlock
 from .pointblock import PointBlock
 from .orientationblock import OrientationBlock
-from ...utils.helpers.linalg_helper import align_vectors
+from ...utils import align_vectors
 
 
 class DipoleBlock(MultiBlock):
