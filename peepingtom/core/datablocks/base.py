@@ -294,7 +294,6 @@ class DataCrate(AttributedList):
         def unpack(iterable):
             datablocks = []
             if isinstance(iterable, Iterable) and not isinstance(iterable, DataBlock):
-                breakpoint()
                 for item in iterable:
                     datablocks.extend(unpack(item))
             else:
