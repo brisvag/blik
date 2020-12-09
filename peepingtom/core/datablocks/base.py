@@ -9,7 +9,8 @@ class BaseBlock:
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
     """
-    def __init__(self, parent=None, depictor=None):
+    def __init__(self, name=None, parent=None, depictor=None):
+        self.name = name
         self.parent = parent
         self.depictor = depictor
 

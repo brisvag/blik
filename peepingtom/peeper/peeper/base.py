@@ -79,6 +79,6 @@ def peep(path, force_mode=None):
     """
     load path(s) as DataCrates into a Peeper object and display them in napari
     """
-    peeper = Peeper(build(path, force_mode=force_mode))
+    peeper = Peeper(build(path, mode=force_mode))
     peeper.peep()
     return peeper

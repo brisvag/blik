@@ -11,7 +11,7 @@ readers = {
 }
 
 
-def read_file(file_path):
+def read_file(file_path, **kwargs):
     """
     read a single file and return a list of datablocks
     """
@@ -19,7 +19,7 @@ def read_file(file_path):
         if file_path.suffix in ext:
             for func in funcs:
                 try:
-                    datablocks = func(file_path)
+                    datablocks = func(file_path, **kwargs)
                     # simplify higher level reading
                     if not isinstance(datablocks, list):
                         datablocks = [datablocks]

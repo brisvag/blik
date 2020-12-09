@@ -1,10 +1,10 @@
 import re
 
 import starfile
+import eulerangles
 
 from ....core import ParticleBlock
-from .constants import star_types
-from ...utils import EulerAngleHelper
+from ...utils import star_types
 
 
 # a list of commonly used base names for starfiles in regex form
@@ -38,8 +38,23 @@ def split_and_name(dataframe, split_by, basename, name_regex=None):
         return [(guess_name(basename, name_regex), dataframe)]
 
 
+def euler2matrix(euler_angles, convention):
+    """
+    convert euler angles to matrices
+    """
+    rotation_matrices = eulerangles.euler2matrix(euler_angles,
+                                                 axes=convention['axes'],
+                                                 intrinsic=convention['intrinsic'],
+                                                 positive_ccw=convention['positive_ccw'])
 
-def read_star(star_path, data_columns, name_regex=None):
+    # If rotation matrices represent rotations of particle onto reference
+    # invert them so that we return matrices which transform reference onto particle
+    if convention['rotate_reference'] is False:
+        rotation_matrices = rotation_matrices.transpose((0, 2, 1))
+    return rotation_matrices
+
+
+def read_star(star_path, data_columns=[], name_regex=None, **kwargs):
     """
     read a starfile into one or multiple ParticleBlocks
     data_columns: a list of column names to include as properties
@@ -62,7 +77,7 @@ def read_star(star_path, data_columns, name_regex=None):
     # TODO: use optics metadata
     datablocks = []
     for dataframe in dataframes:
-        # try every type of starfile
+        # try every type of starfile convention
         for star_type, params in star_types.items():
             # check if the necessary columns exist
             if all(colname in dataframe.columns for colname in params['coords'] + params['angles']):
@@ -70,14 +85,15 @@ def read_star(star_path, data_columns, name_regex=None):
                 named_dfs = split_and_name(dataframe, split_by=params['split_by'],
                                            basename=star_path, name_regex=name_regex)
                 for name, df in named_dfs:
+                    # extract the data and convert it to peepingtom format
                     raw_positions = df[params['coords']]
                     raw_shifts = df.get(params['shifts'], 0)
                     raw_eulers = df[params['angles']]
                     raw_properties = df[data_columns]
 
                     positions = (raw_positions + raw_shifts).to_numpy()
-                    orientations = EulerAngleHelper(raw_eulers).euler2matrix(star_type)
-                    properties = {key: df[key].to_numpy() for key in df}
+                    orientations = euler2matrix(raw_eulers, params['angle_convention'])
+                    properties = {key: df[key].to_numpy() for key in raw_properties}
 
                     datablocks.append(ParticleBlock(positions, orientations, properties, name=name))
                 # break of out loop if something was found

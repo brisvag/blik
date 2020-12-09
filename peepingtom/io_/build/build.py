@@ -29,7 +29,7 @@ def build(path, mode=None):
 
     if mode is None:
         # check if the lengths are all the same
-        if len(set(len(datablocks_by_type.values()))) == 1:
+        if len(set(len(db_type) for db_type in datablocks_by_type.values())) == 1:
             mode = 'zip'
         else:
             mode = 'lone'
