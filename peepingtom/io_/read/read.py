@@ -23,6 +23,7 @@ def read_file(file_path):
                     # simplify higher level reading
                     if not isinstance(datablocks, list):
                         datablocks = [datablocks]
+                    return datablocks
                 except ValueError:
                     # this will be raised by individual readers when the file can't be read.
                     # Keep trying until all options are exhausted
