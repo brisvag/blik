@@ -40,11 +40,12 @@ def read_star(star_path, data_columns=[], name_regex=None, **kwargs):
     """
     raw_dfs = starfile.read((star_path), always_dict=True)
 
-    metadata = {}
+    # metadata = {}
     dataframes = []
     # check if relion3.1 format
     if list(raw_dfs.keys()) == ['optics', 'particles']:
-        metadata.append(raw_dfs['optics'])
+        # TODO: use optics metadata
+        # metadata = raw_dfs['optics']
         dataframes.append(raw_dfs['particles'])
     else:
         # assume every key is a different dataset (older version)
@@ -52,7 +53,6 @@ def read_star(star_path, data_columns=[], name_regex=None, **kwargs):
         dataframes.extend(list(raw_dfs.values()))
 
     # create particles
-    # TODO: use optics metadata
     datablocks = []
     for dataframe in dataframes:
         # try every type of starfile convention

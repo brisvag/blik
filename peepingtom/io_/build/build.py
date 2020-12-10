@@ -3,6 +3,7 @@ Functions to construct DataCrates from paths
 """
 
 from collections import defaultdict
+from collections.abc import Iterable
 from itertools import zip_longest
 
 from ...core import DataCrate
@@ -10,9 +11,10 @@ from ..read import read
 from ...utils import AttributedList
 
 
-def build(path, mode=None, **kwargs):
+def build(paths, mode=None, **kwargs):
     """
     reads files and return a collection of datacrates
+    paths: a path or iterable
     modes:
         - lone: each datablock in a separate crate
         - zip: crates with one of each datablock type
@@ -23,7 +25,11 @@ def build(path, mode=None, **kwargs):
     if mode is not None and mode not in modes:
         raise ValueError(f'mode can only be one of {modes}')
 
-    datablocks = read(path, **kwargs)
+    if not isinstance(paths, Iterable):
+        paths = [paths]
+    datablocks = []
+    for path in paths:
+        datablocks.append(read(path, **kwargs))
     datablocks_by_type = defaultdict(list)
     for db in datablocks:
         datablocks_by_type[type(db)].append(db)
