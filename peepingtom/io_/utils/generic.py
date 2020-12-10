@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from collections.abc import Iterable
 
 
 def _path(path):
@@ -28,3 +29,14 @@ def guess_name(string, name_regex=None):
             return match.group(0)
     else:
         return None
+
+
+def listify(obj):
+    """
+    transform input into an appropriate list, unless already non-string iterable
+    """
+    if isinstance(obj, Iterable) and not isinstance(obj, str):
+        return obj
+    if obj is None:
+        return []
+    return [obj]
