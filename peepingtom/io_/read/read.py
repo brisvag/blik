@@ -118,12 +118,12 @@ def read(paths, mode=None, **kwargs):
         else:
             mode = 'lone'
 
-    crates = []
     if mode == 'lone':
-        crates.extend([DataCrate(db) for db in datablocks])
+        crates = [DataCrate(db) for db in datablocks]
     elif mode == 'bunch':
-        crates.append(DataCrate(datablocks))
+        crates = [DataCrate(datablocks)]
     elif mode == 'zip_by_type':
+        crates = []
         for dbs in zip_longest(datablocks_by_type.values()):
             crates.append(DataCrate(dbs))
         # TODO: add rescaling?

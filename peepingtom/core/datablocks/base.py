@@ -293,7 +293,7 @@ class DataCrate(AttributedList):
         # recursively unpack the iterable into datablocks only
         def unpack(iterable):
             datablocks = []
-            if isinstance(iterable, Iterable) and not isinstance(iterable, DataBlock):
+            if isinstance(iterable, (list, tuple)):
                 for item in iterable:
                     datablocks.extend(unpack(item))
             else:

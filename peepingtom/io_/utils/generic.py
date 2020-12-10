@@ -33,9 +33,9 @@ def guess_name(string, name_regex=None):
 
 def listify(obj):
     """
-    transform input into an appropriate list, unless already non-string iterable
+    transform input into an appropriate list, unless already list-like
     """
-    if isinstance(obj, Iterable) and not isinstance(obj, str):
+    if isinstance(obj, (list, tuple)):
         return obj
     if obj is None:
         return []
