@@ -18,6 +18,7 @@ from ...utils import AttributedList
 readers = {
     ('.star',): (read_star,),
     ('.mrc',): (read_mrc,),
+    ('.map'): (read_mrc,),
     ('.em',): (read_em,),
 }
 
