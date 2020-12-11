@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'gutsche-lab/peepingtom'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@master
     - name: Install Python 3
       uses: actions/setup-python@v2
       with:
@@ -31,5 +31,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
+        pip install setuptools wheel twine
         python setup.py sdist bdist_wheel
         twine upload dist/*
