@@ -1,0 +1,10 @@
+napari[all]==0.4.2
+numpy~=1.19
+pandas~=1.1
+scipy~=1.5
+seaborn~=0.11
+dynamotable~=0.2.3
+eulerangles~=0.1.1
+mrcfile~=1.1.2
+starfile~=0.4.4
+emfile~=0.2
