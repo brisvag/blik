@@ -7,3 +7,4 @@ dynamotable~=0.2.3
 eulerangles~=0.1.1
 mrcfile~=1.1.2
 starfile~=0.4.1
+emfile~=0.1.0
