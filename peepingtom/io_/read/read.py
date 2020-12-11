@@ -5,6 +5,7 @@ from itertools import zip_longest
 from ..utils import _path, listify
 from .star import read_star
 from .mrc import read_mrc
+from .em import read_em
 
 from ...core import DataCrate
 from ...utils import AttributedList
@@ -17,6 +18,7 @@ from ...utils import AttributedList
 readers = {
     ('.star',): (read_star,),
     ('.mrc',): (read_mrc,),
+    ('.em',): (read_em,),
 }
 
 
