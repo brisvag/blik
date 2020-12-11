@@ -5,7 +5,7 @@ from ...utils import _path
 
 def write_mrc(imageblock, file_path, overwrite=False):
     """
-    read an mrc file and return an ImageBlock
+    write an image block to disk as an .mrc file
     """
     path = str(_path(file_path))
     if not path.endswith('.mrc'):
