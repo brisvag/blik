@@ -10,6 +10,8 @@ class DataBlock:
     Provides common methods and easy type inference
     """
     def __init__(self, name=None, parent=None, depictor=None):
+        if name is None:
+            name = 'NoName'
         self.name = name
         self.parent = parent
         self.depictor = depictor
@@ -39,7 +41,7 @@ class DataBlock:
         return ''
 
     def __base_repr__(self):
-        return f'{type(self).__name__}{self.__shape_repr__()}'
+        return f'{type(self).__name__}[{self.name}]{self.__shape_repr__()}'
 
     def __repr__(self):
         return f'<{self.__base_repr__()}>'

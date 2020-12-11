@@ -11,7 +11,7 @@ class Depictor:
     """
     Depictors are SimpleBlock or MultiBlock wrappers controlling depiction of their contents
     """
-    def __init__(self, datablock, peeper=None, name='NoName'):
+    def __init__(self, datablock, peeper=None):
         self.datablock = datablock
 
         # hook self to the datablock
@@ -20,7 +20,7 @@ class Depictor:
             for block in self.datablock.blocks:
                 block.depictor = self
 
-        self.name = name
+        self.name = self.datablock.name
         self.peeper = peeper
 
         self.layers = []
@@ -93,4 +93,4 @@ class Depictor:
         """
 
     def __repr__(self):
-        return f'<{type(self).__name__}{self.datablock.__shape_repr__()}>'
+        return f'<{type(self).__name__}[{self.name}]{self.datablock.__shape_repr__()}>'
