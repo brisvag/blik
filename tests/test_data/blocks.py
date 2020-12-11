@@ -4,7 +4,7 @@ example DataBlocks of each type
 import numpy as np
 
 from peepingtom.core import PointBlock, LineBlock, OrientationBlock, ImageBlock, PropertyBlock, ParticleBlock
-from peepingtom.utils.helpers import linalg_helper
+from peepingtom.utils import align_vectors
 
 # points
 n = 100
@@ -35,7 +35,7 @@ z = np.zeros(n)
 
 xyz = np.column_stack([x, y, z])
 unit_z = np.asarray([0, 0, 1])
-rotation_matrices = linalg_helper.align_vectors(unit_z, xyz)
+rotation_matrices = align_vectors(unit_z, xyz)
 
 orientationblock = OrientationBlock(rotation_matrices)
 

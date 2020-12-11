@@ -1,10 +1,10 @@
 import numpy as np
 from eulerangles import euler2matrix
 
-from .base import DataBlock
+from .base import SimpleBlock
 
 
-class OrientationBlock(DataBlock):
+class OrientationBlock(SimpleBlock):
     """
     OrientationBlock objects represent orientations in a 2d or 3d space
 

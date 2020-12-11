@@ -1,9 +1,9 @@
 import numpy as np
 
-from .base import DataBlock
+from .base import SimpleBlock
 
 
-class PointBlock(DataBlock):
+class PointBlock(SimpleBlock):
     """
     PointBlock objects for representing points with convenience methods
 

@@ -3,7 +3,7 @@ import numpy as np
 from .base import MultiBlock
 from .pointblock import PointBlock
 from .orientationblock import OrientationBlock
-from ...utils.helpers.linalg_helper import align_vectors
+from ...utils import align_vectors
 
 
 class DipoleBlock(MultiBlock):
@@ -54,7 +54,7 @@ class DipoleBlock(MultiBlock):
         Returns
         -------
         orientation_block : OrientationBlock
-                            DataBlock containint rotation matrices which premultiply 'vector' to
+                            SimpleBlock containint rotation matrices which premultiply 'vector' to
                             align it with the orientation vectors of each dipole in this object
         """
         # only implemented for 3d rotations

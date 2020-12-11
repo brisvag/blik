@@ -1,15 +1,18 @@
 from typing import List
 from collections.abc import Iterable
 
-from ...utils.containers import AttributedList
+from ...utils import AttributedList
 
 
-class BaseBlock:
+class DataBlock:
     """
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
     """
-    def __init__(self, parent=None, depictor=None):
+    def __init__(self, name=None, parent=None, depictor=None):
+        if name is None:
+            name = 'NoName'
+        self.name = name
         self.parent = parent
         self.depictor = depictor
 
@@ -38,16 +41,16 @@ class BaseBlock:
         return ''
 
     def __base_repr__(self):
-        return f'{type(self).__name__}{self.__shape_repr__()}'
+        return f'{type(self).__name__}[{self.name}]{self.__shape_repr__()}'
 
     def __repr__(self):
         return f'<{self.__base_repr__()}>'
 
     def __and__(self, other):
-        if isinstance(other, BaseBlock):
+        if isinstance(other, DataBlock):
             return DataCrate([self, other])
         elif isinstance(other, DataCrate):
-            return DataCrate([self]) + other
+            return DataCrate(self) + other
         else:
             return NotImplemented
 
@@ -126,14 +129,14 @@ class BaseBlock:
             return NotImplemented
 
 
-class DataBlock(BaseBlock):
+class SimpleBlock(DataBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
 
-    DataBlock objects must implement a data setter method as _data_setter which returns
+    SimpleBlock objects must implement a data setter method as _data_setter which returns
     the appropriately formatted data
 
-    Calling __getitem__ on a DataBlock will call __getitem__ on its data property
+    Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property
     """
 
     def __init__(self, data, **kwargs):
@@ -154,9 +157,9 @@ class DataBlock(BaseBlock):
 
     def _data_setter(self, data):
         """
-        takes raw data and returns it properly formatted to the DataBlock subclass specification.
+        takes raw data and returns it properly formatted to the SimpleBlock subclass specification.
         """
-        raise NotImplementedError('DataBlocks must implement this method')
+        raise NotImplementedError('SimpleBlocks must implement this method')
 
     def dump(self):
         kwargs = super().dump()
@@ -199,9 +202,9 @@ class DataBlock(BaseBlock):
         self.data = self._stack_data([self] + datablocks)
 
 
-class MultiBlock(BaseBlock):
+class MultiBlock(DataBlock):
     """
-    Unites multiple DataBlocks into a more complex data object
+    Unites multiple SimpleBlocks into a more complex data object
 
     Note: classes which inherit from 'MultiBlock' should call Super().__init__
     first in their constructors so that references to blocks are correctly defined
@@ -210,7 +213,7 @@ class MultiBlock(BaseBlock):
         """
         Parameters
         ----------
-        kwargs : keyword arguments which get passed down to BaseBlock
+        kwargs : keyword arguments which get passed down to DataBlock
         """
         super().__init__(**kwargs)
         self.blocks = []
@@ -220,7 +223,7 @@ class MultiBlock(BaseBlock):
         Extend the functionality of __setattr__ to automatically add datablocks to the
         'blocks' attribute of a 'MultiBlock' when set
         """
-        if isinstance(value, DataBlock):
+        if isinstance(value, SimpleBlock):
             self._add_block(value)
         super().__setattr__(name, value)
 
@@ -229,14 +232,14 @@ class MultiBlock(BaseBlock):
         return self._blocks
 
     @blocks.setter
-    def blocks(self, blocks: List[DataBlock]):
+    def blocks(self, blocks: List[SimpleBlock]):
         if not isinstance(blocks, list):
-            raise ValueError("blocks in a multiblock object must be a list of 'DataBlock' objects")
+            raise ValueError("blocks in a multiblock object must be a list of 'SimpleBlock' objects")
         self._blocks = blocks
 
-    def _add_block(self, block: DataBlock):
+    def _add_block(self, block: SimpleBlock):
         """
-        Adds a block to an existing list of DataBlocks in a MultiBlock
+        Adds a block to an existing list of SimpleBlocks in a MultiBlock
 
         This is particularly useful when extending the functionality of an existing
         MultiBlock object by inheritance
@@ -288,37 +291,56 @@ class DataCrate(AttributedList):
     """
     A container for DataBlock objects which exist within the same n-dimensional reference space
     """
-    def __init__(self, iterable=()):
+    def __init__(self, iterable_or_datablock=()):
         # recursively unpack the iterable into datablocks only
         def unpack(iterable):
             datablocks = []
-            for item in iterable:
-                if not isinstance(item, BaseBlock):
-                    if isinstance(item, Iterable):
-                        datablocks.extend(unpack(item))
-                    else:
-                        raise TypeError(f'DataCrate can only hold BaseBlocks, not {type(item)}')
-                else:
-                    datablocks.append(item)
+            if isinstance(iterable, (list, tuple)):
+                for item in iterable:
+                    datablocks.extend(unpack(item))
+            else:
+                datablocks.append(iterable)
             return datablocks
 
-        items = unpack(iterable)
+        items = unpack(iterable_or_datablock)
+        self._checktypes(items)
         super().__init__(items)
 
+    @staticmethod
+    def _checktypes(items):
+        for item in items:
+            if not isinstance(item, DataBlock):
+                raise TypeError(f'DataCrate can only hold DataBlocks, not {type(item)}')
+
+    def __add__(self, other):
+        if isinstance(other, list):
+            self._checktypes(other)
+            return DataCrate(super().__add__(other))
+        if isinstance(other, DataBlock):
+            return self + DataCrate([other])
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, list):
+            self._checktypes(other)
+            super().__iadd__(other)
+            return self
+        if isinstance(other, DataBlock):
+            super().__iadd__([other])
+            return self
+        else:
+            return NotImplemented
+
     def __and__(self, other):
-        if isinstance(other, DataCrate):
-            return DataCrate(self + other)
-        elif isinstance(other, DataBlock):
-            return DataCrate(self + [other])
+        if isinstance(other, (list, DataBlock)):
+            return self + other
         else:
             return NotImplemented
 
     def __iand__(self, other):
-        if isinstance(other, DataCrate):
+        if isinstance(other, (list, DataBlock)):
             self += other
-            return self
-        elif isinstance(other, DataBlock):
-            self += DataCrate([other])
             return self
         else:
             return NotImplemented

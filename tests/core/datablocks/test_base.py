@@ -4,17 +4,17 @@ Tests for DataBlock objects
 
 import pytest
 
-from peepingtom.core import DataBlock, MultiBlock, DataCrate, Model
+from peepingtom.core import SimpleBlock, MultiBlock, DataCrate, Model
 from ...test_data.blocks import pointblock, lineblock, orientationblock
 
 
-def test_datablock():
-    # assert that BaseBlock class cannot be instantiated directly
+def test_simpleblock():
+    # assert that SimpleBlock class cannot be instantiated directly
     with pytest.raises(NotImplementedError):
-        DataBlock([])
+        SimpleBlock([])
 
     # assert that subclassing and implementing _data_setter works
-    class SubBlock(DataBlock):
+    class SubBlock(SimpleBlock):
         def __init__(self, data, **kwargs):
             super().__init__(data, **kwargs)
 
@@ -22,13 +22,13 @@ def test_datablock():
             return data
 
     subblock = SubBlock([])
-    assert isinstance(subblock, (DataBlock, SubBlock))
+    assert isinstance(subblock, (SimpleBlock, SubBlock))
 
     # assert that subclass has parent attribute
     assert hasattr(subblock, 'parent')
 
     # assert that subclassing and not implementing _data_setter fails on subclass instantiation
-    class SubBlock(DataBlock):
+    class SubBlock(SimpleBlock):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
 
