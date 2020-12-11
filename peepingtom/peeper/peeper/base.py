@@ -7,7 +7,7 @@ import napari
 from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
 from ...utils import AttributedList
-from ...io_ import read
+from ...io_ import read, write
 
 
 class Peeper:
@@ -73,6 +73,18 @@ class Peeper:
 
     def update(self):
         self.depictors.update()
+
+    def read(self, paths, **kwargs):
+        """
+        read paths into datablocks and append them to the datacrates
+        """
+        self.crates.append(read(paths, **kwargs))
+
+    def write(self, paths, **kwargs):
+        """
+        write datablock contents to disk
+        """
+        write(self.datablocks, paths, **kwargs)
 
 
 def peep(paths, force_mode=None, **kwargs):
