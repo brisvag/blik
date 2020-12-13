@@ -1,3 +1,10 @@
+from pathlib import Path
+
+import eulerangles
+
+from ....core import ParticleBlock
+
+
 def rln30_df_to_particleblocks(df):
     """Generate a list of ParticleBlocks from a RELION 3.0 style star file
     """
@@ -61,17 +68,6 @@ def euler2matrix_rln(euler_angles):
                                                  intrinsic=True,
                                                  positive_ccw=True)
 
-    rotation_matrices = rotation_matrices.transpose((0, 2, 1))
+    rotation_matrices = rotation_matrices.swapaxes(-2, -1)
     return rotation_matrices
-
-
-def split_and_name(dataframe, split_by, basename, name_regex=None):
-    """
-    splits a dataframe from a starfile in separate
-    """
-    if split_by in dataframe.columns:
-        groups = dataframe.groupby('rlnMicrographName')
-        return [(guess_name(subname, name_regex), dataframe) for subname, dataframe in groups]
-    else:
-        return [(guess_name(basename, name_regex), dataframe)]
 
