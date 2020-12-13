@@ -24,7 +24,7 @@ def rln30_df_to_particleblocks(df):
         eulers = df_[euler_headings]
         rotation_matrices = euler2matrix_rln(eulers)
 
-        properties = {key: df[key].to_numpy() for key in df.columns}
+        properties = {key: df_[key].to_numpy() for key in df.columns}
 
         particleblocks.append(ParticleBlock(xyz, rotation_matrices, properties, name=name))
 
