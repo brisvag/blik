@@ -1,5 +1,6 @@
 import starfile
 import eulerangles
+import numpy as np
 
 from ....core import ParticleBlock
 from ...utils import star_types, guess_name
@@ -28,7 +29,7 @@ def euler2matrix(euler_angles, convention):
     # If rotation matrices represent rotations of particle onto reference
     # invert them so that we return matrices which transform reference onto particle
     if convention['rotate_reference'] is False:
-        rotation_matrices = rotation_matrices.transpose((0, 2, 1))
+        rotation_matrices = np.swapaxes(rotation_matrices, -1, -2)
     return rotation_matrices
 
 
