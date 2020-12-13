@@ -10,7 +10,7 @@ class OrientationBlock(SimpleBlock):
 
     Contains factory methods for instantiation from eulerian angles
 
-    rotation_matrices : (n, 2, 2) or (n, 3, 3) array of rotation matrices R
+    data : (n, 2, 2) or (n, 3, 3) array of rotation matrices R
                         R should satisfy Rv = v' where v is a column vector
 
     """
