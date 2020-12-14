@@ -1,7 +1,7 @@
 from napari.layers import Points
 from peepingtom.peeper import PointDepictor
 
-from ...test_data.blocks import pointblock
+from test_data.blocks import pointblock
 
 
 def test_points_depictor():

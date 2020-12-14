@@ -1,7 +1,7 @@
 from napari.layers import Vectors, Points
 from peepingtom.peeper import ParticleDepictor
 
-from ...test_data.blocks import particleblock
+from test_data.blocks import particleblock
 
 
 def test_particle_depictor():
