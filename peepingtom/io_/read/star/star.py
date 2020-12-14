@@ -15,4 +15,4 @@ def read_star(star_path):
             return particle_blocks
         except ValueError:
             failed_reader_functions.append((style, reader_function))
-    raise NotImplementedError(f'Failed to parse {star_path} using {failed_reader_functions}')
+    raise ValueError(f'Failed to parse {star_path} using {failed_reader_functions}')
