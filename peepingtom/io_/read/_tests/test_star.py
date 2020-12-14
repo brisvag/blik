@@ -9,8 +9,8 @@ def test_read_relion30_3d():
     star_path = external_star_files / 'HIV_15.00Apx_rln3.0.star'
     particleblocks = read_star(star_path)
 
-    assert(len(particleblocks) == 5)
-    assert(sum([block.positions.data.shape[0] for block in particleblocks]) == 27950)
+    assert (len(particleblocks) == 5)
+    assert (sum([block.positions.data.shape[0] for block in particleblocks]) == 27950)
 
 
 def test_read_relion31_31():
@@ -19,4 +19,3 @@ def test_read_relion31_31():
 
     assert len(particleblocks) == 100
     assert sum([block.positions.data.shape[0] for block in particleblocks]) == 9089
-
