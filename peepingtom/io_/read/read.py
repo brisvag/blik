@@ -17,8 +17,7 @@ from ...utils import AttributedList
 # TODO: put this directly in the readers to make it plug and play?
 readers = {
     ('.star',): (read_star,),
-    ('.mrc',): (read_mrc,),
-    ('.map'): (read_mrc,),
+    ('.mrc', '.map'): (read_mrc,),
     ('.em',): (read_em,),
 }
 
