@@ -14,17 +14,17 @@ def rln30_df_to_particleblocks(df):
 
     particleblocks = []
 
-    for micrograph_name, df_ in df.groupby('rlnMicrographName'):
+    for micrograph_name, df_volume in df.groupby('rlnMicrographName'):
         name = Path(micrograph_name).stem
 
-        coords = df_[coord_headings]
-        shifts = df_.get(shift_headings, 0)
+        coords = df_volume[coord_headings]
+        shifts = df_volume.get(shift_headings, 0)
         xyz = (coords + shifts).to_numpy()
 
-        eulers = df_[euler_headings]
+        eulers = df_volume[euler_headings]
         rotation_matrices = euler2matrix_rln(eulers)
 
-        properties = {key: df_[key].to_numpy() for key in df.columns}
+        properties = {key: df_volume[key].to_numpy() for key in df.columns}
 
         particleblocks.append(ParticleBlock(xyz, rotation_matrices, properties, name=name))
 
@@ -41,14 +41,14 @@ def rln31_df_to_particleblocks(df):
 
     particleblocks = []
 
-    for micrograph_name, df_ in df.groupby('rlnMicrographName'):
+    for micrograph_name, df_volume in df.groupby('rlnMicrographName'):
         name = Path(micrograph_name).stem
 
-        coords = df_[coord_headings]
-        shifts_px = df_[shift_headings] / df[pixel_size_heading]
+        coords = df_volume[coord_headings]
+        shifts_px = df_volume[shift_headings] / df[pixel_size_heading]
         xyz = (coords + shifts_px).to_numpy()
 
-        eulers = df_[euler_headings]
+        eulers = df_volume[euler_headings]
         rotation_matrices = euler2matrix_rln(eulers)
 
         properties = {key: df[key].to_numpy() for key in df.columns}
