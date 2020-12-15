@@ -21,5 +21,7 @@ def test_classify_radial_distance():
 def test_classify_radial_distance_inplace():
     p = ParticleBlock(pt, ori, prop)
     classify_radial_distance([p], n_classes=1)
-    added_props = ['class_radial', 'class_radial_params']
+    added_props = ['class_radial']
+    added_metadata = ['class_radial_centroids', 'class_radial_params']
     assert all([x in p.properties for x in added_props])
+    assert all([x in p.metadata for x in added_metadata])
