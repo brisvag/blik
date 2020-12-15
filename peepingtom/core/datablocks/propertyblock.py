@@ -1,21 +1,25 @@
+import numpy as np
+import pandas as pd
 from .base import SimpleBlock
 
 
 class PropertyBlock(SimpleBlock):
     """
-    PropertyBlock is a simple dictionary wrapper for arbitrary data
+    PropertyBlock is a simple dataframe wrapper with datablock api
+    data: dataframe or dict whose values all have the same length
     """
     def _data_setter(self, data):
-        return dict(data)
+        return pd.DataFrame(data)
 
     def items(self):
-        return self.data.items()
+        # numpy array instead of pandas series, for compatibility
+        for k, v in self.data.items():
+            yield k, np.array(v)
 
     @staticmethod
     def _merge_data(datablocks):
-        # TODO: this is probably gonna break
-        return {k: v for db in datablocks for k, v in db.items()}
+        return pd.concat([db.data for db in datablocks], ignore_index=True)
 
     @staticmethod
     def _stack_data(datablocks):
-        return {}
+        return pd.concat([db.data for db in datablocks], ignore_index=True)

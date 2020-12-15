@@ -20,16 +20,16 @@ def classify_radial_distance(particles, class_tag='class_radial', max_r=50, n_sh
     # calculate adjacency matrix or reuse old one
     for part in particles:
         redo = True
-        if f'{class_tag}_params' in part.properties:
-            old_max_r = part.properties[f'{class_tag}_params']['max_r']
+        if f'{class_tag}_params' in part.metadata:
+            old_max_r = part.metadata[f'{class_tag}_params']['max_r']
             if max_r <= old_max_r:
-                adj_matrix = part.properties[f'{class_tag}_adj_matrix']
+                adj_matrix = part.metadata[f'{class_tag}_adj_matrix']
                 redo = False
         if not use_old_matrix or redo:
             tree = cKDTree(part.positions.data)
             adj_matrix = tree.sparse_distance_matrix(tree, max_r).toarray()
             if inplace:
-                part.properties[f'{class_tag}_adj_matrix'] = adj_matrix
+                part.metadata[f'{class_tag}_adj_matrix'] = adj_matrix
 
         # calculate shells
 
@@ -50,8 +50,8 @@ def classify_radial_distance(particles, class_tag='class_radial', max_r=50, n_sh
             part.properties[class_tag] = sliced_classes
             start += part.positions.data.shape[0]
 
-            part.properties[f'{class_tag}_centroids'] = centroids
-            part.properties[f'{class_tag}_params'] = {
+            part.metadata[f'{class_tag}_centroids'] = centroids
+            part.metadata[f'{class_tag}_params'] = {
                 'max_r': max_r
             }
 
