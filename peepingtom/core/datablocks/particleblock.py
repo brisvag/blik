@@ -3,6 +3,9 @@ from .propertyblock import PropertyBlock
 
 
 class ParticleBlock(OrientedPointBlock):
+    """
+    Represents a set of particles with coordinates, orientations and arbitrary properties
+    """
     def __init__(self, positions, orientations, properties=None, metadata=None, **kwargs):
         # Initialise OrientedPointBlock
         super().__init__(positions, orientations, **kwargs)
