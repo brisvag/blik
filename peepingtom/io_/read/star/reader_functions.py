@@ -15,7 +15,7 @@ def parse_relion30_3d(raw_data):
     if len(raw_data.values()) > 1:
         raise ValueError("Cannot parse as RELION 3.0 format STAR file")
 
-    df = list(raw_data.values)[0]
+    df = list(raw_data.values())[0]
     return rln30_df_to_particleblocks(df)
 
 
