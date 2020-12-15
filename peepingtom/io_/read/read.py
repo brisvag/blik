@@ -6,6 +6,7 @@ from ..utils import _path, listify
 from .star import read_star
 from .mrc import read_mrc
 from .em import read_em
+from .tbl import read_tbl
 
 from ...core import DataCrate
 from ...utils import AttributedList
@@ -19,6 +20,7 @@ readers = {
     ('.star',): (read_star,),
     ('.mrc', '.map'): (read_mrc,),
     ('.em',): (read_em,),
+    ('.tbl'): (read_tbl,),
 }
 
 
