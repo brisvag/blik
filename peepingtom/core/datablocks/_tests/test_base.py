@@ -5,7 +5,7 @@ Tests for DataBlock objects
 import pytest
 
 from peepingtom.core import SimpleBlock, MultiBlock, DataCrate, Model
-from ...test_data.blocks import pointblock, lineblock, orientationblock
+from test_data.blocks import pointblock, lineblock, orientationblock
 
 
 def test_simpleblock():

@@ -1,7 +1,7 @@
 from napari.layers import Shapes, Points
 from peepingtom.peeper import LineDepictor
 
-from ...test_data.blocks import lineblock
+from test_data.blocks import lineblock
 
 
 def test_line_depictor():

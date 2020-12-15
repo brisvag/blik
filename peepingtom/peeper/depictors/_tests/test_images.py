@@ -1,7 +1,7 @@
 from napari.layers import Image
 from peepingtom.peeper import ImageDepictor
 
-from ...test_data.blocks import imageblock
+from test_data.blocks import imageblock
 
 
 def test_image_depictor():
