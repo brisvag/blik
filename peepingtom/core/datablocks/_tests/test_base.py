@@ -5,7 +5,6 @@ Tests for DataBlock objects
 import pytest
 
 from peepingtom.core import SimpleBlock, MultiBlock, DataCrate, Model
-from ...test_data.blocks import pointblock, lineblock, orientationblock
 
 
 def test_simpleblock():
@@ -43,7 +42,7 @@ def test_multiblock():
 
 def test_datacrate():
     # assert that datacrate instantiates properly
-    crate = DataCrate([pointblock, lineblock, orientationblock])
+    crate = DataCrate([])
     assert isinstance(crate, DataCrate)
 
 

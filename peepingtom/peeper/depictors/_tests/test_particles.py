@@ -1,10 +1,12 @@
+import numpy as np
 from napari.layers import Vectors, Points
-from peepingtom.peeper import ParticleDepictor
 
-from ...test_data.blocks import particleblock
+from peepingtom.core import ParticleBlock
+from peepingtom.peeper import ParticleDepictor
 
 
 def test_particle_depictor():
+    particleblock = ParticleBlock(np.ones((2, 3)), np.ones((2, 3, 3)), {})
     particle_depictor = ParticleDepictor(particleblock, peeper=None)
     assert particle_depictor.datablock is particleblock
     particle_depictor.init_layers()

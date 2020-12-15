@@ -1,0 +1,26 @@
+import pandas as pd
+import dynamotable
+
+from peepingtom.io_.read.tbl import read_tbl
+from peepingtom.core import ParticleBlock
+
+
+def test_read_tbl(tmp_path):
+    df = pd.DataFrame({
+        'x': [1, 2],
+        'y': [1, 2],
+        'z': [1, 2],
+        'dx': [1, 2],
+        'dy': [1, 2],
+        'dz': [1, 2],
+        'tdrot': [1, 2],
+        'tilt': [1, 2],
+        'narot': [1, 2],
+        'tomo': [1, 2],
+    })
+    file_path = tmp_path / 'test.tbl'
+    dynamotable.new(df, file_path)
+
+    particleblocks = read_tbl(file_path)
+    assert all(isinstance(pb, ParticleBlock) for pb in particleblocks)
+    assert particleblocks[0].name == '1'
