@@ -1,7 +1,6 @@
 import numpy as np
 
 from peepingtom.core import TransformBlock, DipoleBlock, PointBlock, ParticleBlock
-from test_data.blocks import particleblock
 
 # test transform
 shifts = [
@@ -28,6 +27,7 @@ def test_transformblock_instantiation():
 def test_transformblock_application():
     block = TransformBlock(test_shifts, test_orientations, {})
 
+    particleblock = ParticleBlock(np.ones((2, 3)), np.ones((2, 3, 3)), {})
     # apply transformations in block on particles
     new_block = block.apply_on(particleblock)
 
