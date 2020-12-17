@@ -2,6 +2,8 @@
 Analysis functions that operate on collections of data object
 """
 
+from multiprocessing import Pool
+
 import numpy as np
 from scipy.spatial import distance_matrix
 from scipy.spatial import distance
@@ -10,11 +12,11 @@ from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
 
 
-def calculate_distance_matrix(particleblock, use_old_matrix=True):
+def calculate_distance_matrix(particleblock, use_old=True):
     """
     compute a (n, n) matrix with relative euclidean distances between particle positions
     """
-    if use_old_matrix and 'dist_matrix' in particleblock.metadata:
+    if use_old and 'dist_matrix' in particleblock.metadata:
         dist_matrix = particleblock.metadata['dist_matrix']
     else:
         positions = particleblock.positions.data
@@ -23,11 +25,11 @@ def calculate_distance_matrix(particleblock, use_old_matrix=True):
     return dist_matrix
 
 
-def calculate_orientation_matrix(particleblock, use_old_matrix=True):
+def calculate_orientation_matrix(particleblock, use_old=True):
     """
     compute a (n, n) matrix with relative cosine distances between particle orientations
     """
-    if use_old_matrix and 'ori_matrix' in particleblock.metadata:
+    if use_old and 'ori_matrix' in particleblock.metadata:
         ori_matrix = particleblock.metadata['ori_matrix']
     else:
         ori_vectors = particleblock.orientations.oriented_vectors('z').reshape(-1, 3)
@@ -36,38 +38,48 @@ def calculate_orientation_matrix(particleblock, use_old_matrix=True):
     return ori_matrix
 
 
-def calculate_radial_profile(particleblocks, n_shells=100, max_dist=None, convolve=True, cv_window=None,
-                             std=None, **kwargs):
+def calculate_shell(i, shell_width, dist_matrix, ori_matrix):
+    inner = i * shell_width
+    outer = (i + 1) * shell_width
+    neighbours = (dist_matrix > inner) & (dist_matrix <= outer)
+    neighbour_count = np.sum(neighbours, axis=1)
+    neighbour_ori = np.where(neighbours, ori_matrix, 0)
+    neighbour_count = np.where(neighbour_count, neighbour_count, 1.0)   # TODO: any number should be fine?
+    neighbour_ori_avg = np.sum(neighbour_ori, axis=1) / neighbour_count
+    return neighbour_count, neighbour_ori_avg
+
+
+def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=True, cv_window=None,
+                             std=None, use_old=True, **kwargs):
     """
-    calculate the radial profile of distances and orientations of a list of particleblocks
+    calculate the radial profile of distances and orientations of a particleblock
     """
-    if max_dist is None:
-        max_dist = max(pb.positions.data.max() for pb in particleblocks)
-    shell_width = max_dist / n_shells
+    if use_old and 'radial_profile' in particleblock.metadata:
+        radial_dist_profile, radial_ori_profile = particleblock.metadata['radial_profile']
+    else:
+        shell_width = max_dist / n_shells
 
-    for part in particleblocks:
-        print(f'####### doing: {part}')
-        dist_matrix = calculate_distance_matrix(part, **kwargs)
-        ori_matrix = calculate_orientation_matrix(part, **kwargs)
-        for i in range(n_shells):
-            print(f'shell {i} of {n_shells}')
-            inner = i * shell_width
-            outer = (i + 1) * shell_width
-            neighbours = (dist_matrix > inner) & (dist_matrix <= outer)
-            neighbour_count = np.sum(neighbours, axis=1)
-            neighbour_ori = np.where(neighbours, ori_matrix, 0)
-            neighbour_ori_avg = np.sum(neighbour_ori, axis=1) / neighbour_count
+        dist_matrix = calculate_distance_matrix(particleblock, **kwargs)
+        ori_matrix = calculate_orientation_matrix(particleblock, **kwargs)
 
-    if convolve:
-        # some "sane" defaults
-        if cv_window is None:
-            cv_window = n_shells / 5
-        if std is None:
-            std = cv_window / 7
-        print('####### convolution')
-        radial_dist_profile = convolve1d(neighbour_count, gaussian(cv_window, std))
-        radial_ori_profile = convolve1d(neighbour_ori_avg, gaussian(cv_window, std))
+        with Pool() as pool:
+            shells = pool.starmap(calculate_shell,
+                                  [(i, shell_width, dist_matrix, ori_matrix) for i in range(n_shells)])
+        radial_dist_profile, radial_ori_profile = (shell for shell in zip(*shells))
 
+        radial_dist_profile = np.stack(radial_dist_profile, axis=1)
+        radial_ori_profile = np.stack(radial_ori_profile, axis=1)
+
+        if convolve:
+            # some "sane" defaults
+            if cv_window is None:
+                cv_window = n_shells / 5
+            if std is None:
+                std = cv_window / 7
+            radial_dist_profile = convolve1d(radial_dist_profile, gaussian(cv_window, std))
+            radial_ori_profile = convolve1d(radial_ori_profile, gaussian(cv_window, std))
+
+    particleblock.metadata['radial_profile'] = (radial_dist_profile, radial_ori_profile)
     return radial_dist_profile, radial_ori_profile
 
 
@@ -75,17 +87,24 @@ def classify_radial_profile(particleblocks, n_classes=5, class_tag='class_radial
     """
     classify particles based on their radial distance and orientation profile
     """
-    data = np.concatenate(calculate_radial_profile(particleblocks, **kwargs))
-    print('####### classification')
-    data = np.nan_to_num(data)
+    max_dist = max(pb.positions.data.max() for pb in particleblocks)
+    data = []
+    for pb in particleblocks:
+        radial_dist_profile, radial_ori_profile = calculate_radial_profile(pb, max_dist=max_dist, **kwargs)
+        dp = radial_dist_profile / np.linalg.norm(radial_dist_profile, np.inf)
+        op = radial_ori_profile / np.linalg.norm(radial_ori_profile, np.inf)
+        data.append(np.concatenate([dp, op], axis=1))
+    data = np.concatenate(data, axis=0)
     centroids, classes = kmeans2(data, n_classes, minit='points')
 
-    start = end = 0
+    start = 0
+    end = 0
     for part in particleblocks:
-        end += part.positions.data.shape[0]
+        n = part.positions.data.shape[0]
+        end += n
         sliced_classes = classes[start:end]
         part.properties[class_tag] = sliced_classes
-        start += part.positions.data.shape[0]
+        start += n
 
         part.metadata[f'{class_tag}_centroids'] = centroids
         part.metadata[f'{class_tag}_params'] = {
