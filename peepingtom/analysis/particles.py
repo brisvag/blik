@@ -54,9 +54,13 @@ def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=Tru
     """
     calculate the radial profile of distances and orientations of a particleblock
     """
-    if use_old and 'radial_profile' in particleblock.metadata:
-        radial_dist_profile, radial_ori_profile = particleblock.metadata['radial_profile']
-    else:
+    radial_dist_profile, radial_ori_profile = None, None
+    if use_old:
+        try:
+            radial_dist_profile, radial_ori_profile = particleblock.metadata['radial_profile'][max_dist]
+        except KeyError:
+            pass
+    if radial_dist_profile is None or radial_ori_profile is None:
         shell_width = max_dist / n_shells
 
         dist_matrix = calculate_distance_matrix(particleblock, **kwargs)
@@ -79,15 +83,19 @@ def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=Tru
             radial_dist_profile = convolve1d(radial_dist_profile, gaussian(cv_window, std))
             radial_ori_profile = convolve1d(radial_ori_profile, gaussian(cv_window, std))
 
-    particleblock.metadata['radial_profile'] = (radial_dist_profile, radial_ori_profile)
+    # TODO: make this less ugly
+    if 'radial_profile' not in particleblock.metadata:
+        particleblock.metadata['radial_profile'] = {}
+    particleblock.metadata['radial_profile'][max_dist] = (radial_dist_profile, radial_ori_profile)
     return radial_dist_profile, radial_ori_profile
 
 
-def classify_radial_profile(particleblocks, n_classes=5, class_tag='class_radial', **kwargs):
+def classify_radial_profile(particleblocks, n_classes=5, class_tag='class_radial', max_dist=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
     """
-    max_dist = max(pb.positions.data.max() for pb in particleblocks)
+    if max_dist is None:
+        max_dist = max(pb.positions.data.max() for pb in particleblocks)
     data = []
     for pb in particleblocks:
         radial_dist_profile, radial_ori_profile = calculate_radial_profile(pb, max_dist=max_dist, **kwargs)

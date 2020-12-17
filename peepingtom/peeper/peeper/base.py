@@ -3,6 +3,7 @@ main class that interfaces visualization, analysis and data manipulation
 """
 
 import napari
+import pyqtgraph as pg
 
 from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
@@ -22,6 +23,7 @@ class Peeper:
         for crate in crates:
             for datablock in crate:
                 self._init_depictor(datablock)
+        self.plots = pg.GraphicsLayoutWidget()
 
     def _init_depictor(self, datablock):
         depictor_type = {
@@ -73,6 +75,21 @@ class Peeper:
 
     def update(self):
         self.depictors.update()
+
+    def add_plot(self, arrays, colors, names=None, title=None, legend=True, show=True):
+        if names is None:
+            names = [f'data_{i}' for i in range(arrays)]
+        plot_widget = self.plots.addPlot(title=title)
+        for data, color, name in zip(arrays, colors, names):
+            plot_widget.plot(data, pen=color, name=name)
+            if legend:
+                plot_widget.addLegend()
+
+        if show:
+            self.show_plots()
+
+    def show_plots(self):
+        self.viewer.window.add_dock_widget(self.plots)
 
     def read(self, paths, **kwargs):
         """

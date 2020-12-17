@@ -1,39 +1,32 @@
+from math import ceil
+
 from seaborn import color_palette
 
-from ...io_ import star_to_crates
-from ...analysis.particles import classify_radial_distance
-from .base import Peeper
-from ...core import ParticleBlock, stack
-from ..depictors import ParticleDepictor
+from ....analysis.particles import classify_radial_profile as crp
+from ....core import ParticleBlock
 
 
-class ParticlePeeper(Peeper):
-    """
-    Peeper class for Particles objects
-    """
-    def __init__(self, star_paths, **kwargs):
-        crates = star_to_crates(star_paths)
-        super().__init__(crates, **kwargs)
-        self.stack = None
-
-    @property
-    def particles(self):
-        return self._get_datablocks(ParticleBlock)
-
-    def peep(self, viewer=None, as_stack=True, **kwargs):
-        self._init_viewer(viewer)
-        if as_stack:
-            self.stack = stack(self.particles)
-            ParticleDepictor(self.stack, peeper=self)
-            self.stack.depictor.draw()
-        else:
-            self.depictors.draw()
-
-    def classify_radial_distance(self, **kwargs):
-        n_classes = kwargs.pop('n_classes', 5)
-        class_tag = kwargs.pop('class_tag', 'class_radial')
-        colors = [list(x) for x in color_palette('colorblind', n_colors=n_classes)]
-        classify_radial_distance(self.particles, n_classes=n_classes, class_tag=class_tag, **kwargs)
-        for d in self.depictors:
-            d.point_layer.face_color = class_tag
-            d.point_layer.face_color_cycle = colors
+def classify_radial_profile(peeper, n_classes=5, class_tag='class_radial', **kwargs):
+    centroids, classes = crp(peeper._get_datablocks(ParticleBlock),
+                             n_classes=n_classes, class_tag=class_tag, **kwargs)
+    # color points
+    colors = color_palette('colorblind', n_colors=n_classes)
+    for d in peeper.depictors:
+        d.point_layer.face_color = class_tag
+        d.point_layer.face_color_cycle = [list(x) for x in colors]
+    # plot centroids
+    centroids_dist = []
+    centroids_ori = []
+    for centr in centroids:
+        half = (len(centr) // 2)
+        dist = centr[:half - 1]
+        ori = centr[half:]
+        centroids_dist.append(dist)
+        centroids_ori.append(ori)
+    # colors to 255 format:
+    colors255 = []
+    for color in colors:
+        colors255.append(tuple(ceil(c*255) for c in color))
+    class_names = [f'class{i}' for i in range(n_classes)]
+    peeper.add_plot(centroids_dist, colors255, class_names, f'{class_tag}_dist', show=False)
+    peeper.add_plot(centroids_ori, colors255, class_names, f'{class_tag}_ori')
