@@ -21,7 +21,7 @@ def calculate_distance_matrix(particleblock, use_old=True):
     else:
         positions = particleblock.positions.data
         dist_matrix = distance_matrix(positions, positions)
-        particleblock.metadata[f'dist_matrix'] = dist_matrix
+        particleblock.metadata['dist_matrix'] = dist_matrix
     return dist_matrix
 
 
@@ -34,7 +34,7 @@ def calculate_orientation_matrix(particleblock, use_old=True):
     else:
         ori_vectors = particleblock.orientations.oriented_vectors('z').reshape(-1, 3)
         ori_matrix = distance.cdist(ori_vectors, ori_vectors, 'cosine')
-        particleblock.metadata[f'ori_matrix'] = ori_matrix
+        particleblock.metadata['ori_matrix'] = ori_matrix
     return ori_matrix
 
 

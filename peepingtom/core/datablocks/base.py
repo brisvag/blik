@@ -1,5 +1,4 @@
 from typing import List
-from collections.abc import Iterable
 
 from ...utils import AttributedList
 
@@ -9,17 +8,11 @@ class DataBlock:
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
     """
-    def __init__(self, name=None, parent=None, depictor=None):
+    def __init__(self, name=None, depictor=None):
         if name is None:
             name = 'NoName'
         self.name = name
-        self.parent = parent
         self.depictor = depictor
-
-    def dump(self):
-        kwargs = {}
-        kwargs.update({'parent': self.parent, 'depictor': self.depictor})
-        return kwargs
 
     def updated(self):
         """
@@ -31,11 +24,10 @@ class DataBlock:
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
         # _merge or _stack return notimplemented
-        if args:
-            if args[0] is NotImplemented:
-                return NotImplemented
+        if args and args[0] is NotImplemented:
+            return NotImplemented
         cls = type(self)
-        return cls(parent=self.parent, *args, **kwargs)
+        return cls(*args, **kwargs)
 
     def __shape_repr__(self):
         return ''
@@ -161,11 +153,6 @@ class SimpleBlock(DataBlock):
         """
         raise NotImplementedError('SimpleBlocks must implement this method')
 
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'data': self.data})
-        return kwargs
-
     def __getitem__(self, key):
         return self.data.__getitem__(key)
 
@@ -190,16 +177,28 @@ class SimpleBlock(DataBlock):
         return self.data.__reversed__()
 
     def _merge(self, datablocks):
-        return self.__newlike__(self._merge_data(datablocks))
+        merged = self._merge_data(datablocks)
+        if merged is NotImplemented:
+            return NotImplemented
+        return self.__newlike__(merged)
 
     def _stack(self, datablocks):
+        stacked = self._stack_data(datablocks)
+        if stacked is NotImplemented:
+            return NotImplemented
         return self.__newlike__(self._stack_data(datablocks))
 
     def _imerge(self, datablocks):
-        self.data = self._merge_data([self] + datablocks)
+        merged = self._merge_data([self] + datablocks)
+        if merged is NotImplemented:
+            return NotImplemented
+        self.data = merged
 
     def _istack(self, datablocks):
-        self.data = self._stack_data([self] + datablocks)
+        stacked = self._stack_data([self] + datablocks)
+        if stacked is NotImplemented:
+            return NotImplemented
+        self.data = stacked
 
 
 class MultiBlock(DataBlock):
@@ -210,13 +209,8 @@ class MultiBlock(DataBlock):
     first in their constructors so that references to blocks are correctly defined
     """
     def __init__(self, **kwargs):
-        """
-        Parameters
-        ----------
-        kwargs : keyword arguments which get passed down to DataBlock
-        """
         super().__init__(**kwargs)
-        self.blocks = []
+        self._blocks = []
 
     def __setattr__(self, name, value):
         """
