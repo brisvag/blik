@@ -38,17 +38,6 @@ def calculate_orientation_matrix(particleblock, use_old=True):
     return ori_matrix
 
 
-def calculate_shell(i, shell_width, dist_matrix, ori_matrix):
-    inner = i * shell_width
-    outer = (i + 1) * shell_width
-    neighbours = (dist_matrix > inner) & (dist_matrix <= outer)
-    neighbour_count = np.sum(neighbours, axis=1)
-    neighbour_ori = np.where(neighbours, ori_matrix, 0)
-    neighbour_count = np.where(neighbour_count, neighbour_count, 1.0)   # TODO: any number should be fine?
-    neighbour_ori_avg = np.sum(neighbour_ori, axis=1) / neighbour_count
-    return neighbour_count, neighbour_ori_avg
-
-
 def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=True, cv_window=None,
                              std=None, use_old=True, **kwargs):
     """
@@ -66,22 +55,28 @@ def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=Tru
         dist_matrix = calculate_distance_matrix(particleblock, **kwargs)
         ori_matrix = calculate_orientation_matrix(particleblock, **kwargs)
 
-        with Pool() as pool:
-            shells = pool.starmap(calculate_shell,
-                                  [(i, shell_width, dist_matrix, ori_matrix) for i in range(n_shells)])
-        radial_dist_profile, radial_ori_profile = (shell for shell in zip(*shells))
+    # calculate shell extents (n_shells + 1 so we can easily use them as ranges)
+    shells = np.arange(n_shells + 1).reshape(-1, 1, 1) / n_shells * max_dist
+    # > and <=, to exclude self from neighbours
+    neighbours = (dist_matrix > shells[:-1]) & (dist_matrix <= shells[1:])
+    # sum all the true values to get a count of the neighbour for each index per shell
+    neighbour_count = neighbours.sum(axis=1)
+    neighbour_ori = np.where(neighbours, ori_matrix, 0)
+    neighbour_count = np.where(neighbour_count, neighbour_count, 1)   # TODO: any number should be fine?
+    # TODO: fix empty shells have 0 here
+    neighbour_ori_avg = neighbour_ori.sum(axis=1) / neighbour_count
 
-        radial_dist_profile = np.stack(radial_dist_profile, axis=1)
-        radial_ori_profile = np.stack(radial_ori_profile, axis=1)
+    radial_dist_profile = neighbour_count.T
+    radial_ori_profile = neighbour_ori_avg.T
 
-        if convolve:
-            # some "sane" defaults
-            if cv_window is None:
-                cv_window = n_shells / 5
-            if std is None:
-                std = cv_window / 7
-            radial_dist_profile = convolve1d(radial_dist_profile, gaussian(cv_window, std))
-            radial_ori_profile = convolve1d(radial_ori_profile, gaussian(cv_window, std))
+    if convolve:
+        # some "sane" defaults
+        if cv_window is None:
+            cv_window = n_shells / 5
+        if std is None:
+            std = cv_window / 7
+        radial_dist_profile = convolve1d(radial_dist_profile, gaussian(cv_window, std))
+        radial_ori_profile = convolve1d(radial_ori_profile, gaussian(cv_window, std))
 
     # TODO: make this less ugly
     if 'radial_profile' not in particleblock.metadata:
