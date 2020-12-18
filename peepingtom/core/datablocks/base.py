@@ -154,21 +154,10 @@ class SimpleBlock(DataBlock):
         raise NotImplementedError('SimpleBlocks must implement this method')
 
     def __getitem__(self, key):
-        return self.data.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self.data.__setitem__(key, value)
-        self.updated()
-
-    def __delitem__(self, key):
-        self.data.__delitem__(key)
-        self.updated()
-
-    def __contains__(self, item):
-        return self.data.__contains__(item)
+        return self.__newlike__(self.data.__getitem__(key))
 
     def __len__(self):
-        return self.data.__len__()
+        return len(self.data)
 
     def __iter__(self):
         return self.data.__iter__()
@@ -239,6 +228,18 @@ class MultiBlock(DataBlock):
         MultiBlock object by inheritance
         """
         self._blocks.append(block)
+
+    def __getitem__(self, key):
+        subslices = []
+        for block in self.blocks:
+            subslices.append(block.__getitem__(key))
+        return self.__newlike__(*subslices)
+
+    def __len__(self):
+        lengths = [len(block) for block in self.blocks]
+        if all(l == lengths[0] for l in lengths):
+            return len(self.blocks[0])
+        raise TypeError(f"object of type '{type(self)}' has no len()")
 
     @staticmethod
     def _merge_data(multiblocks):

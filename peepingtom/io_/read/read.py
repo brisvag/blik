@@ -2,7 +2,8 @@ import re
 from collections import defaultdict
 from itertools import zip_longest
 
-from ..utils import _path, listify
+from ..utils import _path
+from ...utils import listify
 from .star import read_star
 from .mrc import read_mrc
 from .em import read_em

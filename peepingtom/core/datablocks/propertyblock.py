@@ -16,6 +16,12 @@ class PropertyBlock(SimpleBlock):
         for k, v in self.data.items():
             yield k, np.array(v)
 
+    def __getitem__(self, key):
+        if isinstance(key, (list, np.ndarray)) and all(isinstance(i, (int, bool)) for i in key):
+            return self.data.iloc.__getitem__(key)
+        else:
+            return super().__getitem__(key)
+
     @staticmethod
     def _merge_data(datablocks):
         return pd.concat([db.data for db in datablocks], ignore_index=True)
