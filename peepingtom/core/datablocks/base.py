@@ -1,6 +1,6 @@
-from typing import List
+from copy import deepcopy
 
-from ...utils import AttributedList
+from ...utils import AttributedList, listify
 
 
 class DataBlock:
@@ -48,6 +48,9 @@ class DataBlock:
 
     def __iand__(self, other):
         return NotImplemented
+
+    def copy(self):
+        return deepcopy(self)
 
     @staticmethod
     def _merge_data(datablocks):
@@ -160,10 +163,10 @@ class SimpleBlock(DataBlock):
         return len(self.data)
 
     def __iter__(self):
-        return self.data.__iter__()
+        yield from self.data.__iter__()
 
     def __reversed__(self):
-        return self.data.__reversed__()
+        yield from self.data.__reversed__()
 
     def _merge(self, datablocks):
         merged = self._merge_data(datablocks)
@@ -194,7 +197,7 @@ class MultiBlock(DataBlock):
     """
     Unites multiple SimpleBlocks into a more complex data object
 
-    Note: classes which inherit from 'MultiBlock' should call Super().__init__
+    Note: classes which inherit from 'MultiBlock' should call super().__init__()
     first in their constructors so that references to blocks are correctly defined
     """
     def __init__(self, **kwargs):
@@ -215,12 +218,14 @@ class MultiBlock(DataBlock):
         return self._blocks
 
     @blocks.setter
-    def blocks(self, blocks: List[SimpleBlock]):
-        if not isinstance(blocks, list):
-            raise ValueError("blocks in a multiblock object must be a list of 'SimpleBlock' objects")
+    def blocks(self, blocks):
+        blocks = listify(blocks)
+        for block in blocks:
+            if not isinstance(block, SimpleBlock):
+                raise ValueError(f'MultiBlocks can only be made of SimpleBlocks, not "{type(block)}"')
         self._blocks = blocks
 
-    def _add_block(self, block: SimpleBlock):
+    def _add_block(self, block):
         """
         Adds a block to an existing list of SimpleBlocks in a MultiBlock
 
