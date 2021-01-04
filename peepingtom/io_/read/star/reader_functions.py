@@ -19,7 +19,7 @@ def parse_relion30_3d(raw_data):
     return rln30_df_to_particleblocks(df)
 
 
-def parse_rellon31_3d(raw_data):
+def parse_relion31_3d(raw_data):
     """Attempt to parse raw data from starfile.read as a RELION 3.1 style star file
     """
     if list(raw_data.keys()) != ['optics', 'particles']:
@@ -30,4 +30,4 @@ def parse_rellon31_3d(raw_data):
 
 
 reader_functions = {'relion_3.0_3d': parse_relion30_3d,
-                    'relion_3.1_3d': parse_rellon31_3d}
+                    'relion_3.1_3d': parse_relion31_3d}
