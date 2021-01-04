@@ -133,7 +133,6 @@ class SimpleBlock(DataBlock):
 
     Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property
     """
-
     def __init__(self, data, **kwargs):
         super().__init__(**kwargs)
         self.data = data
@@ -155,6 +154,10 @@ class SimpleBlock(DataBlock):
         takes raw data and returns it properly formatted to the SimpleBlock subclass specification.
         """
         raise NotImplementedError('SimpleBlocks must implement this method')
+
+    def __setitem__(self, key, value):
+        self.data.__setitem__(key, value)
+        self.updated()
 
     def __getitem__(self, key):
         return self.__newlike__(self.data.__getitem__(key))
