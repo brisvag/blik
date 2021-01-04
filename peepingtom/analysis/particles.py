@@ -2,8 +2,6 @@
 Analysis functions that operate on collections of data object
 """
 
-from multiprocessing import Pool
-
 import numpy as np
 from scipy.spatial import distance_matrix
 from scipy.spatial import distance
@@ -50,8 +48,6 @@ def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=Tru
         except KeyError:
             pass
     if radial_dist_profile is None or radial_ori_profile is None:
-        shell_width = max_dist / n_shells
-
         dist_matrix = calculate_distance_matrix(particleblock, **kwargs)
         ori_matrix = calculate_orientation_matrix(particleblock, **kwargs)
 
@@ -61,13 +57,18 @@ def calculate_radial_profile(particleblock, max_dist, n_shells=100, convolve=Tru
     neighbours = (dist_matrix > shells[:-1]) & (dist_matrix <= shells[1:])
     # sum all the true values to get a count of the neighbour for each index per shell
     neighbour_count = neighbours.sum(axis=1)
-    neighbour_ori = np.where(neighbours, ori_matrix, 0)
-    neighbour_count = np.where(neighbour_count, neighbour_count, 1)   # TODO: any number should be fine?
-    # TODO: fix empty shells have 0 here
-    neighbour_ori_avg = neighbour_ori.sum(axis=1) / neighbour_count
+    # next must be done shell by shell: memory usage is too high otherwise
+    ori_averages = []
+    for shell, count in zip(neighbours, neighbour_count):
+        shell_neighbour_ori = np.where(shell, ori_matrix, 0)
+        # replace counts of 0 with ones
+        shell_neighbour_count = np.where(count, count, 1)
+        shell_neighbour_ori_avg = shell_neighbour_ori.sum(axis=1) / shell_neighbour_count
+        ori_averages.append(shell_neighbour_ori_avg)
+    ori_averages = np.stack(ori_averages)
 
     radial_dist_profile = neighbour_count.T
-    radial_ori_profile = neighbour_ori_avg.T
+    radial_ori_profile = ori_averages.T
 
     if convolve:
         # some "sane" defaults
