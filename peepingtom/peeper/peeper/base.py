@@ -80,10 +80,10 @@ class Peeper:
         if names is None:
             names = [f'data_{i}' for i in range(arrays)]
         plot_widget = self.plots.addPlot(title=title)
+        if legend:
+            plot_widget.addLegend()
         for data, color, name in zip(arrays, colors, names):
             plot_widget.plot(data, pen=color, name=name)
-            if legend:
-                plot_widget.addLegend()
 
         if show:
             self.show_plots()

@@ -17,7 +17,9 @@ class PropertyBlock(SimpleBlock):
             yield k, np.array(v)
 
     def __getitem__(self, key):
-        if isinstance(key, (list, np.ndarray)) and all(isinstance(i, (int, bool)) for i in key):
+        # this allows indexing using slices and/or functionality like ParticleBlock.if_properties()
+        if isinstance(key, (list)) and all(isinstance(i, (int, bool)) for i in key) or \
+                isinstance(key, (np.ndarray, pd.Index)):
             return self.data.iloc.__getitem__(key)
         else:
             return super().__getitem__(key)
