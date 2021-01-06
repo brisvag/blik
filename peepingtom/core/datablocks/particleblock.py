@@ -21,17 +21,22 @@ class ParticleBlock(OrientedPointBlock):
             metadata = {}
         self.metadata = {}
 
-    def if_properties(self, conditions):
+    def if_properties(self, conditions, index=False):
         """
         return a subset of the particles that satisfy the property conditions
-        conditions: a list of property names and conditions, in string form:
+        conditions: a list of property names and conditions, in string form, or a single string:
             ['prop1 > 3', 'prop2 <= 1']
             - elements will be joined with logical & and fed to df.query
+        index: return indexes of values, not values themselves
         """
+        # TODO: programmatic way to do it without strings?
         conditions = listify(conditions)
         query = ' & '.join(conditions)
         idx = np.array(self.properties.data.query(query).index)
-        return self[idx]
+        if index:
+            return idx
+        else:
+            return self[idx]
 
     def __shape_repr__(self):
         return f'{self.positions.data.shape}'
