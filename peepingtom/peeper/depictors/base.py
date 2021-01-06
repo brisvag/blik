@@ -33,7 +33,7 @@ class Depictor:
         return Image(image, name=name, **kwargs)
 
     def make_points_layer(self, points, name, **kwargs):
-        return  Points(points, name=name, **kwargs)
+        return Points(points, name=name, **kwargs)
 
     def make_vectors_layer(self, vectors, name, **kwargs):
         return Vectors(vectors, name=name, **kwargs)
@@ -60,8 +60,7 @@ class Depictor:
         displays the contents of the datablock
         """
         # create a new viewer if necessary
-        if viewer is None:
-            viewer = self.viewer
+        self.peeper._init_viewer()
         if remake_layers or not self.layers:
             self.init_layers()
             self.connect_layers()

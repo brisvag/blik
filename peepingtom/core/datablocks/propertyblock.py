@@ -20,9 +20,10 @@ class PropertyBlock(SimpleBlock):
         # this allows indexing using slices and/or functionality like ParticleBlock.if_properties()
         if isinstance(key, (list)) and all(isinstance(i, (int, bool)) for i in key) or \
                 isinstance(key, (np.ndarray, pd.Index)):
-            return self.data.iloc.__getitem__(key)
+            data = self.data.iloc.__getitem__(key)
         else:
-            return super().__getitem__(key)
+            data = self.data.__getitem__(key)
+        return self.__newlike__(data)
 
     @staticmethod
     def _merge_data(datablocks):
@@ -31,3 +32,6 @@ class PropertyBlock(SimpleBlock):
     @staticmethod
     def _stack_data(datablocks):
         return pd.concat([db.data for db in datablocks], ignore_index=True)
+
+    def __shape_repr__(self):
+        return f'({len(self.data)}, {len(self.data.columns)})'

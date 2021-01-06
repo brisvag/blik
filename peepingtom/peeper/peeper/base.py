@@ -103,6 +103,9 @@ class Peeper:
         """
         write(self.datablocks, paths, **kwargs)
 
+    def __repr__(self):
+        return f'<Peeper({len(self.crates)})>'
+
 
 def peep(paths, force_mode=None, **kwargs):
     """

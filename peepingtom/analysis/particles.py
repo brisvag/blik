@@ -2,11 +2,17 @@
 Analysis functions that operate on collections of data object
 """
 
+from math import ceil
+
 import numpy as np
 import scipy.spatial
 from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
+from seaborn import color_palette
+
+from ..peeper import Peeper
+from ..core import ParticleBlock
 
 
 def distance_matrix(particleblock, use_old=True):
@@ -61,7 +67,7 @@ def radial_distance_profile(particleblock, max_dist, n_shells=50, convolve=True,
     radial_dist_profile = neighbour_count.T
 
     if convolve:
-        cv_window = n_shells / cv_window_ratio
+        cv_window = ceil(n_shells / cv_window_ratio)
         std = cv_window / std_ratio
         radial_dist_profile = convolve1d(radial_dist_profile, gaussian(cv_window, std))
 
@@ -90,16 +96,17 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
     radial_ori_profile = neighbour_ori_avg.T
 
     if convolve:
-        cv_window = n_shells / cv_window_ratio
+        cv_window = ceil(n_shells / cv_window_ratio)
         std = cv_window / std_ratio
         radial_ori_profile = convolve1d(radial_ori_profile, gaussian(cv_window, std))
 
     return radial_ori_profile.astype(np.float64) / 255 * 180
 
 
-def classify_radial_profile(particleblocks, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, **kwargs):
+def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
+    collection: collection containing particleblocks, or a peeper
     mode: one of:
         - d: distance
         - o: orientation
@@ -113,6 +120,15 @@ def classify_radial_profile(particleblocks, n_classes=5, mode='d', class_tag='cl
     else:
         raise ValueError(f'mode can only be one of {[m for m in modes]}, got {mode}')
 
+    peeper = None
+    if isinstance(collection, Peeper):
+        peeper = collection
+        particleblocks = peeper._get_datablocks(ParticleBlock)
+    elif all(isinstance(pb, ParticleBlock) for pb in collection):
+        particleblocks = collection
+    else:
+        raise ValueError('can only classify from a peeper or a collection of ParticleBlocks')
+
     if max_dist is None:
         max_dist = max(pb.positions.data.max() for pb in particleblocks)
 
@@ -123,6 +139,7 @@ def classify_radial_profile(particleblocks, n_classes=5, mode='d', class_tag='cl
     data = np.concatenate(data, axis=0)
     centroids, classes = kmeans2(data, n_classes, minit='points')
 
+    # update classes inplace
     start = 0
     end = 0
     for part in particleblocks:
@@ -135,7 +152,22 @@ def classify_radial_profile(particleblocks, n_classes=5, mode='d', class_tag='cl
         part.metadata[f'{class_tag}_centroids'] = centroids
         part.metadata[f'{class_tag}_params'] = {
             'n_classes': n_classes,
+            'mode': mode,
             **kwargs,
         }
+
+    # update depiction, if visualising
+    if peeper:
+        colors = color_palette('colorblind', n_colors=n_classes)
+        for d in peeper.depictors:
+            if d is not None:
+                d.point_layer.face_color = class_tag
+                d.point_layer.face_color_cycle = [list(x) for x in colors]
+        # colors to 255 format:
+        colors255 = []
+        for color in colors:
+            colors255.append(tuple(ceil(c*255) for c in color))
+        class_names = [f'class{i}' for i in range(n_classes)]
+        peeper.add_plot(centroids, colors255, class_names, f'{class_tag}', show=False)
 
     return centroids, classes
