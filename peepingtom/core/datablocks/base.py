@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from ...utils import AttributedList, listify
 
 
@@ -48,9 +46,6 @@ class DataBlock:
 
     def __iand__(self, other):
         return NotImplemented
-
-    def copy(self):
-        return deepcopy(self)
 
     @staticmethod
     def _merge_data(datablocks):
