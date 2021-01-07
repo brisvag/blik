@@ -34,7 +34,7 @@ class ParticleBlock(OrientedPointBlock):
         query = ' & '.join(conditions)
         idx = np.array(self.properties.data.query(query).index)
         if index:
-            return idx
+            return self[idx], idx
         else:
             return self[idx]
 

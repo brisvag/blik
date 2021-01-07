@@ -13,6 +13,7 @@ from seaborn import color_palette
 
 from ..peeper import Peeper
 from ..core import ParticleBlock
+from ..utils import AttributedList
 
 
 def distance_matrix(particleblock, use_old=True):
@@ -103,13 +104,14 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
     return radial_ori_profile.astype(np.float64) / 255 * 180
 
 
-def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, **kwargs):
+def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, if_properties=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
     collection: collection containing particleblocks, or a peeper
     mode: one of:
         - d: distance
         - o: orientation
+    if_properties: passed to ParticleBlock.if_properties() to select starting particles
     """
     modes = {
         'd': radial_distance_profile,
@@ -129,6 +131,12 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
     else:
         raise ValueError('can only classify from a peeper or a collection of ParticleBlocks')
 
+    original = particleblocks
+    indexes = [pb.properties.data.index for pb in particleblocks]
+    if if_properties is not None:
+        pb_and_idx = AttributedList(particleblocks).if_properties(if_properties, index=True)
+        particleblocks, indexes = zip(*pb_and_idx)
+
     if max_dist is None:
         max_dist = max(pb.positions.data.max() for pb in particleblocks)
 
@@ -142,15 +150,18 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
     # update classes inplace
     start = 0
     end = 0
-    for part in particleblocks:
-        n = part.positions.data.shape[0]
+    for pb, orig, orig_idx in zip(particleblocks, original, indexes):
+        n = pb.positions.data.shape[0]
         end += n
         sliced_classes = classes[start:end]
-        part.properties[class_tag] = sliced_classes
+        orig.properties.data.loc[orig_idx, class_tag] = sliced_classes
+        orig.properties.data[class_tag] = orig.properties.data[class_tag].fillna(1000000).astype(int)
+        # must trigger update manually because we bypassed __setitem__
+        orig.properties.updated()
         start += n
 
-        part.metadata[f'{class_tag}_centroids'] = centroids
-        part.metadata[f'{class_tag}_params'] = {
+        orig.metadata[f'{class_tag}_centroids'] = centroids
+        orig.metadata[f'{class_tag}_params'] = {
             'n_classes': n_classes,
             'mode': mode,
             **kwargs,
@@ -158,11 +169,15 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
 
     # update depiction, if visualising
     if peeper:
-        colors = color_palette('colorblind', n_colors=n_classes)
+        colors = list(color_palette('colorblind', n_colors=n_classes))
+        if if_properties is not None:
+            colors.append([0.5, 0.5, 0.5, 0.2])
         for d in peeper.depictors:
             if d is not None:
                 d.point_layer.face_color = class_tag
                 d.point_layer.face_color_cycle = [list(x) for x in colors]
+        if if_properties is not None:
+            colors.pop()
         # colors to 255 format:
         colors255 = []
         for color in colors:
