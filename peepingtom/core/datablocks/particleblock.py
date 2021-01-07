@@ -21,6 +21,10 @@ class ParticleBlock(OrientedPointBlock):
             metadata = {}
         self.metadata = {}
 
+    @property
+    def n(self):
+        return self.positions.n
+
     def if_properties(self, conditions, index=False):
         """
         return a subset of the particles that satisfy the property conditions

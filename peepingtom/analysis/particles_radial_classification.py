@@ -9,11 +9,10 @@ import scipy.spatial
 from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
-from seaborn import color_palette
 
 from ..peeper import Peeper
 from ..core import ParticleBlock
-from ..utils import AttributedList
+from ..utils import AttributedList, distinct_colors, faded_grey
 
 
 def distance_matrix(particleblock, use_old=True):
@@ -169,20 +168,17 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
 
     # update depiction, if visualising
     if peeper:
-        colors = list(color_palette('colorblind', n_colors=n_classes))
+        colors = distinct_colors[:n_classes]
         if if_properties is not None:
-            colors.append([0.5, 0.5, 0.5, 0.2])
+            colors.append(faded_grey)
+        print(colors)
         for d in peeper.depictors:
             if d is not None:
                 d.point_layer.face_color = class_tag
                 d.point_layer.face_color_cycle = [list(x) for x in colors]
         if if_properties is not None:
             colors.pop()
-        # colors to 255 format:
-        colors255 = []
-        for color in colors:
-            colors255.append(tuple(ceil(c*255) for c in color))
         class_names = [f'class{i}' for i in range(n_classes)]
-        peeper.add_plot(centroids, colors255, class_names, f'{class_tag}', show=False)
+        peeper.add_plot(centroids, colors, class_names, f'{class_tag}')
 
     return centroids, classes
