@@ -2,12 +2,14 @@
 main class that interfaces visualization, analysis and data manipulation
 """
 
+from pathlib import Path
+
 import napari
 import pyqtgraph as pg
 
-from ...core import ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ...core import DataCrate, DataBlock, ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
-from ...utils import AttributedList
+from ...utils import AttributedList, listify
 from ...io_ import read, write
 
 
@@ -107,10 +109,18 @@ class Peeper:
         return f'<Peeper({len(self.crates)})>'
 
 
-def peep(paths, force_mode=None, **kwargs):
+def peep(objects, force_mode=None, **kwargs):
     """
-    load path(s) as DataCrates into a Peeper object and display them in napari
+    load datablock(s), datacrate(s), or path(s) into a Peeper object and display them in napari
     """
-    peeper = Peeper(read(paths, mode=force_mode, **kwargs))
+    objects = listify(objects)
+    if all(isinstance(el, (str, Path)) for el in objects):
+        peeper = Peeper(read(objects, mode=force_mode, **kwargs))
+    elif all(isinstance(el, DataCrate) for el in objects):
+        peeper = Peeper(objects)
+    elif all(isinstance(el, DataBlock) for el in objects):
+        peeper = Peeper([DataCrate(el) for el in objects])
+    elif isinstance(objects[0], Peeper):
+        peeper = peeper
     peeper.peep()
     return peeper
