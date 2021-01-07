@@ -1,4 +1,4 @@
-from .base import DataBlock, SimpleBlock, MultiBlock, DataCrate
+from .base import DataBlock, SimpleBlock, MultiBlock
 from .dipoleblock import DipoleBlock
 from .imageblock import ImageBlock
 from .lineblock import LineBlock
