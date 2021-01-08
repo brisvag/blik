@@ -1,6 +1,13 @@
 from collections.abc import Iterable
 
 
+class GetitemDispatcher:
+    def __init__(self, parent):
+        self.parent = parent
+    def __getitem__(self, key):
+        return AttributedList(el.__getitem__(key) for el in self.parent)
+
+
 class AttributedList(list):
     """
     a list that accepts dot notation to return attributes of its elements, if all
@@ -10,6 +17,11 @@ class AttributedList(list):
     If setattr is called with a value of type AttributedList, the list will attempt to set the attributes
     element by element
     """
+    def __init__(self, iterable=()):
+        # need to access dict directly to avoid recursion with __getattribute__
+        self.__dict__['loc'] = GetitemDispatcher(self)
+        super().__init__(iterable)
+
     def __getattribute__(self, name):
         try:
             return super().__getattribute__(name)

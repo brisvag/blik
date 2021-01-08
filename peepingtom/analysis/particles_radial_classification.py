@@ -171,7 +171,6 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
         colors = distinct_colors[:n_classes]
         if if_properties is not None:
             colors.append(faded_grey)
-        print(colors)
         for d in peeper.depictors:
             if d is not None:
                 d.point_layer.face_color = class_tag
