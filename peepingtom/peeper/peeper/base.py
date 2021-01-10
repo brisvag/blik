@@ -18,14 +18,15 @@ class Peeper:
     collect and display an arbitrary set of images and/or datasets
     expose the datasets to visualization and analysis tools
     """
-    def __init__(self, crates, viewer=None):
-        self.crates = AttributedList(crates)
+    def __init__(self, dataset, viewer=None):
+        self.dataset = dataset
         self.viewer = viewer
         # initialise depictors
-        for crate in crates:
+        for crate in dataset:
             for datablock in crate:
                 self._init_depictor(datablock)
         self.plots = pg.GraphicsLayoutWidget()
+        self._plots_widget = None
 
     def _init_depictor(self, datablock):
         depictor_type = {
@@ -42,7 +43,7 @@ class Peeper:
 
     @property
     def datablocks(self):
-        return AttributedList(datablock for crate in self.crates for datablock in crate)
+        return AttributedList(datablock for crate in self.dataset for datablock in crate)
 
     @property
     def depictors(self):
@@ -91,13 +92,18 @@ class Peeper:
             self.show_plots()
 
     def show_plots(self):
-        self.viewer.window.add_dock_widget(self.plots)
+        if not self._plots_widget:
+            self._plots_widget = self.viewer.window.add_dock_widget(self.plots)
+        self._plots_widget.show()
+
+    def hide_plots(self):
+        self._plots_widget.hide()
 
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
         """
-        self.crates.append(read(paths, **kwargs))
+        self.dataset.extend(read(paths, **kwargs))
 
     def write(self, paths, **kwargs):
         """
@@ -106,7 +112,7 @@ class Peeper:
         write(self.datablocks, paths, **kwargs)
 
     def __repr__(self):
-        return f'<Peeper({len(self.crates)})>'
+        return f'<Peeper({len(self.dataset)})>'
 
 
 def peep(objects, force_mode=None, **kwargs):

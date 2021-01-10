@@ -15,7 +15,7 @@ from .datablocks import (
     DipoleBlock,
     TransformBlock,
 )
-from .containers import DataCrate, DataSet
+from .containers import DataCrate, DataSet, DispatchList
 from .models import Model
 
 from .functions import merge, stack

@@ -9,8 +9,7 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 
-from ...core import DataCrate
-from ...utils import AttributedList
+from ...core import DataCrate, DataSet
 
 
 # a mapping of file extensions to readers, tuple map to tuples:
@@ -133,4 +132,4 @@ def read(paths, mode=None, **kwargs):
             crates.append(DataCrate(dbs))
         # TODO: add rescaling?
 
-    return AttributedList(crates)
+    return DataSet(crates)

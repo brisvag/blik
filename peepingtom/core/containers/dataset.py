@@ -1,9 +1,17 @@
-from ...utils import AttributedList, listify
+from .datalist import DataList
+from .datacrate import DataCrate
 
 
-class DataSet(AttributedList):
+class DataSet(DataList):
     """
     A container for a collection of DataCrates
     """
-    def __init__(self, datacrates):
-        super().__init__(listify(datacrates))
+    _valid_type = DataCrate
+
+    @property
+    def crates(self):
+        return self._data
+
+    @property
+    def blocks(self):
+        return [block for crate in self.crates for block in crate]

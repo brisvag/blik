@@ -31,10 +31,10 @@ class DataBlock:
         return ''
 
     def __base_repr__(self):
-        return f'{type(self).__name__}[{self.name}]{self.__shape_repr__()}'
+        return f'{type(self).__name__}<{self.name}>{self.__shape_repr__()}'
 
     def __repr__(self):
-        return f'<{self.__base_repr__()}>'
+        return self.__base_repr__()
 
     def __and__(self, other):
         # avoid circular import
