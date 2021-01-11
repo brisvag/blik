@@ -1,6 +1,6 @@
 from .dispatchlist import DispatchList
 from ..datablocks import ParticleBlock, ImageBlock
-from ...utils import listify
+from ..utils import listify
 
 
 class DataList(DispatchList):

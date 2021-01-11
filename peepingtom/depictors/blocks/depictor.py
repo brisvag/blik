@@ -4,8 +4,6 @@ Depictor interfaces data classes to napari
 
 from napari.layers import Points, Image, Vectors, Shapes
 
-from ...core import MultiBlock
-
 
 class Depictor:
     """

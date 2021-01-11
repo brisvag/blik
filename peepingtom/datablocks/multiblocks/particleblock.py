@@ -1,7 +1,7 @@
 import numpy as np
 
 from .orientedpointblock import OrientedPointBlock
-from .propertyblock import PropertyBlock
+from ..simpleblocks import PropertyBlock
 from ...utils import listify
 
 

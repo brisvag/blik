@@ -1,3 +1,4 @@
+from .simpleblock import SimpleBlock
 from .imageblock import ImageBlock
 from .lineblock import LineBlock
 from .meshblock import MeshBlock

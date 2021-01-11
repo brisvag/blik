@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import eulerangles
 
-from ....core import ParticleBlock
+from ....datablocks import ParticleBlock
 
 
 def rln30_df_to_particleblocks(df):

@@ -1,6 +1,7 @@
 import numpy as np
 
-from .base import SimpleBlock
+from .simpleblock import SimpleBlock
+from ...depictors import ImageDepictor
 
 
 class ImageBlock(SimpleBlock):
@@ -8,6 +9,7 @@ class ImageBlock(SimpleBlock):
     n-dimensional image block
     data can be interpreted as n-dimensional images
     """
+    _depictor_class = ImageDepictor
 
     def __init__(self, data, pixel_size=1, **kwargs):
         super().__init__(data, **kwargs)

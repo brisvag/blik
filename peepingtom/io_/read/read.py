@@ -9,7 +9,7 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 
-from ...core import DataCrate, DataSet
+from ...containers import DataCrate, DataSet
 
 
 # a mapping of file extensions to readers, tuple map to tuples:

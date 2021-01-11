@@ -1,7 +1,7 @@
 import dynamotable
 
 from .utils import euler2matrix_dynamo, name_from_volume
-from ....core import ParticleBlock
+from ....datablocks import ParticleBlock
 
 
 def read_tbl(table_path, table_map_file=None):

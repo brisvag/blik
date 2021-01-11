@@ -1,6 +1,6 @@
 import numpy as np
 
-from .base import SimpleBlock
+from .simpleblock import SimpleBlock
 
 
 class SphereBlock(SimpleBlock):

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from .base import SimpleBlock
+from .simpleblock import SimpleBlock
 
 
 class PropertyBlock(SimpleBlock):

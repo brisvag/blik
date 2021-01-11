@@ -1,8 +1,7 @@
 import numpy as np
 
 from .particleblock import ParticleBlock
-from .pointblock import PointBlock
-from .orientationblock import OrientationBlock
+from ..simpleblocks import PointBlock, OrientationBlock
 
 
 class TransformBlock(ParticleBlock):

@@ -1,8 +1,7 @@
 import numpy as np
 
-from .base import MultiBlock
-from .pointblock import PointBlock
-from .orientationblock import OrientationBlock
+from .multiblock import MultiBlock
+from ..simpleblocks import PointBlock, OrientationBlock
 from ...utils import align_vectors
 #from ...peeper import DipoleDepictor
 

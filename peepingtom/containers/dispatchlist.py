@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from ...utils import listify
+from ..utils import listify
 
 
 class DispatchList:

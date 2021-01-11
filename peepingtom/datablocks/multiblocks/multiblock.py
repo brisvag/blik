@@ -1,6 +1,4 @@
 from ..datablock import DataBlock
-from ..simpleblocks import SimpleBlock
-from ...utils import listify
 
 
 class MultiBlock(DataBlock):
@@ -8,7 +6,7 @@ class MultiBlock(DataBlock):
     Unites multiple SimpleBlocks into a more complex data object
 
     Note: classes which inherit from 'MultiBlock' should call super().__init__()
-    first in their constructors so that references to blocks are correctly defined
+    first in their constructors so that references to blocks are correctly defined.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -17,23 +15,15 @@ class MultiBlock(DataBlock):
     def __setattr__(self, name, value):
         """
         Extend the functionality of __setattr__ to automatically add datablocks to the
-        'blocks' attribute of a 'MultiBlock' when set
+        'blocks' attribute of a 'MultiBlock' when set and set their depictor correctly
         """
-        if isinstance(value, SimpleBlock):
+        if isinstance(value, DataBlock):
             self._add_block(value)
         super().__setattr__(name, value)
 
     @property
     def blocks(self):
         return self._blocks
-
-    @blocks.setter
-    def blocks(self, blocks):
-        blocks = listify(blocks)
-        for block in blocks:
-            if not isinstance(block, SimpleBlock):
-                raise ValueError(f'MultiBlocks can only be made of SimpleBlocks, not "{type(block)}"')
-        self._blocks = blocks
 
     def _add_block(self, block):
         """
@@ -42,6 +32,7 @@ class MultiBlock(DataBlock):
         This is particularly useful when extending the functionality of an existing
         MultiBlock object by inheritance
         """
+        block.depictor = self.depictor
         self._blocks.append(block)
 
     def __getitem__(self, key):

@@ -1,8 +1,7 @@
 import numpy as np
 
-from .base import MultiBlock
-from .orientationblock import OrientationBlock
-from .pointblock import PointBlock
+from .multiblock import MultiBlock
+from ..simpleblocks import PointBlock, OrientationBlock
 
 
 class OrientedPointBlock(MultiBlock):

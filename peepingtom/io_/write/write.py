@@ -1,6 +1,6 @@
 from collections import Counter
 
-from ...core import ImageBlock, ParticleBlock
+from ...datablocks import ImageBlock, ParticleBlock
 
 from ...utils import listify
 from ..utils import _path
