@@ -27,11 +27,6 @@ class ImageBlock(SimpleBlock):
     def ndim(self):
         return self.data.ndim
 
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'data': self.data})
-        return kwargs
-
     @staticmethod
     def _stack_data(datablocks):
         return np.stack([db.data for db in datablocks])

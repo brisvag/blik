@@ -169,11 +169,6 @@ class PointBlock(SimpleBlock):
                 f"'{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'points': self.data})
-        return kwargs
-
     @staticmethod
     def _merge_data(datablocks):
         return np.concatenate([db.data for db in datablocks])

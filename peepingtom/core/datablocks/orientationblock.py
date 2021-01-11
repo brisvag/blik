@@ -132,11 +132,6 @@ class OrientationBlock(SimpleBlock):
     def oriented_vectors(self, axis):
         return self._calculate_matrix_product(self._unit_vector(axis))
 
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'orientation_block': self.data})
-        return kwargs
-
     @staticmethod
     def _merge_data(datablocks):
         return np.concatenate([db.data for db in datablocks])

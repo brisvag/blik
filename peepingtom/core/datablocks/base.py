@@ -6,16 +6,9 @@ class DataBlock:
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
     """
-    def __init__(self, name=None, depictor=None):
-        self.name = name
+    def __init__(self, depictor, name=None):
         self.depictor = depictor
-
-    def updated(self):
-        """
-        this function is called when the data changed in order to trigger callbacks
-        """
-        if self.depictor is not None:
-            self.depictor.update()
+        self.name = name
 
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
@@ -148,7 +141,7 @@ class SimpleBlock(DataBlock):
             self._data = data.data
         else:
             self._data = self._data_setter(data)
-        self.updated()
+        self.depictor.update()
 
     def _data_setter(self, data):
         """
@@ -158,7 +151,7 @@ class SimpleBlock(DataBlock):
 
     def __setitem__(self, key, value):
         self.data.__setitem__(key, value)
-        self.updated()
+        self.depictor.update()
 
     def __getitem__(self, key):
         return self.__newlike__(self.data.__getitem__(key))

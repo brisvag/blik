@@ -73,8 +73,3 @@ class LineBlock(PointBlock):
     def _generate_smooth_backbone(self, n_points=1000):
         self.fit_spline()
         return self.evaluate_spline(n_points)
-
-    def dump(self):
-        kwargs = super().dump()
-        kwargs.update({'line': self.data})
-        return kwargs
