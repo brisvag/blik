@@ -10,10 +10,6 @@ from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
 
-from ..peeper import Peeper
-from ..core import ParticleBlock
-from ..utils import AttributedList, distinct_colors, faded_grey
-
 
 def distance_matrix(particleblock, use_old=True):
     """
@@ -103,10 +99,9 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
     return radial_ori_profile.astype(np.float64) / 255 * 180
 
 
-def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, if_properties=None, **kwargs):
+def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, if_properties=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
-    collection: collection containing particleblocks, or a peeper
     mode: one of:
         - d: distance
         - o: orientation
@@ -121,16 +116,7 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
     else:
         raise ValueError(f'mode can only be one of {[m for m in modes]}, got {mode}')
 
-    peeper = None
-    if isinstance(collection, Peeper):
-        peeper = collection
-        particleblocks = peeper._get_datablocks(ParticleBlock)
-    elif all(isinstance(pb, ParticleBlock) for pb in collection):
-        particleblocks = collection
-    else:
-        raise ValueError('can only classify from a peeper or a collection of ParticleBlocks')
-
-    original = particleblocks
+    original = dataset
     indexes = [pb.properties.data.index for pb in particleblocks]
     if if_properties is not None:
         pb_and_idx = AttributedList(particleblocks).if_properties(if_properties, index=True)
@@ -165,19 +151,5 @@ def classify_radial_profile(collection, n_classes=5, mode='d', class_tag='class_
             'mode': mode,
             **kwargs,
         }
-
-    # update depiction, if visualising
-    if peeper:
-        colors = distinct_colors[:n_classes]
-        if if_properties is not None:
-            colors.append(faded_grey)
-        for d in peeper.depictors:
-            if d is not None:
-                d.point_layer.face_color = class_tag
-                d.point_layer.face_color_cycle = [list(x) for x in colors]
-        if if_properties is not None:
-            colors.pop()
-        class_names = [f'class{i}' for i in range(n_classes)]
-        peeper.add_plot(centroids, colors, class_names, f'{class_tag}')
 
     return centroids, classes

@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from ...utils import listify
 
 
@@ -87,11 +89,10 @@ class DispatchList:
         return len(self._data)
 
     def __getitem__(self, key):
-        items = self._data[0]
-        if len(listify(items)) > 1:
-            return self.__newchild__(items)
+        if isinstance(key, int):
+            return self._data[key]
         else:
-            return items
+            return self.__newchild__(self._data[key])
 
     def __delitem__(self, key):
         self._data.__delitem__(key)
@@ -115,7 +116,7 @@ class DispatchList:
         self._data.reverse()
 
     def extend(self, other):
-        if isinstance(other, type(self)):
+        if isinstance(other, DispatchList):
             self._data.extend(other._data)
         else:
             self._data.extend(other)

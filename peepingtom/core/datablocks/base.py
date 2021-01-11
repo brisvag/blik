@@ -7,8 +7,6 @@ class DataBlock:
     Provides common methods and easy type inference
     """
     def __init__(self, name=None, depictor=None):
-        if name is None:
-            name = 'NoName'
         self.name = name
         self.depictor = depictor
 
@@ -30,8 +28,14 @@ class DataBlock:
     def __shape_repr__(self):
         return ''
 
+    def __name_repr__(self):
+        if self.name is None:
+            return ''
+        else:
+            return f'<{self.name}>'
+
     def __base_repr__(self):
-        return f'{type(self).__name__}<{self.name}>{self.__shape_repr__()}'
+        return f'{type(self).__name__}{self.__name_repr__()}{self.__shape_repr__()}'
 
     def __repr__(self):
         return self.__base_repr__()

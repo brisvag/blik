@@ -7,26 +7,31 @@ from pathlib import Path
 import napari
 import pyqtgraph as pg
 
-from ...core import DataCrate, DataBlock, ImageBlock, ParticleBlock, PointBlock, LineBlock
+from ...core import DataSet, DataCrate, DataBlock, ImageBlock, ParticleBlock, PointBlock, LineBlock
 from ..depictors import ImageDepictor, ParticleDepictor, PointDepictor, LineDepictor
-from ...utils import AttributedList, listify
+from ...utils import listify, wrapper_method, distinct_colors, faded_grey
 from ...io_ import read, write
+from ...analysis import classify_radial_profile, deduplicate_dataset
 
 
-class Peeper:
+class Peeper(DataSet):
     """
     collect and display an arbitrary set of images and/or datasets
-    expose the datasets to visualization and analysis tools
+    expose the dataset to visualization and analysis tools
     """
-    def __init__(self, dataset, viewer=None):
-        self.dataset = dataset
+    def __init__(self, data, viewer=None, **kwargs):
+        super().__init__(data, **kwargs)
         self.viewer = viewer
         # initialise depictors
-        for crate in dataset:
-            for datablock in crate:
-                self._init_depictor(datablock)
+        for datablock in self.blocks:
+            self._init_depictor(datablock)
         self.plots = pg.GraphicsLayoutWidget()
         self._plots_widget = None
+
+    def __new__(cls, data, **kwargs):
+        if isinstance(data, DataSet):
+            data = data._data
+        return super().__new__(cls, data)
 
     def _init_depictor(self, datablock):
         depictor_type = {
@@ -42,19 +47,8 @@ class Peeper:
             raise TypeError(f'cannot find a Depictor for datablock of type {type(datablock)}')
 
     @property
-    def datablocks(self):
-        return AttributedList(datablock for crate in self.dataset for datablock in crate)
-
-    @property
     def depictors(self):
-        return self.datablocks.depictor
-
-    @property
-    def depictor_layers(self):
-        return self.depictors.layers
-
-    def _get_datablocks(self, block_type):
-        return AttributedList(datablock for datablock in self.datablocks if isinstance(datablock, block_type))
+        return self.blocks.depictor
 
     def _init_viewer(self, viewer=None):
         # create a new viewer if necessary
@@ -87,7 +81,6 @@ class Peeper:
             plot_widget.addLegend()
         for data, color, name in zip(arrays, colors, names):
             plot_widget.plot(data, pen=color, name=name)
-
         if show:
             self.show_plots()
 
@@ -103,7 +96,7 @@ class Peeper:
         """
         read paths into datablocks and append them to the datacrates
         """
-        self.dataset.extend(read(paths, **kwargs))
+        self.extend(read(paths, **kwargs))
 
     def write(self, paths, **kwargs):
         """
@@ -111,8 +104,24 @@ class Peeper:
         """
         write(self.datablocks, paths, **kwargs)
 
-    def __repr__(self):
-        return f'<Peeper({len(self.dataset)})>'
+#    @wrapper_method(classify_radial_profile)
+    def classify_radial_profile(self, *args, **kwargs):
+        centroids, _ = classify_radial_profile(self, *args, **kwargs)
+        colors = distinct_colors[:kwargs['n_classes']]
+        if kwargs['if_properties'] is not None:
+            colors.append(faded_grey)
+        for d in self.depictors:
+            if d is not None:
+                d.point_layer.face_color = kwargs['class_tag']
+                d.point_layer.face_color_cycle = [list(x) for x in colors]
+        if kwargs['if_properties'] is not None:
+            colors.pop()
+        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
+        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+
+#    @wrapper_method(deduplicate_dataset)
+    def deduplicate(self, *args, **kwargs):
+        deduplicate_dataset(self.blocks, *args, **kwargs)
 
 
 def peep(objects, force_mode=None, **kwargs):
