@@ -1,0 +1,2 @@
+class PropertyPlotDepictor:
+    pass

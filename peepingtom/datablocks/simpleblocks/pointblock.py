@@ -1,6 +1,7 @@
 import numpy as np
 
 from .simpleblock import SimpleBlock
+from ...depictors import PointDepictor
 
 
 class PointBlock(SimpleBlock):
@@ -14,6 +15,8 @@ class PointBlock(SimpleBlock):
     3d : (x. y, z)
     nd : (..., x, y, z)
     """
+    _depiction_modes = {'default': PointDepictor}
+
     def _data_setter(self, data):
         # cast as array
         data = np.asarray(data)

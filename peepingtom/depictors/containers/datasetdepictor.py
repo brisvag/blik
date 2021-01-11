@@ -14,56 +14,21 @@ from ...io_ import read, write
 from ...analysis import classify_radial_profile, deduplicate_dataset
 
 
-class Peeper(DataSet):
-    """
-    collect and display an arbitrary set of images and/or datasets
-    expose the dataset to visualization and analysis tools
-    """
-    def __init__(self, data, viewer=None, **kwargs):
-        super().__init__(data, **kwargs)
-        self.viewer = viewer
-        # initialise depictors
-        for datablock in self.blocks:
-            self._init_depictor(datablock)
+class DataSetDepictor:
+    def __init__(self, dataset, viewers=None):
+        if viewers is None:
+            viewers = {}
+        self.viewers = viewers
         self.plots = pg.GraphicsLayoutWidget()
         self._plots_widget = None
 
-    def __new__(cls, data, **kwargs):
-        if isinstance(data, DataSet):
-            data = data._data
-        return super().__new__(cls, data)
-
-    def _init_depictor(self, datablock):
-        depictor_type = {
-            ParticleBlock: ParticleDepictor,
-            ImageBlock: ImageDepictor,
-            PointBlock: PointDepictor,
-            LineBlock: LineDepictor,
-        }
+    def _check_viewer(self, idx):
         try:
-            # don't store a reference to it, cause it hooks itself on the datablock
-            depictor_type[type(datablock)](datablock, peeper=self)
-        except KeyError:
-            raise TypeError(f'cannot find a Depictor for datablock of type {type(datablock)}')
-
-    @property
-    def depictors(self):
-        return self.blocks.depictor
-
-    def _init_viewer(self, viewer=None):
-        # create a new viewer if necessary
-        if viewer is not None:
-            self.viewer = viewer
-        elif self.viewer is None:
-            self.viewer = napari.Viewer(ndisplay=3)
-
-        # random check to make sure viewer was not closed
-        try:
-            self.viewer.window.qt_viewer.actions()
+            self.viewers[idx].window.qt_viewer.actions()
         except RuntimeError:
-            self.viewer = napari.Viewer(ndisplay=3)
+            self.viewers[idx] = napari.Viewer(ndisplay=3)
 
-    def peep(self, viewer=None):
+    def peep(self, viewer=0):
         self._init_viewer(viewer)
         self.depictors.draw()
 

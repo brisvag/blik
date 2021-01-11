@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 
 from .pointblock import PointBlock
+from ...depictors import LineDepictor
 
 
 class LineBlock(PointBlock):
@@ -18,6 +19,8 @@ class LineBlock(PointBlock):
 
     Polarity (direction) of lines, lines start from 0 to n along the 0th dimension
     """
+    _depiction_modes = {'default': LineDepictor}
+
     def __init__(self, data, spline_smoothing_parameter=0, **kwargs):
         """
 

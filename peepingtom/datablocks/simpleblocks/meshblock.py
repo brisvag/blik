@@ -1,12 +1,15 @@
 import numpy as np
 
 from .pointblock import PointBlock
+from ...depictors import MeshDepictor
 
 
 class MeshBlock(PointBlock):
     """
     Data structure for holding n-dimensional mesh data
     """
+    _depiction_modes = {'default': MeshDepictor}
+
     def __init__(self, vertices: np.ndarray, faces: np.ndarray, **kwargs):
         """
 

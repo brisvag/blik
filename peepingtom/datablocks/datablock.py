@@ -3,10 +3,11 @@ class DataBlock:
     Base class for all simple and complex datablocks.
     Provides common methods and easy type inference
     """
-    _depictor_class = None
+    _depiction_modes = {}
 
     def __init__(self, name=None):
         self.name = name
+        self.depictors = []
 
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
@@ -16,11 +17,15 @@ class DataBlock:
         cls = type(self)
         return cls(*args, **kwargs)
 
-    def _init_depictor(self, depictor):
-        if depictor is not None:
-            return depictor
-        else:
-            return self._depictor_class(self)
+    def depict(self, mode, **kwargs):
+        depictor_type = self._depiction_modes.get(mode)
+        if depictor_type is None:
+            raise ValueError(f'unknown depiction mode "{mode}"')
+        self.depictors.append(depictor_type(self, **kwargs))
+
+    def update(self):
+        for depictor in self.depictors:
+            self.depictor.update()
 
     def __shape_repr__(self):
         return ''

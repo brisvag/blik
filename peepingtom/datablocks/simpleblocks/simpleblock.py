@@ -24,7 +24,7 @@ class SimpleBlock(DataBlock):
             self._data = data.data
         else:
             self._data = self._data_setter(data)
-        self.depictor.update()
+        self.update()
 
     def _data_setter(self, data):
         """
@@ -34,7 +34,7 @@ class SimpleBlock(DataBlock):
 
     def __setitem__(self, key, value):
         self.data.__setitem__(key, value)
-        self.depictor.update()
+        self.update()
 
     def __getitem__(self, key):
         return self.__newlike__(self.data.__getitem__(key))

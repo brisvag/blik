@@ -3,7 +3,6 @@ import numpy as np
 from .multiblock import MultiBlock
 from ..simpleblocks import PointBlock, OrientationBlock
 from ...utils import align_vectors
-#from ...peeper import DipoleDepictor
 
 
 class DipoleBlock(MultiBlock):
@@ -11,8 +10,6 @@ class DipoleBlock(MultiBlock):
     A DipoleBlock represents a set of n dipoles in an m-dimensional space
     defined by start points and end points
     """
-#    _depictor_class = DipoleDepictor
-
     def __init__(self, startpoints: np.ndarray, endpoints: np.ndarray, **kwargs):
         super().__init__(**kwargs)
         # Set dipole info

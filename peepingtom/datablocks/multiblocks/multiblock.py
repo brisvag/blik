@@ -15,25 +15,15 @@ class MultiBlock(DataBlock):
     def __setattr__(self, name, value):
         """
         Extend the functionality of __setattr__ to automatically add datablocks to the
-        'blocks' attribute of a 'MultiBlock' when set and set their depictor correctly
+        'blocks' attribute of a 'MultiBlock' when set
         """
         if isinstance(value, DataBlock):
-            self._add_block(value)
+            self._blocks.append(value)
         super().__setattr__(name, value)
 
     @property
     def blocks(self):
         return self._blocks
-
-    def _add_block(self, block):
-        """
-        Adds a block to an existing list of SimpleBlocks in a MultiBlock
-
-        This is particularly useful when extending the functionality of an existing
-        MultiBlock object by inheritance
-        """
-        block.depictor = self.depictor
-        self._blocks.append(block)
 
     def __getitem__(self, key):
         subslices = []
