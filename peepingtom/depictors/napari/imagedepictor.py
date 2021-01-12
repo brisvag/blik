@@ -1,6 +1,6 @@
-from .blockdepictor import BlockDepictor
+from .naparidepictor import NapariDepictor
 
 
-class ImageDepictor(BlockDepictor):
+class ImageDepictor(NapariDepictor):
     def depict(self):
-        self.make_image_layer(self.datablock.data, name=f'{self.name} - image')
+        self._make_image_layer(self.datablock.data, name=f'{self.name} - image')

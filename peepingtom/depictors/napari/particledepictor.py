@@ -1,14 +1,14 @@
 import numpy as np
 
-from .blockdepictor import BlockDepictor
+from .naparidepictor import NapariDepictor
 
 
-class ParticleDepictor(BlockDepictor):
+class ParticleDepictor(NapariDepictor):
     def depict(self):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 
-        self.make_points_layer(self.datablock.positions.as_zyx(),
+        self._make_points_layer(self.datablock.positions.as_zyx(),
                                name=f'{self.name} - particle positions',
                                properties=self.datablock.properties.data,
                                **pkwargs)
@@ -25,7 +25,7 @@ class ParticleDepictor(BlockDepictor):
             unit_z_rotated_order_zyx = padded
 
         napari_vectors = np.stack([positions, unit_z_rotated_order_zyx], axis=1)
-        self.make_vectors_layer(napari_vectors,
+        self._make_vectors_layer(napari_vectors,
                                 name=f'{self.name} - particle orientations',
                                 **vkwargs)
 

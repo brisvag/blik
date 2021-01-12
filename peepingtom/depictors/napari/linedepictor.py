@@ -1,7 +1,7 @@
-from .blockdepictor import BlockDepictor
+from .naparidepictor import NapariDepictor
 
 
-class LineDepictor(BlockDepictor):
+class LineDepictor(NapariDepictor):
     def depict(self):
         # default keyword arguments
         pkwargs = {'size': 3,
@@ -16,12 +16,12 @@ class LineDepictor(BlockDepictor):
         backbone_data = self.datablock.smooth_backbone[:, ::-1]
 
         # draw points layer in napari
-        self.make_points_layer(points_data,
+        self._make_points_layer(points_data,
                                name=f'{self.name} - points',
                                **pkwargs)
 
         # draw line as path in napari
-        self.make_shapes_layer(backbone_data,
+        self._make_shapes_layer(backbone_data,
                                shape_type='path',
                                name=f'{self.name} - line',
                                **bkwargs)

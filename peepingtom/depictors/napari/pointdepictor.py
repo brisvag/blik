@@ -1,11 +1,11 @@
-from .blockdepictor import BlockDepictor
+from .naparidepictor import NapariDepictor
 
 
-class PointDepictor(BlockDepictor):
+class PointDepictor(NapariDepictor):
     def depict(self):
         pkwargs = {'size': 3}
 
-        self.make_points_layer(self.datablock.as_zyx(),
+        self._make_points_layer(self.datablock.as_zyx(),
                                name=f'{self.name}',
                                **pkwargs)
 

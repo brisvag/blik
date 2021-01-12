@@ -1,6 +1,5 @@
-from .dispatchlist import DispatchList
 from ..datablocks import ParticleBlock, ImageBlock
-from ..utils import listify
+from ..utils import DispatchList, listify
 
 
 class DataList(DispatchList):
@@ -8,13 +7,17 @@ class DataList(DispatchList):
     base class for DataCrates and DataSets that implements common functionality
     """
     _valid_type = None
-    _ignore_dispatch = ('name', 'parent')
+    _depictor_type = None
+    _ignore_dispatch = ('name', 'parent', 'depictor')
 
-    def __init__(self, data, name=None, **kwargs):
+    def __init__(self, data, name=None, depictor=None, **kwargs):
         if isinstance(data, type(self)):
             data = data._data
         super().__init__(data, **kwargs)
         self.name = name
+        if depictor is None:
+            depictor = self._depictor_type(self)
+        self.depictor = depictor
 
     def __new__(cls, data, **kwargs):
         # if a new instance is created, it has a parent and it contains the wrong types,

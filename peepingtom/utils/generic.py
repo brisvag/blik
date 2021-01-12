@@ -2,13 +2,14 @@ from collections.abc import Iterable
 from pathlib import Path
 from inspect import signature
 
+from .dispatchlist import DispatchList
+
 
 def listify(obj):
     """
     transform input into an appropriate list, unless already list-like
     """
     # avoid circular import
-    from ..containers import DispatchList
     from ..datablocks import DataBlock
     if isinstance(obj, Iterable) and not isinstance(obj, (str, DispatchList, DataBlock, Path)):
         return list(obj)

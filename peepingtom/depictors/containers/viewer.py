@@ -14,8 +14,10 @@ class Viewer:
         if napari_viewer is None:
             napari_viewer = napari.Viewer(ndisplay=3)
         self.napari_viewer = napari_viewer
+        self._check()
 
     def _init_plots(self, plots_widget=None):
+        self._check()
         if plots_widget is None:
             plots_widget = GraphicsLayoutWidget()
         self.plots = plots_widget
@@ -30,7 +32,7 @@ class Viewer:
             self.napari_viewer.window.qt_viewer.actions()
         except RuntimeError:
             self._init_viewer()
-            self._init_plots(self.plots)
+            self._init_plots()
 
     @property
     def layers(self):

@@ -1,8 +1,3 @@
-import numpy as np
-import pandas as pd
-from ..utils import listify
-
-
 class DispatchList:
     """
     list-like class that can dispatch getitem, getattr, setattr and calls to its contents,
@@ -16,6 +11,8 @@ class DispatchList:
     _ignore_dispatch = ()
 
     def __init__(self, iterable=(), parent=None):
+        # avoid circular import
+        from .generic import listify
         self._data = listify(iterable)
         if parent is None:
             parent = self

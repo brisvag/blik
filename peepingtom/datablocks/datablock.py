@@ -17,7 +17,7 @@ class DataBlock:
         cls = type(self)
         return cls(*args, **kwargs)
 
-    def depict(self, mode, **kwargs):
+    def depict(self, mode='default', **kwargs):
         depictor_type = self._depiction_modes.get(mode)
         if depictor_type is None:
             raise ValueError(f'unknown depiction mode "{mode}"')

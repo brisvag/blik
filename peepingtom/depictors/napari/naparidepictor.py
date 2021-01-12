@@ -1,9 +1,11 @@
 from napari.layers import Points, Image, Vectors, Shapes
 
+from ..depictor import Depictor
 
-class NapariDepictor:
+
+class NapariDepictor(Depictor):
     """
-    NapariDepictors are SimpleBlock or MultiBlock wrappers controlling depiction of their contents in napari
+    NapariDepictors are SimpleNapari or MultiNapari wrappers controlling depiction of their contents in napari
     """
     def __init__(self, datablock):
         self.layers = []
