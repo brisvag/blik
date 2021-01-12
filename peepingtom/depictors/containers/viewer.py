@@ -3,6 +3,9 @@ from pyqtgraph import GraphicsLayoutWidget
 
 
 class Viewer:
+    """
+    abstraction layer on viewer that dispatches visualisation to specific components
+    """
     def __init__(self, napari_viewer=None, plots_widget=None):
         self.napari_viewer = None
         self.plots = None

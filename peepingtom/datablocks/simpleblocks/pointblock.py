@@ -67,7 +67,7 @@ class PointBlock(SimpleBlock):
         return dim_idx
 
     def _get_dim_at_spatial_index(self, idx: int):
-        return self[:, idx]
+        return self.data[:, idx]
 
     def _get_named_dimension(self, dim: str, as_type='array'):
         """
