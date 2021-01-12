@@ -17,19 +17,12 @@ from ...analysis import classify_radial_profile, deduplicate_dataset
 class DataSetDepictor:
     def __init__(self, dataset, viewers=None):
         if viewers is None:
-            viewers = {}
+            viewers = []
         self.viewers = viewers
-        self.plots = pg.GraphicsLayoutWidget()
-        self._plots_widget = None
+        self.dataset = dataset
 
-    def _check_viewer(self, idx):
-        try:
-            self.viewers[idx].window.qt_viewer.actions()
-        except RuntimeError:
-            self.viewers[idx] = napari.Viewer(ndisplay=3)
-
-    def peep(self, viewer=0):
-        self._init_viewer(viewer)
+    def show(self, viewer_idx=0):
+        self._init_viewer(viewer_idx)
         self.depictors.draw()
 
     def hide(self):

@@ -27,18 +27,18 @@ class LineDepictor(BlockDepictor):
                                **bkwargs)
 
     @property
-    def points_layer(self):
+    def points(self):
         return self.layers[0]
 
     @property
-    def backbone_layer(self):
+    def backbone(self):
         return self.layers[1]
 
     def update(self):
         backbone_data = self.datablock.smooth_backbone[:, ::-1]
-        self.backbone_layer.selected_data = {0}
-        self.backbone_layer.remove_selected()
-        self.backbone_layer.add(backbone_data, shape_type='path')
+        self.backbone.selected_data = {0}
+        self.backbone.remove_selected()
+        self.backbone.add(backbone_data, shape_type='path')
 
     def changed(self, event):
-        self.datablock.data = self.points_layer.data[:, ::-1]
+        self.datablock.data = self.points.data[:, ::-1]

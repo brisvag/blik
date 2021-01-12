@@ -30,13 +30,13 @@ class ParticleDepictor(BlockDepictor):
                                 **vkwargs)
 
     @property
-    def point_layer(self):
+    def points(self):
         return self.layers[0]
 
     @property
-    def vector_layer(self):
+    def vectors(self):
         return self.layers[1]
 
     def update(self):
-        self.point_layer.properties = {k: v for k, v in self.datablock.properties.data.items()
-                                       if len(v) == len(self.datablock.positions.data)}
+        self.point.properties = {k: v for k, v in self.datablock.properties.data.items()
+                                 if len(v) == len(self.datablock.positions.data)}
