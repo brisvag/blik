@@ -8,6 +8,7 @@ class DataBlock:
     def __init__(self, name=None):
         self.name = name
         self.depictors = []
+        self.alchemists = []
 
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
@@ -25,7 +26,9 @@ class DataBlock:
 
     def update(self):
         for depictor in self.depictors:
-            self.depictor.update()
+            depictor.update()
+        for alchemist in self.alchemists:
+            alchemist.transform()
 
     def __shape_repr__(self):
         return ''

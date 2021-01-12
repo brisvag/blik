@@ -1,4 +1,5 @@
-from napari.layers import Points, Image, Vectors, Shapes
+import numpy as np
+from napari.layers import Points, Image, Vectors, Shapes, Surface
 
 from ..depictor import Depictor
 
@@ -25,6 +26,13 @@ class NapariDepictor(Depictor):
 
     def _make_shapes_layer(self, shape, shape_type, name, **kwargs):
         layer = Shapes(shape, shape_type=shape_type, name=name, **kwargs)
+        self._init_layer(layer)
+
+    def _make_surface_layer(self, vertices, faces, name, values=None, **kwargs):
+        if values is None:
+            values = np.zeros(vertices.shape[0])
+        data = (vertices, faces, values)
+        layer = Surface(data, name=name, **kwargs)
         self._init_layer(layer)
 
     def _init_layer(self, layer):

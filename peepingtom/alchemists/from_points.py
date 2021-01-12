@@ -1,7 +1,7 @@
 import numpy as np
 
 from ..datablocks import LineBlock, ParticleBlock, PointBlock, OrientationBlock, PropertyBlock
-from .base import Alchemist
+from .alchemist import Alchemist
 
 
 class PointToLineAlchemist(Alchemist):
