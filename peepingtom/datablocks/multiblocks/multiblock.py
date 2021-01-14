@@ -25,6 +25,11 @@ class MultiBlock(DataBlock):
     def blocks(self):
         return self._blocks
 
+    def depict(self, mode='default', **kwargs):
+        super().depict(mode=mode, **kwargs)
+        for block in self.blocks:
+            block.depictors = self.depictors
+
     def __getitem__(self, key):
         subslices = []
         for block in self.blocks:

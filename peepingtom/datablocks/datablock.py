@@ -6,7 +6,7 @@ class DataBlock:
     _depiction_modes = {}
 
     def __init__(self, name=None):
-        self.name = name
+        self._name = name
         self.depictors = []
         self.alchemists = []
 
@@ -29,6 +29,14 @@ class DataBlock:
             depictor.update()
         for alchemist in self.alchemists:
             alchemist.transform()
+
+    @property
+    def name(self):
+        return self._name or f'#{hash(self)}'
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     def __shape_repr__(self):
         return ''

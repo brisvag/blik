@@ -5,6 +5,7 @@ from ..utils import DispatchList, listify
 class DataList(DispatchList):
     """
     base class for DataCrates and DataSets that implements common functionality
+    subclasses should define a valid type for the contents and a depictor type
     """
     _valid_type = None
     _depictor_type = None
@@ -14,7 +15,7 @@ class DataList(DispatchList):
         if isinstance(data, type(self)):
             data = data._data
         super().__init__(data, **kwargs)
-        self.name = name
+        self._name = name
         if depictor is None:
             depictor = self._depictor_type(self)
         self.depictor = depictor
@@ -24,41 +25,43 @@ class DataList(DispatchList):
         # we should simply return a DispatchList of it, because the user is trying to get
         # a view of non-standard contents of the container
         try:
-            # need to listify even though we do it in DispatchList.__init__, because this happens first
-            cls._checktypes(listify(data))
+            cls._checktypes(data)
         except TypeError:
             if kwargs.get('parent') is None:
                 # this happens if the instance was actually created incorrectly
                 raise
-            else:
-                return DispatchList(data)
+            # else:
+                # return DispatchList(data)
         return super().__new__(cls)
+
+    @property
+    def name(self):
+        return self._name or f'#{hash(self)}'
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def blocks(self):
         return self.flatten()
 
+    @property
     def particles(self, flatten=False):
-        return self.if_types(ParticleBlock, flatten=flatten)
+        return self._if_types(ParticleBlock, flatten=flatten)
 
+    @property
     def images(self, flatten=False):
-        return self.if_types(ImageBlock, flatten=flatten)
-
-    def flatten(self):
-        out = DispatchList()
-        for el in self:
-            if isinstance(el, DispatchList):
-                out.extend(el.flatten()._data)
-            else:
-                out.append(el)
-        return out
+        return self._if_types(ImageBlock, flatten=flatten)
 
     def _if_element(self, callable):
         def select(obj, condition):
             out = obj.__newchild__([])
             for el in obj:
                 if isinstance(el, DataList):
-                    out.append(el._if_element(condition))
+                    sub = el._if_element(condition)
+                    if sub:
+                        out.append(sub)
                 else:
                     if callable(el):
                         out.append(el)
@@ -70,15 +73,31 @@ class DataList(DispatchList):
         return a view containing only the chosen block types
         """
         block_types = tuple(listify(block_types))
-        filtered = self._if_element(lambda x: isinstance(x, block_types))
+        def right_type(item):
+            return isinstance(item, block_types)
+        filtered = self._if_element(right_type)
         if flatten:
             return filtered.flatten()
         else:
             return filtered
 
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            for item in self:
+                if item.name == key:
+                    return item
+            for item in self.flatten():
+                if item.name == key:
+                    return item
+            raise KeyError(f'could not find an item called "{key}"')
+        else:
+            return super().__getitem__(key)
+
     @classmethod
     def _checktypes(cls, items):
-        for item in items:
+        if isinstance(items, cls):
+            items = items._data
+        for item in listify(items):
             if not isinstance(item, cls._valid_type):
                 raise TypeError(f'{cls.__name__} can only hold '
                                 f'{cls._valid_type.__name__} objects, not {type(item).__name__}')
@@ -112,21 +131,21 @@ class DataList(DispatchList):
         return self.__pprint__()
 
     def __add__(self, other):
-        if isinstance(other, type(self)):
-            self._checktypes(other)
-            return self.__newlike__(self._data + other._data)
-        if isinstance(other, list):
-            return self + self.__newlike__(other)
-        else:
-            return NotImplemented
+        self._checktypes(other)
+        return super().__add__(other)
 
     def __iadd__(self, other):
-        if isinstance(other, type(self)):
-            self._checktypes(other)
-            self._data += other._data
-            return self
-        if isinstance(other, list):
-            self += self.__newlike__(other)
-            return self
-        else:
-            return NotImplemented
+        self._checktypes(other)
+        return super().__iadd__(other)
+
+    def append(self, item):
+        self._checktypes(item)
+        super().append(item)
+
+    def insert(self, i, item):
+        self._checktypes(item)
+        super().insert(i, item)
+
+    def extend(self, other):
+        self._checktypes(other)
+        return super().extend(other)

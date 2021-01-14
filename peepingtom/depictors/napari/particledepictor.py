@@ -8,11 +8,22 @@ class ParticleDepictor(NapariDepictor):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 
-        self._make_points_layer(self.datablock.positions.as_zyx(),
-                               name=f'{self.name} - particle positions',
-                               properties=self.datablock.properties.data,
-                               **pkwargs)
+        self._make_points_layer(self.get_positions(),
+                                name=f'{self.name} - particle positions',
+                                properties=self.get_properties(),
+                                **pkwargs)
 
+        self._make_vectors_layer(self.get_orientations(),
+                                 name=f'{self.name} - particle orientations',
+                                 **vkwargs)
+
+    def get_positions(self):
+        return self.datablock.positions.as_zyx()
+
+    def get_properties(self):
+        return self.datablock.properties.data
+
+    def get_orientations(self):
         # get positions and 'projection' vectors
         positions = self.datablock.positions.as_zyx()
         unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors('z').reshape((-1, 3))
@@ -23,11 +34,7 @@ class ParticleDepictor(NapariDepictor):
             padded = np.zeros_like(self.datablock.positions.data)
             padded[:, -3:] = unit_z_rotated_order_zyx
             unit_z_rotated_order_zyx = padded
-
-        napari_vectors = np.stack([positions, unit_z_rotated_order_zyx], axis=1)
-        self._make_vectors_layer(napari_vectors,
-                                name=f'{self.name} - particle orientations',
-                                **vkwargs)
+        return np.stack([positions, unit_z_rotated_order_zyx], axis=1)
 
     @property
     def points(self):
@@ -38,5 +45,6 @@ class ParticleDepictor(NapariDepictor):
         return self.layers[1]
 
     def update(self):
-        self.point.properties = {k: v for k, v in self.datablock.properties.data.items()
-                                 if len(v) == len(self.datablock.positions.data)}
+        self.points.data = self.get_positions()
+        self.points.properties = self.get_properties()
+        self.vectors.data = self.get_orientations()

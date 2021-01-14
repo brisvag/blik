@@ -47,4 +47,4 @@ class DataSet(DataList):
         self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
     def deduplicate(self, *args, **kwargs):
-        deduplicate_dataset(self.blocks, *args, **kwargs)
+        deduplicate_dataset(self, *args, **kwargs)
