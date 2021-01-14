@@ -9,3 +9,18 @@ class DataCrate(DataList):
     """
     _valid_type = DataBlock
     _depictor_type = DataCrateDepictor
+
+    def __and__(self, other):
+        if isinstance(other, DataBlock):
+            other = [other]
+        return self + other
+
+    def __iand__(self, other):
+        if isinstance(other, DataBlock):
+            other = [other]
+        self += other
+        return self
+
+    def __rand__(self, other):
+        if isinstance(other, DataBlock):
+            return self + other

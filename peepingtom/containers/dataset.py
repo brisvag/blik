@@ -48,3 +48,18 @@ class DataSet(DataList):
 
     def deduplicate(self, *args, **kwargs):
         deduplicate_dataset(self, *args, **kwargs)
+
+    def __and__(self, other):
+        self._checktypes(other)
+        out = self.__newlike__([])
+        added = []
+        for s_item in self:
+            for o_item in other:
+                if o_item.name == s_item.name:
+                    out.append(s_item + o_item)
+                    added.append(o_item)
+                    break
+            else:
+                out.append(s_item)
+        out.extend([item for item in other if item not in added])
+        return out
