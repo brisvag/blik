@@ -2,7 +2,7 @@ from .datalist import DataList
 from .datacrate import DataCrate
 from ..depictors import DataSetDepictor
 from ..analysis import classify_radial_profile, deduplicate_dataset
-from ..utils import distinct_colors, faded_grey
+from ..utils import distinct_colors, faded_grey, wrapper_method
 
 
 class DataSet(DataList):
@@ -32,22 +32,24 @@ class DataSet(DataList):
         from ..io_ import write
         write(self, paths, **kwargs)
 
+    @wrapper_method(classify_radial_profile)
     def classify_radial_profile(self, *args, **kwargs):
+        # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
         colors = distinct_colors[:kwargs['n_classes']]
         if kwargs['if_properties'] is not None:
             colors.append(faded_grey)
-        for d in self.depictors:
-            if d is not None:
-                d.point_layer.face_color = kwargs['class_tag']
-                d.point_layer.face_color_cycle = [list(x) for x in colors]
+        for p in self.particles:
+            p.depictor.point_layer.face_color = kwargs['class_tag']
+            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
         if kwargs['if_properties'] is not None:
             colors.pop()
         class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
         self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
+    @wrapper_method(deduplicate_dataset)
     def deduplicate(self, *args, **kwargs):
-        deduplicate_dataset(self, *args, **kwargs)
+        return deduplicate_dataset(self, *args, **kwargs)
 
     def __and__(self, other):
         self._checktypes(other)

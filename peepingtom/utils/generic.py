@@ -27,10 +27,9 @@ def wrapper_method(other_func):
     def wrapper(func):
         func.__doc__ = other_func.__doc__
         sig = signature(other_func)
-        params = iter(sig.parameters.items())
+        params = list(sig.parameters.values())
         # discard first argument
-        next(params)
-        new_sig = sig.replace(parameters=dict(params))
+        new_sig = sig.replace(parameters=params[1:])
         func.__signature__ = new_sig
         return func
     return wrapper
