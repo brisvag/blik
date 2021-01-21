@@ -116,10 +116,11 @@ def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_rad
     else:
         raise ValueError(f'mode can only be one of {[m for m in modes]}, got {mode}')
 
-    original = dataset
+    original = dataset.particles.flatten()
+    particleblocks = original
     indexes = [pb.properties.data.index for pb in particleblocks]
     if if_properties is not None:
-        pb_and_idx = AttributedList(particleblocks).if_properties(if_properties, index=True)
+        pb_and_idx = particleblocks.if_properties(if_properties, index=True)
         particleblocks, indexes = zip(*pb_and_idx)
 
     if max_dist is None:
@@ -142,7 +143,7 @@ def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_rad
         orig.properties.data.loc[orig_idx, class_tag] = sliced_classes
         orig.properties.data[class_tag] = orig.properties.data[class_tag].fillna(1000000).astype(int)
         # must trigger update manually because we bypassed __setitem__
-        orig.properties.updated()
+        orig.properties.update()
         start += n
 
         orig.metadata[f'{class_tag}_centroids'] = centroids

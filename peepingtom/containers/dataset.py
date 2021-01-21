@@ -32,22 +32,24 @@ class DataSet(DataList):
         from ..io_ import write
         write(self, paths, **kwargs)
 
-    @wrapper_method(classify_radial_profile)
+    @wrapper_method(classify_radial_profile, ignore_args=1)
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
-        colors = distinct_colors[:kwargs['n_classes']]
-        if kwargs['if_properties'] is not None:
-            colors.append(faded_grey)
-        for p in self.particles:
-            p.depictor.point_layer.face_color = kwargs['class_tag']
-            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
-        if kwargs['if_properties'] is not None:
-            colors.pop()
-        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
-        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+        tag = kwargs.get('class_tag', 'class_radial')
+        self.particles.flatten().depict(mode='class_plot', class_tag=tag)
+        # colors = distinct_colors[:kwargs['n_classes']]
+        # if kwargs['if_properties'] is not None:
+            # colors.append(faded_grey)
+        # for p in self.particles:
+            # p.depictor.point_layer.face_color = kwargs['class_tag']
+            # p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
+        # if kwargs['if_properties'] is not None:
+            # colors.pop()
+        # class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
+        # self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
-    @wrapper_method(deduplicate_dataset)
+    @wrapper_method(deduplicate_dataset, ignore_args=1)
     def deduplicate(self, *args, **kwargs):
         return deduplicate_dataset(self, *args, **kwargs)
 
