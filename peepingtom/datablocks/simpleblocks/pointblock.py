@@ -21,9 +21,11 @@ class PointBlock(SimpleBlock):
         # cast as array
         data = np.asarray(data)
 
-        # coerce 1d point to 2d
-        if data.ndim == 1:
+        # coerce single point to right dims
+        if data.ndim == 1 and data.size > 0:
             data = data.reshape((1, len(data)))
+        if data.size == 0:
+            data = data.reshape((0, 3))
 
         # check ndim of data
         if not data.ndim == 2:

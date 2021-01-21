@@ -67,4 +67,4 @@ class DipoleBlock(MultiBlock):
 
         # calculate rotation matrices
         rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors)
-        return OrientationBlock(rotation_matrices, parent=self)
+        return OrientationBlock(rotation_matrices)

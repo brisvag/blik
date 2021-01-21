@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from peepingtom.core import DipoleBlock
+from peepingtom.datablocks.multiblocks.dipoleblock import DipoleBlock
 
 test_centers = np.asarray([[0, 0, 0],
                            [1, 1, 1],

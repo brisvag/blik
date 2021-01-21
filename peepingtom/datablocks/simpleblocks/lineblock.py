@@ -21,7 +21,7 @@ class LineBlock(PointBlock):
     """
     _depiction_modes = {'default': LineDepictor}
 
-    def __init__(self, data, spline_smoothing_parameter=0, **kwargs):
+    def __init__(self, data=(), spline_smoothing_parameter=0, **kwargs):
         """
 
         Parameters

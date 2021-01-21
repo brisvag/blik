@@ -1,5 +1,5 @@
 import numpy as np
-from peepingtom.core.datablocks import ImageBlock
+from peepingtom.datablocks.simpleblocks.imageblock import ImageBlock
 
 
 def test_imageblock_instantiation():

@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.core.datablocks import LineBlock
+from peepingtom.datablocks.simpleblocks.lineblock import LineBlock
 
 # test data for lineblock
 v = np.linspace(0, 12)

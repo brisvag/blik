@@ -11,12 +11,12 @@ class ImageBlock(SimpleBlock):
     """
     _depiction_modes = {'default': ImageDepictor}
 
-    def __init__(self, data, pixel_size=1, **kwargs):
+    def __init__(self, data=(), pixel_size=1, **kwargs):
         super().__init__(data, **kwargs)
         self.pixel_size = pixel_size
 
-    def _data_setter(self, image: np.ndarray):
-        return np.array(image)
+    def _data_setter(self, data):
+        return np.array(data)
 
     @property
     def pixel_size(self):

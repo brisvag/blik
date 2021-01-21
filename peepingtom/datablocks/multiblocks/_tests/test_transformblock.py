@@ -1,6 +1,7 @@
 import numpy as np
 
-from peepingtom.core import TransformBlock, DipoleBlock, PointBlock, ParticleBlock
+from peepingtom.datablocks.multiblocks.transformblock import TransformBlock
+from peepingtom.datablocks import DipoleBlock, PointBlock, ParticleBlock
 
 # test transform
 shifts = [

@@ -10,7 +10,7 @@ class MeshBlock(PointBlock):
     """
     _depiction_modes = {'default': MeshDepictor}
 
-    def __init__(self, vertices: np.ndarray, faces: np.ndarray, **kwargs):
+    def __init__(self, vertices=(), faces=(), **kwargs):
         """
 
         Parameters

@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from eulerangles import euler2matrix
 
-from peepingtom.core.datablocks import OrientationBlock
+from peepingtom.datablocks.simpleblocks.orientationblock import OrientationBlock
 
 # test data for orientationblock
 # orientations

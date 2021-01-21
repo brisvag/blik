@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from peepingtom.core.datablocks import PointBlock
+from peepingtom.datablocks.simpleblocks.pointblock import PointBlock
 
 # test data pointblock
 single_point_2d = [1, 2]

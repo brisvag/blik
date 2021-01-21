@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.core import MeshBlock
+from peepingtom.datablocks.simpleblocks.meshblock import MeshBlock
 
 vertices = np.array([[0, 0, 0],
                      [0, 0, 1],
