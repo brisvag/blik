@@ -205,3 +205,7 @@ class PointBlock(SimpleBlock):
 
     def __shape_repr__(self):
         return f'{self.data.shape}'
+
+    def to_line(self):
+        from ...alchemists import PointToLineAlchemist
+        self.alchemists.append(PointToLineAlchemist(self))

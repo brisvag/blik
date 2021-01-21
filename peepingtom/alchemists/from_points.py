@@ -9,15 +9,13 @@ class PointToLineAlchemist(Alchemist):
     """
     transform a PointBlock into a LineBlock
     """
-    def __init__(self, pointblock):
-        super().__init__({'points': pointblock})
-
     def transform(self):
-        points = self.inputs['points'].data
-        if 'line' not in self.outputs:
-            self.outputs['line'] = LineBlock(points)
-        else:
-            self.outputs['line'].data = points
+        points = self.inputs[0].data
+        self.outputs.append(LineBlock(points))
+
+    def update(self):
+        self.outputs[0].data = self.inputs[0].data
+        self.outputs[0].update()
 
 
 class PointToParticleAlchemist(Alchemist):

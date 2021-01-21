@@ -28,7 +28,7 @@ class DataBlock:
         for depictor in self.depictors:
             depictor.update()
         for alchemist in self.alchemists:
-            alchemist.transform()
+            alchemist.update()
 
     @property
     def name(self):
