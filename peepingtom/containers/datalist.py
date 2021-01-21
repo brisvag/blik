@@ -11,16 +11,18 @@ class DataList(DispatchList):
     _depictor_type = None
     _ignore_dispatch = ('name', 'parent', 'depictor')
 
-    def __init__(self, data, name=None, depictor=None, **kwargs):
+    def __init__(self, data=(), name=None, depictor=None, container=None, **kwargs):
         if isinstance(data, type(self)):
             data = data._data
         super().__init__(data, **kwargs)
+        self._container = container
+        self._set_all_containers()
         self._name = name
         if depictor is None:
             depictor = self._depictor_type(self)
         self.depictor = depictor
 
-    def __new__(cls, data, **kwargs):
+    def __new__(cls, data=(), **kwargs):
         # if a new instance is created, it has a parent and it contains the wrong types,
         # we should simply return a DispatchList of it, because the user is trying to get
         # a view of non-standard contents of the container
@@ -30,9 +32,10 @@ class DataList(DispatchList):
             if kwargs.get('parent') is None:
                 # this happens if the instance was actually created incorrectly
                 raise
-            # else:
-                # return DispatchList(data)
         return super().__new__(cls)
+
+    def __newchild__(self, *args, **kwargs):
+        return super().__newchild__(*args, container=self._container, **kwargs)
 
     @property
     def name(self):
@@ -56,7 +59,7 @@ class DataList(DispatchList):
 
     def _if_element(self, callable):
         def select(obj, condition):
-            out = obj.__newchild__([])
+            out = obj.__newchild__()
             for el in obj:
                 if isinstance(el, DataList):
                     sub = el._if_element(condition)
@@ -102,6 +105,12 @@ class DataList(DispatchList):
                 raise TypeError(f'{cls.__name__} can only hold '
                                 f'{cls._valid_type.__name__} objects, not {type(item).__name__}')
 
+    def _set_all_containers(self):
+        for el in self:
+            # TODO: this is necessary for non-datablock contents. need better way to handle it!
+            if hasattr(el, '_container'):
+                el._container = self._parent
+
     def __name_repr__(self):
         if self.name is None:
             return ''
@@ -136,16 +145,26 @@ class DataList(DispatchList):
 
     def __iadd__(self, other):
         self._checktypes(other)
-        return super().__iadd__(other)
+        added = super().__iadd__(other)
+        self._set_all_containers()
+        return added
 
     def append(self, item):
         self._checktypes(item)
         super().append(item)
+        self._set_all_containers()
 
     def insert(self, i, item):
         self._checktypes(item)
         super().insert(i, item)
+        self._set_all_containers()
 
     def extend(self, other):
         self._checktypes(other)
-        return super().extend(other)
+        super().extend(other)
+        self._set_all_containers()
+
+    def pop(self, i=-1):
+        popped = self._data.pop(i)
+        popped._container = None
+        return popped

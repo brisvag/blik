@@ -146,6 +146,9 @@ class DispatchList:
         else:
             return NotImplemented
 
+    def index(self, item, *args):
+        return self._data.index(item, *args)
+
     def flatten(self):
         out = DispatchList()
         for el in self:

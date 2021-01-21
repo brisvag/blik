@@ -5,10 +5,32 @@ class DataBlock:
     """
     _depiction_modes = {}
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, container=None):
         self._name = name
         self.depictors = []
         self.alchemists = []
+        self._container = container
+
+    @property
+    def datacrate(self):
+        return self._container
+
+    @datacrate.setter
+    def datacrate(self, value):
+        self._container = value
+
+    @property
+    def dataset(self):
+        if self.datacrate is None:
+            return None
+        return self.datacrate.dataset
+
+    def insert_next_in_crate(self, datablock):
+        if self.datacrate is None:
+            from ..containers import DataCrate
+            self.datacrate = DataCrate(self)
+        idx = self.datacrate.index(self) + 1
+        self.datacrate.insert(idx, datablock)
 
     def __newlike__(self, *args, **kwargs):
         # this makes sure that operators get the right output in case
@@ -18,10 +40,15 @@ class DataBlock:
         cls = type(self)
         return cls(*args, **kwargs)
 
-    def depict(self, mode='default', **kwargs):
+    def depict(self, mode='default', new_depictor=False, **kwargs):
         depictor_type = self._depiction_modes.get(mode)
         if depictor_type is None:
             raise ValueError(f'unknown depiction mode "{mode}"')
+        if not new_depictor:
+            for depictor in self.depictors:
+                if isinstance(depictor, depictor_type):
+                    depictor.update()
+                    return
         self.depictors.append(depictor_type(self, **kwargs))
 
     def update(self):
@@ -42,10 +69,7 @@ class DataBlock:
         return ''
 
     def __name_repr__(self):
-        if self.name is None:
-            return ''
-        else:
-            return f'<{self.name}>'
+        return f'<{self.name}>'
 
     def __base_repr__(self):
         return f'{type(self).__name__}{self.__name_repr__()}{self.__shape_repr__()}'

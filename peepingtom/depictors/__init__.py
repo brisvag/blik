@@ -8,6 +8,7 @@ from .napari import (
 
 from .pyqtgraph import (
     PropertyPlotDepictor,
+    ClassPlotDepictor,
 )
 
 from .containers import (

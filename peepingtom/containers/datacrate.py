@@ -10,6 +10,10 @@ class DataCrate(DataList):
     _valid_type = DataBlock
     _depictor_type = DataCrateDepictor
 
+    @property
+    def dataset(self):
+        return self._container
+
     def __and__(self, other):
         if isinstance(other, DataBlock):
             other = [other]

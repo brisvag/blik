@@ -47,6 +47,7 @@ class NapariDepictor(Depictor):
         for layer in self.layers:
             if layer not in viewer.layers:
                 viewer.layers.append(layer)
+        viewer.napari_viewer.reset_view()
 
     def hide(self, viewer):
         for layer in self.layers:

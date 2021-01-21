@@ -33,20 +33,20 @@ class SimpleBlock(DataBlock):
         raise NotImplementedError('SimpleBlocks must implement this method')
 
     def __setitem__(self, key, value):
-        self.data.__setitem__(key, value)
+        self.data[key] = value
         self.update()
 
     def __getitem__(self, key):
-        return self.__newlike__(self.data.__getitem__(key))
+        return self.__newlike__(self.data[key])
 
     def __len__(self):
         return len(self.data)
 
     def __iter__(self):
-        yield from self.data.__iter__()
+        yield from self.data
 
     def __reversed__(self):
-        yield from self.data.__reversed__()
+        yield from reversed(self.data)
 
     def _merge(self, datablocks):
         merged = self._merge_data(datablocks)

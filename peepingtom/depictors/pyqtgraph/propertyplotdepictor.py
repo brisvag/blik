@@ -8,5 +8,5 @@ class PropertyPlotDepictor(PlotDepictor):
         super().__init__(datablock)
 
     def depict(self):
-        data = self.datablock.properties[self.property]
+        data = self.datablock.properties.data[self.property].to_numpy()
         self.add_line(data, name=f'{self.name} - {self.property}', **self.kwargs)

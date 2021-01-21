@@ -19,17 +19,17 @@ def listify(obj):
 
 
 
-def wrapper_method(other_func):
+def wrapper_method(other_func, ignore_args=0):
     """
     method decorator that copies a function's signature and docstring onto the method
-    removes and ignores the first positional argument (assumed to change from function to method form)
+    removes and ignores the first n arguments
     """
     def wrapper(func):
         func.__doc__ = other_func.__doc__
         sig = signature(other_func)
         params = list(sig.parameters.values())
-        # discard first argument
-        new_sig = sig.replace(parameters=params[1:])
+        # discard first arguments
+        new_sig = sig.replace(parameters=params[ignore_args + 1:])
         func.__signature__ = new_sig
         return func
     return wrapper

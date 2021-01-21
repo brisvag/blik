@@ -9,5 +9,5 @@ class PointDepictor(NapariDepictor):
                                name=f'{self.name}',
                                **pkwargs)
 
-    def changed(self):
+    def changed(self, event):
         self.datablock.data = self.layers[0].data

@@ -2,7 +2,7 @@ import numpy as np
 
 from .orientedpointblock import OrientedPointBlock
 from ..simpleblocks import PropertyBlock
-from ...depictors import ParticleDepictor
+from ...depictors import ParticleDepictor, PropertyPlotDepictor, ClassPlotDepictor
 from ...utils import listify
 
 
@@ -10,7 +10,11 @@ class ParticleBlock(OrientedPointBlock):
     """
     Represents a set of particles with coordinates, orientations and arbitrary properties
     """
-    _depiction_modes = {'default': ParticleDepictor}
+    _depiction_modes = {
+        'default': ParticleDepictor,
+        'property_plot': PropertyPlotDepictor,
+        'class_plot': ClassPlotDepictor,
+    }
 
     def __init__(self, positions, orientations, properties=None, metadata=None, **kwargs):
         # Initialise OrientedPointBlock

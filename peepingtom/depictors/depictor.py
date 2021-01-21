@@ -39,6 +39,7 @@ class Depictor:
         fired when data is changed from the depiction side.
         Subclasses can overload this method with the logic to update
         the data in the datablock accordingly
+        don't forget to accept the `event` argument!
         """
 
     def __repr__(self):
