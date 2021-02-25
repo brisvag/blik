@@ -26,14 +26,15 @@ class ParticleDepictor(NapariDepictor):
     def get_orientations(self):
         # get positions and 'projection' vectors
         positions = self.datablock.positions.as_zyx()
-        unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors('z').reshape((-1, 3))
+        v_axis_map = {2: 'y'}
+        v_axis = v_axis_map.get(positions.shape[1], 'z')
+        unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors(v_axis).reshape((-1, positions.shape[1]))
         unit_z_rotated_order_zyx = unit_z_rotated_order_xyz[:, ::-1]
         # attach appropriate higher dimensions indeces to vectors
         # TODO: make more general
-        if self.datablock.positions.ndim > 3:
-            padded = np.zeros_like(self.datablock.positions.data)
-            padded[:, -3:] = unit_z_rotated_order_zyx
-            unit_z_rotated_order_zyx = padded
+        padded = np.zeros_like(self.datablock.positions.data)
+        padded[:, -3:] = unit_z_rotated_order_zyx
+        unit_z_rotated_order_zyx = padded
         return np.stack([positions, unit_z_rotated_order_zyx], axis=1)
 
     @property

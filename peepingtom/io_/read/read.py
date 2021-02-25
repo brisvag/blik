@@ -18,7 +18,7 @@ from ...containers import DataCrate, DataSet
 # TODO: put this directly in the readers to make it plug and play?
 readers = {
     ('.star',): (read_star,),
-    ('.mrc', '.map'): (read_mrc,),
+    ('.mrc', '.mrcs', '.map'): (read_mrc,),
     ('.em',): (read_em,),
     ('.tbl'): (read_tbl,),
 }
@@ -41,10 +41,11 @@ def read_file(file_path, **kwargs):
     raise ValueError(f'could not read {file_path}')
 
 
-def find_files(paths, filters=None, recursive=False):
+def find_files(paths, filters=None, recursive=False, max=None):
     """
     take a path or iterable thereof and find all the contained readable files
     filters: a regex-like strings or iterable thereof used to match filenames
+    max: max number of files to read
     """
     # sanitize input
     paths = listify(paths)
@@ -73,16 +74,18 @@ def find_files(paths, filters=None, recursive=False):
     # filter files if requested
     files = [file for file in files if all(re.search(regex, str(file)) for regex in filters)]
 
-    return files
+    if max is None:
+        max = len(files) + 1
+    return files[:max]
 
 
-def read_to_datablocks(paths, filters=None, recursive=False, strict=False, **kwargs):
+def read_to_datablocks(paths, filters=None, recursive=False, strict=False, max=None, **kwargs):
     """
     read generic path(s) into the appropriate datablocks
     strict: if set to False, ignore failures and read what possible
     """
     datablocks = []
-    for file in find_files(paths, filters=filters, recursive=recursive):
+    for file in find_files(paths, filters=filters, recursive=recursive, max=max):
         try:
             datablocks.extend(read_file(file, **kwargs))
         except ValueError:
