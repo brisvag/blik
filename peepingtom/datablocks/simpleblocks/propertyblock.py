@@ -24,15 +24,7 @@ class PropertyBlock(SimpleBlock):
             data = self.data.iloc.__getitem__(key)
         else:
             data = self.data.__getitem__(key)
-        return self.__newlike__(data)
-
-    @staticmethod
-    def _merge_data(datablocks):
-        return pd.concat([db.data for db in datablocks], ignore_index=True)
-
-    @staticmethod
-    def _stack_data(datablocks):
-        return pd.concat([db.data for db in datablocks], ignore_index=True)
+        return self.__view__(data)
 
     def __shape_repr__(self):
         return f'({len(self.data)}, {len(self.data.columns)})'

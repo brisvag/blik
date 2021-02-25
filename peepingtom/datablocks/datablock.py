@@ -87,64 +87,9 @@ class DataBlock:
         else:
             return NotImplemented
 
-    def __iand__(self, other):
-        return NotImplemented
-
-    @staticmethod
-    def _merge_data(datablocks):
-        """
-        convenience method to merge the data of several datablocks
-        of the same type into one, within the same ndimensional space
-        used by merge and imerge.
-        """
-        return NotImplemented
-
-    @staticmethod
-    def _stack_data(datablocks):
-        """
-        convenience method to stack the data of several datablocks into one.
-        If dimensionality is the same, add a new dimension; otherwise,
-        use the next available dimension for the datablocks with smaller dimensionality
-        used by stack and istack.
-        """
-        return NotImplemented
-
-    def _merge(self, datablocks):
-        """
-        merge several datablocks and return a `newlike` object
-        self is not part of merged objects
-        """
-        return NotImplemented
-
-    def _stack(self, datablocks):
-        """
-        stack several datablocks and return a `newlike` object
-        self is not part of stacked objects
-        """
-        return NotImplemented
-
-    def _imerge(self, datablocks):
-        """
-        like merge, but inplace. Self is part of merged objects.
-        """
-        return NotImplemented
-
-    def _istack(self, datablocks):
-        """
-        like stack, but inplace. Self is part of stacked objects.
-        """
-        return NotImplemented
-
-    def __add__(self, other):
-        if isinstance(other, type(self)):
-            return self._merge([self, other])
-        else:
-            return NotImplemented
-
-    def __iadd__(self, other):
-        if isinstance(other, type(self)):
-            self._imerge([other])
-            return self
+    def __gt__(self, other):
+        if isinstance(other, DataBlock):
+            return self.name > other.name
         else:
             return NotImplemented
 
@@ -154,9 +99,5 @@ class DataBlock:
         else:
             return NotImplemented
 
-    def __ior__(self, other):
-        if isinstance(other, type(self)):
-            self._istack([other])
-            return self
-        else:
-            return NotImplemented
+    def __hash__(self):
+        return hash(type(self), self.name)

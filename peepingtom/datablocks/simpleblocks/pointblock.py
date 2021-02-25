@@ -174,37 +174,6 @@ class PointBlock(SimpleBlock):
                 f"'{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
-    @staticmethod
-    def _merge_data(datablocks):
-        return np.concatenate([db.data for db in datablocks])
-
-    @staticmethod
-    def _stack_data(datablocks):
-        # this method assumes that stacked points are always intended to have
-        # indexes at any dimension that's higher than 3
-        dims = [db.ndim for db in datablocks]
-        # only obvious how to stack elements with just 1 dimension of difference
-        if abs(min(dims) - max(dims)) > 1:
-            return NotImplemented
-        # allocate the right size
-        stack_shape = (sum([db.n for db in datablocks]), min(dims) + 1)
-        stacked = np.zeros(stack_shape)
-        previous = 0
-        for idx, db in enumerate(datablocks):
-            current = previous + db.n
-            if db.ndim == max(dims) and db.ndim != min(dims):
-                if len(np.unique(db.data)) != 1:
-                    raise ValueError(f'cannot stack: dimension #{db.ndim} of {db} is not an index')
-                # if the given data is not in order, just give up. TODO: implement something smarter!
-                elif db.data[0, 0] != idx:
-                    raise ValueError(f'cannot stack: the index ({db.data[0,0]}) of {db} does not match')
-                else:
-                    stacked[previous:current] = db.data
-            elif db.ndim == min(dims):
-                stacked[previous:current] = np.concatenate([np.ones((db.n, 1)) * idx, db.data], axis=1)
-            previous = current
-        return stacked
-
     def __shape_repr__(self):
         return f'{self.data.shape}'
 

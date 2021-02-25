@@ -34,50 +34,10 @@ class MultiBlock(DataBlock):
         subslices = []
         for block in self.blocks:
             subslices.append(block.__getitem__(key))
-        return self.__newlike__(*subslices)
+        return self.__view__(*subslices)
 
     def __len__(self):
         lengths = [len(block) for block in self.blocks]
         if all(l == lengths[0] for l in lengths):
             return len(self.blocks[0])
         raise TypeError(f"object of type '{type(self)}' has no len()")
-
-    @staticmethod
-    def _merge_data(multiblocks):
-        blocks_data = []
-        blocks_all = [mb.blocks for mb in multiblocks]
-        # cryptic loop example: datablock types in "blocks" (a, b, c),
-        # this loops through the list [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
-        # so this separates the components of a list of multiblocks into a lists of
-        # simple datablocks of the same type
-        for blocks_by_type in zip(*blocks_all):
-            blocks_data.append(blocks_by_type[0]._merge_data(blocks_by_type))
-        return blocks_data
-
-    @staticmethod
-    def _stack_data(multiblocks):
-        blocks_data = []
-        blocks_all = [mb.blocks for mb in multiblocks]
-        # cryptic loop example: datablock types in "blocks" (a, b, c),
-        # this loops through the list [(a1, a2, ...), (b1, b2, ...), (c1, c2, ...)]
-        # so this separates the components of a list of multiblocks into a lists of
-        # simple datablocks of the same type
-        for blocks_by_type in zip(*blocks_all):
-            blocks_data.append(blocks_by_type[0]._stack_data(blocks_by_type))
-        return blocks_data
-
-    def _merge(self, multiblocks):
-        return self.__newlike__(*self._merge_data(multiblocks))
-
-    def _stack(self, multiblocks):
-        return self.__newlike__(*self._stack_data(multiblocks))
-
-    def _imerge(self, multiblocks):
-        new_data = self._merge_data([self] + multiblocks)
-        for block, data in zip(self.blocks, new_data):
-            block.data = data
-
-    def _istack(self, multiblocks):
-        new_data = self._stack_data([self] + multiblocks)
-        for block, data in zip(self.blocks, new_data):
-            block.data = data

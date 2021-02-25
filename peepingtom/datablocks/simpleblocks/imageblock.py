@@ -29,9 +29,5 @@ class ImageBlock(SimpleBlock):
     def ndim(self):
         return self.data.ndim
 
-    @staticmethod
-    def _stack_data(datablocks):
-        return np.stack([db.data for db in datablocks])
-
     def __shape_repr__(self):
         return f'{self.data.shape}'

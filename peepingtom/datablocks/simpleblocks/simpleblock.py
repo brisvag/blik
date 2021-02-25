@@ -47,27 +47,3 @@ class SimpleBlock(DataBlock):
 
     def __reversed__(self):
         yield from reversed(self.data)
-
-    def _merge(self, datablocks):
-        merged = self._merge_data(datablocks)
-        if merged is NotImplemented:
-            return NotImplemented
-        return self.__newlike__(merged)
-
-    def _stack(self, datablocks):
-        stacked = self._stack_data(datablocks)
-        if stacked is NotImplemented:
-            return NotImplemented
-        return self.__newlike__(self._stack_data(datablocks))
-
-    def _imerge(self, datablocks):
-        merged = self._merge_data([self] + datablocks)
-        if merged is NotImplemented:
-            return NotImplemented
-        self.data = merged
-
-    def _istack(self, datablocks):
-        stacked = self._stack_data([self] + datablocks)
-        if stacked is NotImplemented:
-            return NotImplemented
-        self.data = stacked

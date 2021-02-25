@@ -132,13 +132,5 @@ class OrientationBlock(SimpleBlock):
     def oriented_vectors(self, axis):
         return self._calculate_matrix_product(self._unit_vector(axis))
 
-    @staticmethod
-    def _merge_data(datablocks):
-        return np.concatenate([db.data for db in datablocks])
-
-    @staticmethod
-    def _stack_data(datablocks):
-        return np.concatenate([db.data for db in datablocks])
-
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'
