@@ -132,4 +132,4 @@ def read(paths, mode=None, **kwargs):
             crates.append(DataCrate(dbs))
         # TODO: add rescaling?
 
-    return DataSet(crates)
+    return DataSet(datablocks)

@@ -17,7 +17,7 @@ class MultiBlock(DataBlock):
         Extend the functionality of __setattr__ to automatically add datablocks to the
         'blocks' attribute of a 'MultiBlock' when set
         """
-        if isinstance(value, DataBlock):
+        if isinstance(value, DataBlock) and name != '_parent':
             self._blocks.append(value)
         super().__setattr__(name, value)
 

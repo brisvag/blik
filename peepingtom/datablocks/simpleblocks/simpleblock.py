@@ -4,6 +4,7 @@ from ..datablock import DataBlock
 class SimpleBlock(DataBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
+    and can (and should) defined by a single `data` attribute
 
     SimpleBlock objects must implement a data setter method as _data_setter which returns
     the appropriately formatted data
@@ -37,7 +38,7 @@ class SimpleBlock(DataBlock):
         self.update()
 
     def __getitem__(self, key):
-        return self.__newlike__(self.data[key])
+        return self.__view__(self.data[key])
 
     def __len__(self):
         return len(self.data)

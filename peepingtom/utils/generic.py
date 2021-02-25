@@ -18,7 +18,6 @@ def listify(obj):
     return [obj]
 
 
-
 def wrapper_method(other_func, ignore_args=0):
     """
     method decorator that copies a function's signature and docstring onto the method

@@ -124,7 +124,7 @@ class DispatchList:
             return NotImplemented
 
     def __repr__(self):
-        return self._data.__repr__()
+        return f'*{self._data.__repr__()}'
 
     def append(self, item):
         self._data.append(item)
@@ -136,7 +136,7 @@ class DispatchList:
         return self._data.pop(i)
 
     def reverse(self):
-        return self._data.reverse()
+        self._data.reverse()
 
     def extend(self, other):
         if isinstance(other, DispatchList):

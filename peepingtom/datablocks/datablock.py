@@ -1,44 +1,38 @@
+from functools import total_ordering
+from secrets import token_hex
+
+from ..utils import listify
+
+
+@total_ordering
 class DataBlock:
     """
-    Base class for all simple and complex datablocks.
-    Provides common methods and easy type inference
+    Base class for all datablocks.
     """
     _depiction_modes = {}
 
-    def __init__(self, name=None, container=None):
+    def __init__(self, name=None, volume=None, dataset=None, parent=None):
+        self._parent = parent
+        if name is None and self._parent is None:
+            name = token_hex(16)
         self._name = name
         self.depictors = []
         self.alchemists = []
-        self._container = container
+        self.volume = volume
+        self.dataset = dataset
 
-    @property
-    def datacrate(self):
-        return self._container
+    def add_to_same_volume(self, datablocks):
+        datablocks = listify(datablocks)
+        self.dataset.extend(datablocks)
+        for db in datablocks:
+            db.volume = self.volume
 
-    @datacrate.setter
-    def datacrate(self, value):
-        self._container = value
+    def __view__(self, *args, **kwargs):
+        return type(self)(*args, parent=self, **kwargs)
 
-    @property
-    def dataset(self):
-        if self.datacrate is None:
-            return None
-        return self.datacrate.dataset
-
-    def insert_next_in_crate(self, datablock):
-        if self.datacrate is None:
-            from ..containers import DataCrate
-            self.datacrate = DataCrate(self)
-        idx = self.datacrate.index(self) + 1
-        self.datacrate.insert(idx, datablock)
-
-    def __newlike__(self, *args, **kwargs):
-        # this makes sure that operators get the right output in case
-        # _merge or _stack return notimplemented
-        if args and args[0] is NotImplemented:
-            return NotImplemented
-        cls = type(self)
-        return cls(*args, **kwargs)
+    def __copy__(self, *args, name=None, **kwargs):
+        name = name or f'{self.name}-Copy'
+        return type(self)(*args, name=name, **kwargs)
 
     def depict(self, mode='default', new_depictor=False, **kwargs):
         depictor_type = self._depiction_modes.get(mode)
@@ -59,11 +53,8 @@ class DataBlock:
 
     @property
     def name(self):
-        return self._name or f'#{hash(self)}'
-
-    @name.setter
-    def name(self, value):
-        self._name = value
+        viewname = getattr(self._parent, 'name', None)
+        return viewname or self._name
 
     def __shape_repr__(self):
         return ''
@@ -72,18 +63,17 @@ class DataBlock:
         return f'<{self.name}>'
 
     def __base_repr__(self):
-        return f'{type(self).__name__}{self.__name_repr__()}{self.__shape_repr__()}'
+        view = ''
+        if self._parent is not None:
+            view = '-View'
+        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
 
     def __repr__(self):
         return self.__base_repr__()
 
-    def __and__(self, other):
-        # avoid circular import
-        from ..containers import DataCrate
+    def __lt__(self, other):
         if isinstance(other, DataBlock):
-            return DataCrate([self, other])
-        elif isinstance(other, DataCrate):
-            return DataCrate(self) + other
+            return self.name < other.name
         else:
             return NotImplemented
 
@@ -93,9 +83,9 @@ class DataBlock:
         else:
             return NotImplemented
 
-    def __or__(self, other):
-        if isinstance(other, type(self)):
-            return self._stack([self, other])
+    def __eq__(self, other):
+        if isinstance(other, DataBlock):
+            return self.name == other.name
         else:
             return NotImplemented
 
