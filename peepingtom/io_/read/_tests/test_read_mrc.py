@@ -2,7 +2,7 @@ import numpy as np
 import mrcfile
 
 from peepingtom.io_.read.mrc import read_mrc
-from peepingtom.core import ImageBlock
+from peepingtom.datablocks import ImageBlock
 
 
 def test_read_mrc(tmp_path):
@@ -11,4 +11,3 @@ def test_read_mrc(tmp_path):
     imageblock = read_mrc(file_path)
     assert isinstance(imageblock, ImageBlock)
     assert imageblock.data.shape == (3,3,3)
-    assert imageblock.name == 'NoName'

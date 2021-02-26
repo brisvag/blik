@@ -1,7 +1,7 @@
 import numpy as np
 
 from peepingtom.io_.write.em import write_em
-from peepingtom.core import ImageBlock
+from peepingtom.datablocks import ImageBlock
 
 
 def test_write_em(tmp_path):

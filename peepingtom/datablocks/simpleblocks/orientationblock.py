@@ -46,7 +46,7 @@ class OrientationBlock(SimpleBlock):
         return self.data.shape[-1]
 
     @classmethod
-    def from_euler_angles(cls, euler_angles: np.ndarray, axes: str, intrinsic: bool, positive_ccw: bool,
+    def from_euler_angles(cls, euler_angles: np.ndarray, axes: str, intrinsic: bool, right_handed_rotation: bool,
                           invert_matrix: bool):
         """
         Factory method for creating a VectorBlock directly from a set of eulerian angles
@@ -58,7 +58,7 @@ class OrientationBlock(SimpleBlock):
                occur in the euler angles
         intrinsic : bool, are the euler angles describing a set of intrinsic (rotating reference frame)
                     or extrinsic (fixed reference frame) rotations
-        positive_ccw : bool, are positive euler angles referring to counterclockwise rotations of vectors
+        right_handed_rotation : bool, are positive euler angles referring to counterclockwise rotations of vectors
                        when looking from a positive point along the axis towards the origin
         invert_matrix : bool, should the matrix be inverted?
                         this is useful if your euler angles describe the rotation of a target to a source
@@ -71,7 +71,7 @@ class OrientationBlock(SimpleBlock):
         """
         # Calculate rotation matrices
         rotation_matrices = euler2matrix(euler_angles, axes=axes, intrinsic=intrinsic,
-                                         positive_ccw=positive_ccw)
+                                         right_handed_rotation=right_handed_rotation)
 
         # invert matrix if required
         if invert_matrix:

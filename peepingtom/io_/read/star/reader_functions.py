@@ -75,7 +75,7 @@ def euler2matrix_rln(euler_angles):
     rotation_matrices = eulerangles.euler2matrix(euler_angles,
                                                  axes='zyz',
                                                  intrinsic=True,
-                                                 positive_ccw=True)
+                                                 right_handed_rotation=True)
 
     rotation_matrices = rotation_matrices.swapaxes(-2, -1)
     return rotation_matrices

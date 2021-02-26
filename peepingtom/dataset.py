@@ -86,6 +86,7 @@ class DataSet:
     @property
     def images(self, flatten=False):
         return self._filter_types(ImageBlock)
+
     def __view__(self, *args, **kwargs):
         return DataSet(*args, parent=self._parent, **kwargs)
 

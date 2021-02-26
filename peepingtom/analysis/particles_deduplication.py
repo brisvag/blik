@@ -20,11 +20,12 @@ def deduplicate_particleblock(particle_block, exclusion_radius=1):
     mask = np.ones(particle_block.n, dtype=bool)
     mask[duplicates] = False
 
-    return particle_block[mask]
+    return particle_block[mask].copy()
 
 
 def deduplicate_dataset(dataset, exclusion_radius=1):
-    for crate in dataset:
-        for pb in crate.particles:
-            crate += deduplicate_particleblock(pb, exclusion_radius)
-    return dataset
+    from ..dataset import DataSet
+    ds = DataSet()
+    for pb in dataset.particles:
+        ds.append(deduplicate_particleblock(pb, exclusion_radius))
+    return ds

@@ -30,9 +30,12 @@ class DataBlock:
     def __view__(self, *args, **kwargs):
         return type(self)(*args, parent=self, **kwargs)
 
-    def __copy__(self, *args, name=None, **kwargs):
-        name = name or f'{self.name}-Copy'
-        return type(self)(*args, name=name, **kwargs)
+    def copy(self, new_name=None):
+        from copy import deepcopy
+        cp = deepcopy(self)
+        if new_name:
+            cp.name = new_name
+        return cp
 
     def depict(self, mode='default', new_depictor=False, **kwargs):
         depictor_type = self._depiction_modes.get(mode)

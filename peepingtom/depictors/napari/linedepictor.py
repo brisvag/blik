@@ -17,14 +17,14 @@ class LineDepictor(NapariDepictor):
 
         # draw points layer in napari
         self._make_points_layer(points_data,
-                               name=f'{self.name} - points',
-                               **pkwargs)
+                                name=f'{self.name} - points',
+                                **pkwargs)
 
         # draw line as path in napari
         self._make_shapes_layer(backbone_data,
-                               shape_type='path',
-                               name=f'{self.name} - line',
-                               **bkwargs)
+                                shape_type='path',
+                                name=f'{self.name} - line',
+                                **bkwargs)
 
     @property
     def points(self):

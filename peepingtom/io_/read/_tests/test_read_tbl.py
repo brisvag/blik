@@ -2,7 +2,7 @@ import pandas as pd
 import dynamotable
 
 from peepingtom.io_.read.tbl import read_tbl
-from peepingtom.core import ParticleBlock
+from peepingtom.datablocks import ParticleBlock
 
 
 def test_read_tbl(tmp_path):
@@ -19,8 +19,7 @@ def test_read_tbl(tmp_path):
         'tomo': [1, 2],
     })
     file_path = tmp_path / 'test.tbl'
-    dynamotable.new(df, file_path)
+    dynamotable.write(df, file_path)
 
     particleblocks = read_tbl(file_path)
     assert all(isinstance(pb, ParticleBlock) for pb in particleblocks)
-    assert particleblocks[0].name == '1'

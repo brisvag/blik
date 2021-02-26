@@ -1,7 +1,7 @@
 import numpy as np
 
 from peepingtom.io_.write.mrc import write_mrc
-from peepingtom.core import ImageBlock
+from peepingtom.datablocks import ImageBlock
 
 
 def test_write_mrc(tmp_path):
