@@ -2,35 +2,30 @@ from collections import defaultdict
 from secrets import token_hex
 
 import numpy as np
-import pandas as pd
 
-from ..datablocks import DataBlock, ParticleBlock, ImageBlock
-from ..depictors import DataSetDepictor
-from ..analysis import classify_radial_profile, deduplicate_dataset
-from ..utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
+from .datablocks import DataBlock, ParticleBlock, ImageBlock
+from .analysis import classify_radial_profile, deduplicate_dataset
+from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
+from .depictors import Viewer
 
 
 class DataSet:
     """
     A container for a collection of DataBlocks
     """
-    def __init__(self, datablocks=(), name=None, parent=None):
-        self._parent = parent
-        if name is None and self._parent is None:
+    def __init__(self, datablocks=(), name=None, parent=None, viewers=None):
+        self._parent = parent or self
+        if name is None and not self.isview():
             name = token_hex(16)
         self._name = name
         self._data = []
         self.extend(datablocks)
-        self._depictor = None
+        self._viewers = viewers or {}
 
-    def __view__(self, *args, **kwargs):
-        parent = self._parent or self
-        return DataSet(*args, parent=parent, **kwargs)
-
+    ######## DATA ########
     @property
     def name(self):
-        viewname = getattr(self._parent, 'name', None)
-        return viewname or self._name
+        return self._parent._name
 
     @property
     def datablocks(self):
@@ -40,27 +35,14 @@ class DataSet:
     def volumes(self):
         return self._nested()
 
-    @property
-    def layers(self):
-        return DispatchList(l for block in self.depictor.block_depictors.layers for l in block)
-
-    @property
-    def depictor(self):
-        if self._parent is None and self._depictor is None:
-            self._depictor = DataSetDepictor(self)
-
-        if self._depictor:
-            return self._depictor
-        else:
-            return DataSetDepictor(self, viewers=self._parent.depictor.viewers)
+    def isview(self):
+        return self._parent is not self
 
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
-        # only check types if we are not in a child
-        if self._parent is None:
-            for item in listified:
-                if not isinstance(item, DataBlock):
-                    raise TypeError(f'DataSet can only hold DataBlock objects, not "{type(item).__name__}"')
+        for item in listified:
+            if not isinstance(item, DataBlock):
+                raise TypeError(f'DataSet can only hold DataBlock objects, not "{type(item).__name__}"')
         if deduplicate:
             deduplicated = []
             while listified:
@@ -73,9 +55,8 @@ class DataSet:
         return listified
 
     def _hook_onto_datablocks(self):
-        if self._parent is None:
-            for db in self:
-                db.dataset = self
+        for db in self:
+            db.dataset = self
 
     def _nested(self, as_list=False):
         sublists = defaultdict(list)
@@ -88,46 +69,25 @@ class DataSet:
             return list(sublists.values())
         return dict(sublists)
 
-    def __shape_repr__(self):
-        return f'({len(self.volumes)}, {len(self.datablocks)})'
+    def _filter_types(self, block_types):
+        """
+        return a view containing only the chosen block types
+        """
+        block_types = tuple(listify(block_types))
+        def right_type(item):
+            return isinstance(item, block_types)
+        filtered = filter(lambda x: isinstance(x, block_types), self)
+        return DispatchList(filtered)
 
-    def __name_repr__(self):
-        return f'<{self.name}>'
+    @property
+    def particles(self, flatten=False):
+        return self._filter_types(ParticleBlock)
 
-    def __base_repr__(self):
-        view = ''
-        if self._parent is not None:
-            view = '-View'
-        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
-
-    def __pretty_repr__(self, mode):
-        modes = ('base', 'flat_compact', 'flat', 'nested_compact', 'nested', 'full')
-        if mode not in modes:
-            raise ValueError(f'available modes are {", ".join(modes)}; got "{mode}"')
-        if mode == 'base':
-            return self.__base_repr__()
-        contents = []
-        for volume, dbs in self._nested().items():
-            if mode in ('flat_compact', 'flat'):
-                vol_rep = f'{volume}({len(dbs)})'
-            else:
-                vol_rep = []
-                vol_contents = [f'{db}' for db in dbs]
-                if mode in ('nested_compact', 'nested') and len(vol_contents) > 7:
-                    vol_contents = vol_contents[:3] + ['[...]'] + vol_contents[-3:]
-                vol_contents_repr = '\n        '.join(vol_contents)
-                vol_rep = f'{volume}({len(dbs)}):\n        {vol_contents_repr}'
-            contents.append(vol_rep)
-        if mode in ('flat_compact', 'nested_compact') and len(contents) > 7:
-            contents = contents[:3] + ['[...]'] + contents[-3:]
-        contents_rep = '\n    '.join(contents)
-
-        return f'{self.__base_repr__()}:\n    {contents_rep}'
-
-    def __repr__(self):
-        if self._parent is not None and not all(isinstance(el, DataBlock) for el in self):
-            return f'{self._data}'
-        return self.__pretty_repr__('flat_compact')
+    @property
+    def images(self, flatten=False):
+        return self._filter_types(ImageBlock)
+    def __view__(self, *args, **kwargs):
+        return DataSet(*args, parent=self._parent, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -175,6 +135,8 @@ class DataSet:
         self.extend(item)
 
     def extend(self, items):
+        if self.isview():
+            raise TypeError('DataSet view is immutable')
         self._data.extend(self._sanitize(items))
         self._hook_onto_datablocks()
         self._data.sort()
@@ -185,15 +147,82 @@ class DataSet:
         else:
             return NotImplemented
 
+    ######## REPRESENTATION ########
+    def __shape_repr__(self):
+        return f'({len(self.volumes)}, {len(self.datablocks)})'
+
+    def __name_repr__(self):
+        return f'<{self.name}>'
+
+    def __base_repr__(self):
+        view = ''
+        if self.isview():
+            view = '-View'
+        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
+
+    def __pretty_repr__(self, mode):
+        modes = ('base', 'flat_compact', 'flat', 'nested_compact', 'nested', 'full')
+        if mode not in modes:
+            raise ValueError(f'available modes are {", ".join(modes)}; got "{mode}"')
+        if mode == 'base':
+            return self.__base_repr__()
+        contents = []
+        for volume, dbs in self._nested().items():
+            if mode in ('flat_compact', 'flat'):
+                vol_rep = f'{volume}({len(dbs)})'
+            else:
+                vol_rep = []
+                vol_contents = [f'{db}' for db in dbs]
+                if mode in ('nested_compact', 'nested') and len(vol_contents) > 7:
+                    vol_contents = vol_contents[:3] + ['[...]'] + vol_contents[-3:]
+                vol_contents_repr = '\n        '.join(vol_contents)
+                vol_rep = f'{volume}({len(dbs)}):\n        {vol_contents_repr}'
+            contents.append(vol_rep)
+        if mode in ('flat_compact', 'nested_compact') and len(contents) > 7:
+            contents = contents[:3] + ['[...]'] + contents[-3:]
+        contents_rep = '\n    '.join(contents)
+
+        return f'{self.__base_repr__()}:\n    {contents_rep}'
+
+    def __repr__(self):
+        return self.__pretty_repr__('flat_compact')
+
     def pprint(self, mode='full'):
         print(self.__pretty_repr__(mode))
 
-    def show(self, *args, **kwargs):
-        self.depictor.show(*args, **kwargs)
+    ######## VISUALISATION ########
+    @property
+    def viewers(self):
+        return self._parent._viewers
 
-    def hide(self, *args, **kwargs):
-        self.depictor.hide(*args, **kwargs)
+    @property
+    def depictors(self):
+        return DispatchList(dep for db in self for dep in db.depictors)
 
+    @property
+    def napari_layers(self):
+        layers = DispatchList()
+        for dep in self.depictors:
+            layers.extend(getattr(dep, 'layers', []))
+        return layers
+
+    def _get_viewer(self, viewer_key):
+        try:
+            viewer = self.viewers[viewer_key]
+        except KeyError:
+            viewer = Viewer()
+            self._parent._viewers[viewer_key] = viewer
+        viewer._check()
+        return viewer
+
+    def show(self, *args, viewer_key=0, **kwargs):
+        self.datablocks.depict()
+        self.depictors.show(self._get_viewer(viewer_key))
+
+    def hide(self, *args, viewer_key=0, **kwargs):
+        self.depictors.hide(self._get_viewer(viewer_key))
+
+    ######## IO ########
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
@@ -208,24 +237,7 @@ class DataSet:
         from ..io_ import write
         write(self, paths, **kwargs)
 
-    def _filter_types(self, block_types):
-        """
-        return a view containing only the chosen block types
-        """
-        block_types = tuple(listify(block_types))
-        def right_type(item):
-            return isinstance(item, block_types)
-        filtered = filter(lambda x: isinstance(x, block_types), self)
-        return DispatchList(filtered)
-
-    @property
-    def particles(self, flatten=False):
-        return self._filter_types(ParticleBlock)
-
-    @property
-    def images(self, flatten=False):
-        return self._filter_types(ImageBlock)
-
+    ######## ANALYSIS ########
     @wrapper_method(classify_radial_profile, ignore_args=1)
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)

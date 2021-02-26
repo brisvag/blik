@@ -9,7 +9,7 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 
-from ...containers import DataCrate, DataSet
+from ...dataset import DataSet
 
 
 # a mapping of file extensions to readers, tuple map to tuples:
@@ -126,13 +126,14 @@ def read(paths, mode=None, **kwargs):
             mode = 'lone'
 
     if mode == 'lone':
-        crates = [DataCrate(db) for db in datablocks]
+        for db in datablocks:
+            db.volume = db.name
     elif mode == 'bunch':
-        crates = [DataCrate(datablocks)]
+        pass
     elif mode == 'zip_by_type':
-        crates = []
         for dbs in zip_longest(datablocks_by_type.values()):
-            crates.append(DataCrate(dbs))
+            for db in dbs:
+                db.volume = dbs[0].name
         # TODO: add rescaling?
 
     return DataSet(datablocks)

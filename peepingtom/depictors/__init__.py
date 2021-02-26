@@ -11,7 +11,4 @@ from .pyqtgraph import (
     ClassPlotDepictor,
 )
 
-from .containers import (
-    DataCrateDepictor,
-    DataSetDepictor,
-)
+from .viewer import Viewer
