@@ -3,6 +3,7 @@ numpy
 click
 pandas
 scipy
+pyqtgraph
 dynamotable~=0.2.4
 eulerangles~=1.0.1
 mrcfile~=1.3.0
