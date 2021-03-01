@@ -131,7 +131,7 @@ def read(paths, mode=None, **kwargs):
     elif mode == 'bunch':
         pass
     elif mode == 'zip_by_type':
-        for dbs in zip_longest(datablocks_by_type.values()):
+        for dbs in zip_longest(*datablocks_by_type.values()):
             for db in dbs:
                 db.volume = dbs[0].name
         # TODO: add rescaling?
