@@ -1,5 +1,5 @@
-from pathlib import Path
 import eulerangles
+from ...utils import guess_name
 
 
 def euler2matrix_dynamo(euler_angles):
@@ -15,10 +15,10 @@ def euler2matrix_dynamo(euler_angles):
     return rotation_matrices
 
 
-def name_from_volume(volume_identifier):
+def name_from_volume(volume_identifier, regex_name=None):
     """Generate ParticleBlock name from volume identifier from dataframe
     """
     if isinstance(volume_identifier, int):
         return str(volume_identifier)
     elif isinstance(volume_identifier, str):
-        return Path(volume_identifier).stem
+        return guess_name(volume_identifier, regex_name)

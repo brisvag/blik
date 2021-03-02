@@ -1,6 +1,5 @@
 import re
 from pathlib import Path
-from collections.abc import Iterable
 
 
 def _path(path):

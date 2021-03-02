@@ -98,11 +98,11 @@ def read_to_datablocks(paths, filters=None, recursive=False, strict=False, max=N
 
 def read(paths, mode=None, **kwargs):
     """
-    read generic path(s) and construct datacrates accordingly
+    read generic path(s) and construct a dataset accordingly
     mode:
-        - lone: each datablock in a separate crate
-        - zip_by_type: crates with one of each datablock type
-        - bunch: all datablocks in a single crate
+        - lone: each datablock in a separate volume
+        - zip_by_type: one of each datablock type per volume
+        - bunch: all datablocks in a single volume
     """
     modes = ('lone', 'zip_by_type', 'bunch')
 
@@ -131,6 +131,8 @@ def read(paths, mode=None, **kwargs):
     elif mode == 'bunch':
         pass
     elif mode == 'zip_by_type':
+        for lst in datablocks_by_type.values():
+            lst.sort()
         for dbs in zip_longest(*datablocks_by_type.values()):
             for db in dbs:
                 db.volume = dbs[0].name

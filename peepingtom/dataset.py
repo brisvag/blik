@@ -74,6 +74,7 @@ class DataSet:
         return a view containing only the chosen block types
         """
         block_types = tuple(listify(block_types))
+
         def right_type(item):
             return isinstance(item, block_types)
         filtered = filter(lambda x: isinstance(x, block_types), self)
@@ -140,7 +141,7 @@ class DataSet:
             raise TypeError('DataSet view is immutable')
         self._data.extend(self._sanitize(items))
         self._hook_onto_datablocks()
-        self._data.sort()
+        self._data.sort(key=lambda x: x.name)
 
     def __add__(self, other):
         if isinstance(other, DataSet):

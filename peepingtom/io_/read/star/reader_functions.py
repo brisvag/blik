@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import eulerangles
 
+from ...utils import guess_name
 from ....datablocks import ParticleBlock
 
 
@@ -38,7 +39,7 @@ pixel_size_headings = ['rlnImagePixelSize']
 micrograph_name_heading = 'rlnMicrographName'
 
 
-def extract_data(df, mode='3.1'):
+def extract_data(df, mode='3.1', name_regex=None):
     particleblocks = []
     for micrograph_name, df_volume in df.groupby('rlnMicrographName'):
         if coord_headings['3d'][-1] in df.columns:
@@ -46,7 +47,7 @@ def extract_data(df, mode='3.1'):
         else:
             dim = '2d'
 
-        name = Path(micrograph_name).stem
+        name = guess_name(micrograph_name, name_regex)
 
         coords = df_volume[coord_headings[dim]].to_numpy(dtype=float)
         shifts = df_volume.get(shift_headings[dim][mode], pd.Series([0.0])).to_numpy()
@@ -93,24 +94,24 @@ def rotangle2matrix(angle):
     return matrices.swapaxes(-2, -1)
 
 
-def parse_relion30(raw_data):
+def parse_relion30(raw_data, **kwargs):
     """Attempt to parse raw data dict from starfile.read as a RELION 3.0 style star file
     """
     if len(raw_data.values()) > 1:
         raise ValueError("Cannot parse as RELION 3.0 format STAR file")
 
     df = list(raw_data.values())[0]
-    return extract_data(df, mode='3.0')
+    return extract_data(df, mode='3.0', **kwargs)
 
 
-def parse_relion31(raw_data):
+def parse_relion31(raw_data, **kwargs):
     """Attempt to parse raw data from starfile.read as a RELION 3.1 style star file
     """
     if list(raw_data.keys()) != ['optics', 'particles']:
         raise ValueError("Cannot parse as RELION 3.1 format STAR file")
 
     df = raw_data['particles'].merge(raw_data['optics'])
-    return extract_data(df, mode='3.1')
+    return extract_data(df, mode='3.1', **kwargs)
 
 
 reader_functions = {

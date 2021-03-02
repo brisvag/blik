@@ -75,19 +75,19 @@ class DataBlock:
         return self.__base_repr__()
 
     def __lt__(self, other):
-        if isinstance(other, DataBlock):
+        if isinstance(other, type(self)):
             return self.name < other.name
         else:
             return NotImplemented
 
     def __gt__(self, other):
-        if isinstance(other, DataBlock):
+        if isinstance(other, type(self)):
             return self.name > other.name
         else:
             return NotImplemented
 
     def __eq__(self, other):
-        if isinstance(other, DataBlock):
+        if isinstance(other, type(self)):
             return self.name == other.name
         else:
             return NotImplemented
