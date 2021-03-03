@@ -10,7 +10,7 @@ class Alchemist:
         self.outputs = []
         self.transform()
         for output in reversed(self.outputs):
-            self.inputs[0].insert_next_in_crate(output)
+            self.inputs[0].add_to_same_volume(output)
 
     def transform(self):
         """
