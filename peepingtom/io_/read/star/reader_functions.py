@@ -6,8 +6,6 @@ for reading a given file.
 
 raw data is the dictionary produced by starfile.read()
 """
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import eulerangles

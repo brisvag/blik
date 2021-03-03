@@ -21,7 +21,7 @@ def test_read_relion30_3d(tmp_path):
     file_path = tmp_path / 'test.star'
     starfile.new(df, file_path)
 
-    particleblocks = read_star(file_path)
+    particleblocks = read_star(file_path, name_regex='\w')
     assert all(isinstance(pb, ParticleBlock) for pb in particleblocks)
     assert particleblocks[0].name == 'a'
 
