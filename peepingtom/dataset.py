@@ -93,9 +93,9 @@ class DataSet:
 
     def __getitems__(self, key):
         out = []
-        if isinstance(key, (int, np.int)):
+        if isinstance(key, int):
             out.append(self._data[key])
-        if isinstance(key, slice):
+        elif isinstance(key, slice):
             out.extend(self._data[key])
         elif isinstance(key, str):
             for vol, dbs in self.volumes.items():
@@ -108,7 +108,7 @@ class DataSet:
                         out.append(db)
                         break
         elif isinstance(key, (list, tuple, np.ndarray)):
-            if all(isinstance(i, (bool, np.bool)) for i in key):
+            if all(isinstance(i, bool) for i in key):
                 out.extend(list(np.array(self._data)[key]))
             else:
                 for k in key:

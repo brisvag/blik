@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 
 def deduplicate_particleblock(particle_block, exclusion_radius=1):
     kdt = cKDTree(particle_block.positions.data)
-    clusters = kdt.query_ball_point(particle_block.positions.data, exclusion_radius, n_jobs=-1)
+    clusters = kdt.query_ball_point(particle_block.positions.data, exclusion_radius, workers=-1)
     clusters_sorted = sorted(clusters, key=len, reverse=True)
 
     duplicates = []
