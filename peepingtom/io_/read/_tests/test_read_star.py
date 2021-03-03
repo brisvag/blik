@@ -2,7 +2,7 @@ import pandas as pd
 import starfile
 
 from peepingtom.io_.read.star import read_star
-from peepingtom.core import ParticleBlock
+from peepingtom.datablocks import ParticleBlock
 
 
 def test_read_relion30_3d(tmp_path):
@@ -21,7 +21,7 @@ def test_read_relion30_3d(tmp_path):
     file_path = tmp_path / 'test.star'
     starfile.new(df, file_path)
 
-    particleblocks = read_star(file_path)
+    particleblocks = read_star(file_path, name_regex='\w')
     assert all(isinstance(pb, ParticleBlock) for pb in particleblocks)
     assert particleblocks[0].name == 'a'
 
@@ -50,4 +50,3 @@ def test_read_relion31_3d(tmp_path):
 
     particleblocks = read_star(file_path)
     assert all(isinstance(pb, ParticleBlock) for pb in particleblocks)
-    assert particleblocks[0].name == 'a'

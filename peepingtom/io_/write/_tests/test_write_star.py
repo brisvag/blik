@@ -1,7 +1,7 @@
 import numpy as np
 
 from peepingtom.io_.write.star import write_star
-from peepingtom.core import ParticleBlock
+from peepingtom.datablocks import ParticleBlock
 
 
 def test_write_star(tmp_path):

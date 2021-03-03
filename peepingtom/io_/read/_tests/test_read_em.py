@@ -2,7 +2,7 @@ import numpy as np
 import emfile
 
 from peepingtom.io_.read.em import read_em
-from peepingtom.core import ImageBlock
+from peepingtom.datablocks import ImageBlock
 
 
 def test_read_em(tmp_path):
@@ -11,4 +11,3 @@ def test_read_em(tmp_path):
     imageblock = read_em(file_path)
     assert isinstance(imageblock, ImageBlock)
     assert imageblock.data.shape == (3,3,3)
-    assert imageblock.name == 'NoName'

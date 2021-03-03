@@ -1,6 +1,6 @@
 import emfile
 
-from ....core import ImageBlock
+from ....datablocks import ImageBlock
 from ...utils import guess_name
 
 

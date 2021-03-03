@@ -15,9 +15,9 @@ def matrix2euler(rotation_matrices, convention):
         rotation_matrices = rotation_matrices.transpose((0, 2, 1))
 
     euler_angles = eulerangles.matrix2euler(rotation_matrices,
-                                            target_axes=convention['axes'],
-                                            target_intrinsic=convention['intrinsic'],
-                                            target_positive_ccw=convention['positive_ccw'])
+                                            axes=convention['axes'],
+                                            intrinsic=convention['intrinsic'],
+                                            right_handed_rotation=convention['right_handed_rotation'])
     return euler_angles
 
 

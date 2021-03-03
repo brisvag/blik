@@ -1,8 +1,9 @@
 from collections import Counter
 
-from ...core import ImageBlock, ParticleBlock
+from ...datablocks import ImageBlock, ParticleBlock
 
-from ..utils import _path, listify
+from ...utils import listify
+from ..utils import _path
 from .mrc import write_mrc
 from .em import write_em
 from .star import write_star
