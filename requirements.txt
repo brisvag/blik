@@ -4,8 +4,8 @@ click
 pandas
 scipy
 pyqtgraph
-dynamotable~=0.2.4
-eulerangles~=1.0.1
-mrcfile~=1.3.0
-starfile~=0.4.4
-emfile~=0.2
+dynamotable>=0.2.4
+eulerangles>=1.0.1
+mrcfile>=1.3.0
+starfile>=0.4.4
+emfile>=0.2
