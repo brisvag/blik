@@ -17,7 +17,6 @@ class ParticleDepictor(NapariDepictor):
         self._make_vectors_layer(self.get_orientations(),
                                  name=f'{self.name} - particle orientations',
                                  scale=self.datablock.pixel_size,
-                                 scale=self.datablock.pixel_size,
                                  **vkwargs)
 
     def get_positions(self):
