@@ -2,7 +2,7 @@ import re
 from collections import defaultdict
 from itertools import zip_longest
 
-from ..utils import _path
+from ..utils import _path, ParseError
 from ...utils import listify
 from .star import read_star
 from .mrc import read_mrc
@@ -34,11 +34,11 @@ def read_file(file_path, **kwargs):
                 try:
                     datablocks = listify(func(file_path, **kwargs))
                     return datablocks
-                except ValueError:
+                except ParseError:
                     # this will be raised by individual readers when the file can't be read.
                     # Keep trying until all options are exhausted
                     continue
-    raise ValueError(f'could not read {file_path}')
+    raise ParseError(f'could not read {file_path}')
 
 
 def find_files(paths, filters=None, recursive=False, max=None):
@@ -88,11 +88,11 @@ def read_to_datablocks(paths, filters=None, recursive=False, strict=False, max=N
     for file in find_files(paths, filters=filters, recursive=recursive, max=max):
         try:
             datablocks.extend(read_file(file, **kwargs))
-        except ValueError:
+        except ParseError:
             if strict:
                 raise
     if not datablocks:
-        raise ValueError(f'could not read any data from {paths}')
+        raise ParseError(f'could not read any data from {paths}')
     return datablocks
 
 

@@ -1,7 +1,7 @@
 """This module contains various reader functions for parsing data from different types of STAR
 files.
 
-Each function should attempt to raise a ValueError quickly if it's not the right function
+Each function should attempt to raise a ParseError quickly if it's not the right function
 for reading a given file.
 
 raw data is the dictionary produced by starfile.read()
@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import eulerangles
 
-from ...utils import guess_name
+from ...utils import guess_name, ParseError
 from ....datablocks import ParticleBlock
 
 
@@ -33,7 +33,10 @@ shift_headings = {
     }
 }
 
-pixel_size_headings = ['rlnImagePixelSize']
+pixel_size_headings = {
+    '3.0': ['rlnPixelSize'],
+    '3.1': ['rlnImagePixelSize']
+}
 micrograph_name_heading = 'rlnMicrographName'
 
 
@@ -49,7 +52,7 @@ def extract_data(df, mode='3.1', name_regex=None):
 
         coords = df_volume[coord_headings[dim]].to_numpy(dtype=float)
         shifts = df_volume.get(shift_headings[dim][mode], pd.Series([0.0])).to_numpy()
-        px_size = df_volume.get(pixel_size_headings, pd.Series([1.0])).to_numpy()
+        px_size = df_volume.get(pixel_size_headings[mode], pd.Series([1.0])).to_numpy()
         shifts = shifts / px_size
         coords += shifts
 
@@ -61,7 +64,13 @@ def extract_data(df, mode='3.1', name_regex=None):
 
         properties = {key: df_volume[key].to_numpy() for key in df.columns}
 
-        particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, name=name))
+        # TODO: better way to handle pizel size? Now we can only account for uniform size
+        pixel_size = px_size.flatten()[0]
+        if dim == '3d':
+            pixel_size = [pixel_size] * 3
+        else:
+            pixel_size = [pixel_size] * 2
+        particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, pixel_size=np.array(pixel_size), name=name))
 
     return particleblocks
 
@@ -96,7 +105,7 @@ def parse_relion30(raw_data, **kwargs):
     """Attempt to parse raw data dict from starfile.read as a RELION 3.0 style star file
     """
     if len(raw_data.values()) > 1:
-        raise ValueError("Cannot parse as RELION 3.0 format STAR file")
+        raise ParseError("Cannot parse as RELION 3.0 format STAR file")
 
     df = list(raw_data.values())[0]
     return extract_data(df, mode='3.0', **kwargs)
@@ -106,7 +115,7 @@ def parse_relion31(raw_data, **kwargs):
     """Attempt to parse raw data from starfile.read as a RELION 3.1 style star file
     """
     if list(raw_data.keys()) != ['optics', 'particles']:
-        raise ValueError("Cannot parse as RELION 3.1 format STAR file")
+        raise ParseError("Cannot parse as RELION 3.1 format STAR file")
 
     df = raw_data['particles'].merge(raw_data['optics'])
     return extract_data(df, mode='3.1', **kwargs)

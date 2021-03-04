@@ -9,7 +9,7 @@ class PropertyBlock(SimpleBlock):
     PropertyBlock is a simple dataframe wrapper with datablock api
     data: dataframe or dict whose values all have the same length
     """
-    def _data_setter(self, data):
+    def _data_setter(self, data=None):
         return pd.DataFrame(data)
 
     def items(self):

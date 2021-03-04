@@ -1,17 +1,19 @@
+from xarray import DataArray
+
 from ..datablock import DataBlock
 
 
 class SimpleBlock(DataBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
-    and can (and should) defined by a single `data` attribute
+    and are defined by a single xarray `data` attribute
 
     SimpleBlock objects must implement a data setter method as _data_setter which returns
     the appropriately formatted data
 
-    Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property
+    Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property and return a view
     """
-    def __init__(self, data, **kwargs):
+    def __init__(self, data=(), **kwargs):
         super().__init__(**kwargs)
         self.data = data
 
@@ -23,6 +25,8 @@ class SimpleBlock(DataBlock):
     def data(self, data):
         if isinstance(data, type(self)):
             self._data = data.data
+        elif isinstance(data, DataArray):
+            self._data = data
         else:
             self._data = self._data_setter(data)
         self.update()

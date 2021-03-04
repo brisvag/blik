@@ -10,11 +10,14 @@ class ParticleDepictor(NapariDepictor):
 
         self._make_points_layer(self.get_positions(),
                                 name=f'{self.name} - particle positions',
+                                scale=self.datablock.pixel_size,
                                 properties=self.get_properties(),
                                 **pkwargs)
 
         self._make_vectors_layer(self.get_orientations(),
                                  name=f'{self.name} - particle orientations',
+                                 scale=self.datablock.pixel_size,
+                                 scale=self.datablock.pixel_size,
                                  **vkwargs)
 
     def get_positions(self):
@@ -24,6 +27,7 @@ class ParticleDepictor(NapariDepictor):
         return self.datablock.properties.data
 
     def get_orientations(self):
+        # TODO: rewrite this using xarray!
         # get positions and 'projection' vectors
         positions = self.datablock.positions.as_zyx()
         v_axis_map = {2: 'y'}

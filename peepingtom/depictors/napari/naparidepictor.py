@@ -12,16 +12,19 @@ class NapariDepictor(Depictor):
         self.layers = []
         super().__init__(datablock)
 
-    def _make_image_layer(self, image, name, **kwargs):
-        layer = Image(image, name=name, **kwargs)
+    def _make_image_layer(self, image, name, scale=None, **kwargs):
+        layer = Image(image, name=name, scale=scale, **kwargs)
         self._init_layer(layer)
 
-    def _make_points_layer(self, points, name, **kwargs):
-        layer = Points(points, name=name, **kwargs)
+    def _make_points_layer(self, points, name, scale=None, **kwargs):
+        layer = Points(points, name=name, scale=scale, **kwargs)
         self._init_layer(layer)
 
-    def _make_vectors_layer(self, vectors, name, **kwargs):
+    def _make_vectors_layer(self, vectors, name, scale=None, **kwargs):
         layer = Vectors(vectors, name=name, **kwargs)
+        # TODO this is a workaround until napari #2347 is fixed
+        if scale is not None:
+            layer.scale = scale
         self._init_layer(layer)
 
     def _make_shapes_layer(self, shape, shape_type, name, **kwargs):
