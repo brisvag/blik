@@ -24,5 +24,5 @@ def test_simpleblock():
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(NotImplementedError):
         subblock = SubBlock()

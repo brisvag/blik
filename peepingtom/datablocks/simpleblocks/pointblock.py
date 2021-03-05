@@ -1,4 +1,5 @@
 import numpy as np
+from xarray import DataArray
 
 from .simpleblock import SimpleBlock
 from ...depictors import PointDepictor
@@ -17,7 +18,16 @@ class PointBlock(SimpleBlock):
     """
     _depiction_modes = {'default': PointDepictor}
 
+    def __init__(self, data=(), pixel_size=None, **kwargs):
+        super().__init__(data, **kwargs)
+        # TODO this is a workaround until napari #2347 is fixed
+        if pixel_size is None:
+            pixel_size = np.ones(self.ndim)
+        self.pixel_size = np.array(pixel_size)
+
     def _data_setter(self, data):
+        if isinstance(data, DataArray):
+            return data
         # cast as array
         data = np.asarray(data)
 
@@ -31,7 +41,8 @@ class PointBlock(SimpleBlock):
         if not data.ndim == 2:
             raise ValueError("data object should have ndim == 2")
 
-        return data
+        dims = ['x', 'y', 'z']
+        return DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), dims[:data.shape[1]]))
 
     @property
     def ndim(self):
@@ -41,91 +52,36 @@ class PointBlock(SimpleBlock):
         """
         return self.data.shape[1]
 
-    def _named_dimension_to_spatial_index(self, dim: str):
-        """
-        Gets the index of the named dimension 'x', 'y' or 'z'
-        Parameters
-        ----------
-        dim : str, must be one of 'x', 'y' or 'z'
+    @property
+    def dims(self):
+        return tuple(self.data.spatial.data)
 
-        Returns data along named dimension
-        -------
-
-        """
-        # sanitise input
-        dim = str(dim.strip().lower())
-
-        # dim to index for 3d or less
-        dim_to_index = {'x': 0,
-                        'y': 1,
-                        'z': 2}
-
-        dim_idx = dim_to_index[dim]
-
-        # check and correct index for higher dimensionality
-        if self.ndim > 3:
-            dim_idx = -dim_idx - 1
-
-        return dim_idx
-
-    def _get_dim_at_spatial_index(self, idx: int):
-        return self.data[:, idx]
-
-    def _get_named_dimension(self, dim: str, as_type='array'):
+    def _get_named_dimensions(self, dim):
         """
         Get data for a named dimension or multiple named dimensions of the object
-
-        as_array and as_tuple are only considered when retrieving multiple dimensions in one method call
-        Parameters
-        ----------
-
-        dim : str 'x', 'y', 'z' or a combination thereof
-        as_type : str for return type, only if len(dim) > 1
-                  'array' for ndarray or 'tuple' for tuple return type
-
-        Returns (default) (n,m) ndarray of data along named dimension(s) from m
-                  or tuple of arrays of data along each axis
-        -------
-
         """
-        if as_type not in ('array', 'tuple'):
-            raise ValueError("Argument 'as_type' must be a string from 'array' or 'tuple'")
-
-        if len(dim) > 1:
-            # split dims up and get each separately
-            data = [self._get_named_dimension(_dim) for _dim in dim]
-
-            # decide on output type and return array or tuple as requested, default to array
-            if as_type == 'array':
-                return np.column_stack(data)
-            elif as_type == 'tuple':
-                return tuple(data)
-
-        else:
-            # get index of named dimension along spatial axis
-            dim_idx = self._named_dimension_to_spatial_index(dim)
-            # index into self to get data
-            return self._get_dim_at_spatial_index(dim_idx)
+        dim = list(dim)
+        return self.data.sel(spatial=dim)
 
     @property
     def x(self):
-        return self._get_named_dimension('x')
+        return self._get_named_dimensions('x')
 
     @property
     def y(self):
-        return self._get_named_dimension('y')
+        return self._get_named_dimensions('y')
 
     @property
     def z(self):
-        return self._get_named_dimension('z')
+        return self._get_named_dimensions('z')
 
     @property
     def xyz(self):
-        return self._get_named_dimension('xyz')
+        return self._get_named_dimensions('xyz')
 
     @property
     def zyx(self):
-        return self._get_named_dimension('zyx')
+        return self._get_named_dimensions('zyx')
 
     def as_zyx(self):
         """

@@ -16,21 +16,13 @@ class ParticleBlock(OrientedPointBlock):
         'class_plot': ClassPlotDepictor,
     }
 
-    def __init__(self, positions, orientations, properties=None, metadata=None, **kwargs):
+    def __init__(self, positions=(), orientations=(), properties=None, metadata=None, **kwargs):
         # Initialise OrientedPointBlock
         super().__init__(positions, orientations, **kwargs)
 
         # Add PropertyBlock
-        if properties is None:
-            properties = {}
         self.properties = PropertyBlock(properties)
-        if metadata is None:
-            metadata = {}
-        self.metadata = {}
-
-    @property
-    def n(self):
-        return self.positions.n
+        self.metadata = metadata or {}
 
     def if_properties(self, conditions, index=False):
         """

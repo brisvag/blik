@@ -1,5 +1,6 @@
-napari[all]>=0.4.5
+napari[all]>=0.4.6
 numpy
+xarray
 click
 pandas
 scipy

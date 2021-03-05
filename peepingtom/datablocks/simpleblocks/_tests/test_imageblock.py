@@ -10,7 +10,7 @@ def test_imageblock_instantiation():
 
 
 def test_depiction():
-    ib = ImageBlock(np.zeros((3, 3, 3)))
+    ib = ImageBlock(np.ones((10, 10, 10)))
     ib.depict()
     assert isinstance(ib.depictors[0], ImageDepictor)
     ib.update()

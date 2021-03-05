@@ -1,4 +1,5 @@
 import numpy as np
+from xarray import DataArray
 
 from .simpleblock import SimpleBlock
 from ...depictors import ImageDepictor
@@ -11,23 +12,27 @@ class ImageBlock(SimpleBlock):
     """
     _depiction_modes = {'default': ImageDepictor}
 
-    def __init__(self, data=(), pixel_size=1, **kwargs):
+    def __init__(self, data=(), pixel_size=None, **kwargs):
         super().__init__(data, **kwargs)
+        # TODO this is a workaround until napari #2347 is fixed
+        if pixel_size is None:
+            pixel_size = np.ones(self.ndim)
         self.pixel_size = pixel_size
 
     def _data_setter(self, data):
-        return np.array(data)
+        data = np.array(data)
+        if data.ndim < 2:
+            raise ValueError('images must have at least 2 dimensions')
+        dims = ('z', 'y', 'x')
+        return DataArray(data, dims=dims[-data.ndim:])
 
     @property
-    def pixel_size(self):
-        return self._pixel_size
-
-    @pixel_size.setter
-    def pixel_size(self, value):
-        self._pixel_size = float(value)
-
     def ndim(self):
         return self.data.ndim
+
+    @property
+    def dims(self):
+        return self.data.dims
 
     def __shape_repr__(self):
         return f'{self.data.shape}'

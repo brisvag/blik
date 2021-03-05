@@ -24,9 +24,9 @@ def test_orientationblock_unit_vectors():
     y = block._unit_vector('y')
     z = block._unit_vector('z')
 
-    unit_x = np.asarray([1, 0, 0]).reshape(3, 1)
-    unit_y = np.asarray([0, 1, 0]).reshape(3, 1)
-    unit_z = np.asarray([0, 0, 1]).reshape(3, 1)
+    unit_x = np.asarray([1, 0, 0])
+    unit_y = np.asarray([0, 1, 0])
+    unit_z = np.asarray([0, 0, 1])
 
     assert_array_equal(x, unit_x)
     assert_array_equal(y, unit_y)

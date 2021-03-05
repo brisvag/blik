@@ -10,4 +10,4 @@ def write_em(imageblock, file_path, overwrite=False):
     path = str(_path(file_path))
     if not path.endswith('.em'):
         path = f'{path}.em'
-    emfile.write(path, imageblock.data, header_params={}, overwrite=overwrite)
+    emfile.write(path, imageblock.data.values, header_params={}, overwrite=overwrite)

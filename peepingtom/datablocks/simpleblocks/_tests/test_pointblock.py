@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import xarray as xr
 from numpy.testing import assert_array_equal
 
 from peepingtom.datablocks.simpleblocks.pointblock import PointBlock
@@ -20,37 +21,32 @@ def test_pointblock_instantiation():
     PointBlock(points_2d)
     PointBlock(single_point_3d)
     PointBlock(points_3d)
-    PointBlock(point_nd)
 
 
 def test_pointblock_xyz():
     # test 'x', 'y' and 'z' properties
     block = PointBlock(single_point_2d)
-    assert_array_equal(block.x, [1])
-    assert_array_equal(block.y, [2])
+    assert_array_equal(block.x, [[1]])
+    assert_array_equal(block.y, [[2]])
 
     block = PointBlock(single_point_3d)
-    assert_array_equal(block.x, [1])
-    assert_array_equal(block.y, [2])
-    assert_array_equal(block.z, [3])
+    assert_array_equal(block.x, [[1]])
+    assert_array_equal(block.y, [[2]])
+    assert_array_equal(block.z, [[3]])
 
 
-def test_pointblock_get_named_dimension():
-    # test _get_named_dimension method
+def test_pointblock_get_named_dimensions():
+    # test _get_named_dimensions method
     block = PointBlock(single_point_3d)
 
     # check output is array
-    x = block._get_named_dimension('x')
-    assert isinstance(x, np.ndarray)
+    x = block._get_named_dimensions('x')
+    assert isinstance(x, xr.DataArray)
 
     # try with multiple named dims
-    xyz = block._get_named_dimension('xyz')
-    assert isinstance(xyz, np.ndarray)
+    xyz = block._get_named_dimensions('xyz')
+    assert isinstance(xyz, xr.DataArray)
     assert xyz.shape == (1, 3)
-
-    xyz = block._get_named_dimension('xyz', as_type='tuple')
-    assert isinstance(xyz, tuple)
-    assert len(xyz) == 3
 
 
 def test_pointblock_center_of_mass():

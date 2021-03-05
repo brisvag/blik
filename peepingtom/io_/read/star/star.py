@@ -1,5 +1,6 @@
 import starfile
 
+from ...utils import ParseError
 from .reader_functions import reader_functions
 
 
@@ -13,6 +14,6 @@ def read_star(star_path, **kwargs):
         try:
             particle_blocks = reader_function(raw_data, **kwargs)
             return particle_blocks
-        except ValueError:
+        except ParseError:
             failed_reader_functions.append((style, reader_function))
-    raise ValueError(f'Failed to parse {star_path} using {failed_reader_functions}')
+    raise ParseError(f'Failed to parse {star_path} using {failed_reader_functions}')
