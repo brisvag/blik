@@ -6,7 +6,7 @@ from peepingtom.depictors import ImageDepictor
 
 
 def test_image_depictor():
-    imageblock = ImageBlock(np.ones((3, 3, 3)))
+    imageblock = ImageBlock(np.ones((10, 10, 10)))
     image_depictor = ImageDepictor(imageblock)
     assert image_depictor.datablock is imageblock
     assert len(image_depictor.layers) == 1

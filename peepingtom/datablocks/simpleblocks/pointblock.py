@@ -18,9 +18,12 @@ class PointBlock(SimpleBlock):
     """
     _depiction_modes = {'default': PointDepictor}
 
-    def __init__(self, data=(), pixel_size=1, **kwargs):
+    def __init__(self, data=(), pixel_size=None, **kwargs):
         super().__init__(data, **kwargs)
-        self.pixel_size = pixel_size
+        # TODO this is a workaround until napari #2347 is fixed
+        if pixel_size is None:
+            pixel_size = np.ones(self.ndim)
+        self.pixel_size = np.array(pixel_size)
 
     def _data_setter(self, data):
         if isinstance(data, DataArray):
