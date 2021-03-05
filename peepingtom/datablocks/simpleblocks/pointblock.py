@@ -53,34 +53,12 @@ class PointBlock(SimpleBlock):
     def dims(self):
         return tuple(self.data.spatial.data)
 
-    def _get_named_dimensions(self, dim, as_type='array'):
+    def _get_named_dimensions(self, dim):
         """
         Get data for a named dimension or multiple named dimensions of the object
-
-        as_array and as_tuple are only considered when retrieving multiple dimensions in one method call
-        Parameters
-        ----------
-
-        dim : str 'x', 'y', 'z' or a combination thereof
-        as_type : str for return type, only if len(dim) > 1
-                  'array' for ndarray or 'tuple' for tuple return type
-
-        Returns (default) (n,m) ndarray of data along named dimension(s) from m
-                  or tuple of arrays of data along each axis
-        -------
-
         """
-        if as_type not in ('array', 'tuple'):
-            raise ValueError("Argument 'as_type' must be a string from 'array' or 'tuple'")
-
         dim = list(dim)
-        data = self.data.sel(spatial=dim)
-
-        # decide on output type and return array or tuple as requested, default to array
-        if as_type == 'array':
-            return data
-        elif as_type == 'tuple':
-            return tuple(data.T)
+        return self.data.sel(spatial=dim)
 
     @property
     def x(self):

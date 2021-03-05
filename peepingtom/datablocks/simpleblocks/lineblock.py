@@ -45,22 +45,17 @@ class LineBlock(PointBlock):
     def spline_smoothing_parameter(self, value):
         self._spline_smoothing_parameter = float(value)
 
-    def fit_spline(self, dimensions: str = 'xyz', smoothing_parameter=None):
+    def fit_spline(self, dimensions='xyz', smoothing_parameter=None):
         """
-
-        Parameters
-        ----------
         dimensions :  str of named dimensions ('xyz') to which a spline should be fit
         smoothing_parameter : smoothing parameter for spline fitting
 
         Returns tck, list of spline parameters from scipy.interpolate.splprep
-        -------
-
         """
         if smoothing_parameter:
             self.spline_smoothing_parameter = smoothing_parameter
 
-        dims_to_fit = self._get_named_dimension(dimensions, as_type='tuple')
+        dims_to_fit = self._get_named_dimensions(dimensions).T
         self._tck, _ = splprep(dims_to_fit, s=self.spline_smoothing_parameter)
 
         return self._tck

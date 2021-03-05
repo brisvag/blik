@@ -66,5 +66,5 @@ class DipoleBlock(MultiBlock):
         normalised_vector = vector / np.linalg.norm(vector)
 
         # calculate rotation matrices
-        rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors)
+        rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors.values)
         return OrientationBlock(rotation_matrices)

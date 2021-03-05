@@ -124,7 +124,7 @@ def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_rad
         particleblocks, indexes = zip(*pb_and_idx)
 
     if max_dist is None:
-        max_dist = max(pb.positions.data.max() for pb in particleblocks)
+        max_dist = max(pb.positions.data.values.max() for pb in particleblocks)
 
     data = []
     for pb in particleblocks:
