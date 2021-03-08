@@ -44,7 +44,9 @@ def extract_data(df, mode='3.1', name_regex=None):
         coords = df_volume[coord_headings[:dim]].to_numpy(dtype=float)
         shifts = df_volume.get(shift_headings[mode][:dim], pd.Series([0.0])).to_numpy()
         px_size = df_volume.get(pixel_size_headings[mode], pd.Series([1.0])).to_numpy()
-        shifts = shifts / px_size
+        # only relion 3.1 has shifts in angstroms
+        if mode == '3.1':
+            shifts = shifts / px_size
         coords += shifts
 
         eulers = df_volume.get(euler_headings[dim], pd.Series([0])).to_numpy()
