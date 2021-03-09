@@ -32,7 +32,7 @@ class OrientationBlock(SimpleBlock):
             data = data.reshape((1, m, m))
 
         dims = ['x', 'y', 'z']
-        return xr.DataArray(data, dims=['n', 'spatial1', 'spatial2'],
+        return xr.DataArray(data, dims=['n', 'spatial', 'spatial2'],
                             coords=(range(len(data)), dims[:data.shape[1]], dims[:data.shape[1]]))
 
     @property
@@ -54,7 +54,7 @@ class OrientationBlock(SimpleBlock):
                                       'than 3 spatial dimensions is not implemented')
 
         # initialise unit vector array
-        unit_vector = xr.zeros_like(self.data.spatial1, dtype=float)
+        unit_vector = xr.zeros_like(self.data.spatial, dtype=float)
 
         # construct unit vector
         unit_vector.loc[axis] = 1
@@ -62,7 +62,9 @@ class OrientationBlock(SimpleBlock):
         return unit_vector
 
     def oriented_vectors(self, axis):
-        return self.data.values @ self._unit_vector(axis).values
+        return xr.DataArray(np.dot(self.data, self._unit_vector(axis)),
+                            dims=self.data.dims[:-1],
+                            coords=[self.data.n, self.data.spatial])
 
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'
