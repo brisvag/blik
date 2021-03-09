@@ -20,18 +20,18 @@ euler_headings = {
     2: 'rlnAnglePsi'
 }
 shift_headings = {
-    '3.0': [f'rlnOrigin{axis}' for axis in 'XYZ'],
-    '3.1': [f'rlnOrigin{axis}Angst' for axis in 'XYZ']
+    'RELION 3.0': [f'rlnOrigin{axis}' for axis in 'XYZ'],
+    'RELION 3.1': [f'rlnOrigin{axis}Angst' for axis in 'XYZ']
 }
 
 pixel_size_headings = {
-    '3.0': ['rlnPixelSize'],
-    '3.1': ['rlnImagePixelSize']
+    'RELION 3.0': ['rlnPixelSize'],
+    'RELION 3.1': ['rlnImagePixelSize']
 }
 micrograph_name_heading = 'rlnMicrographName'
 
 
-def extract_data(df, mode='3.1', name_regex=None):
+def extract_data(df, mode='RELION 3.1', name_regex=None):
     particleblocks = []
     if coord_headings[-1] in df.columns:
         dim = 3
@@ -45,7 +45,7 @@ def extract_data(df, mode='3.1', name_regex=None):
         shifts = df_volume.get(shift_headings[mode][:dim], pd.Series([0.0])).to_numpy()
         px_size = df_volume.get(pixel_size_headings[mode], pd.Series([1.0])).to_numpy()
         # only relion 3.1 has shifts in angstroms
-        if mode == '3.1':
+        if mode == 'RELION 3.1':
             shifts = shifts / px_size
         coords += shifts
 
@@ -59,10 +59,7 @@ def extract_data(df, mode='3.1', name_regex=None):
 
         # TODO: better way to handle pizel size? Now we can only account for uniform size
         pixel_size = px_size.flatten()[0]
-        if dim == '3d':
-            pixel_size = [pixel_size] * 3
-        else:
-            pixel_size = [pixel_size] * 2
+        pixel_size = [pixel_size] * dim
         particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, pixel_size=np.array(pixel_size), name=name))
 
     return particleblocks
@@ -89,7 +86,7 @@ def parse_relion30(raw_data, **kwargs):
         raise ParseError("Cannot parse as RELION 3.0 format STAR file")
 
     df = list(raw_data.values())[0]
-    return extract_data(df, mode='3.0', **kwargs)
+    return extract_data(df, mode='RELION 3.0', **kwargs)
 
 
 def parse_relion31(raw_data, **kwargs):
@@ -99,7 +96,7 @@ def parse_relion31(raw_data, **kwargs):
         raise ParseError("Cannot parse as RELION 3.1 format STAR file")
 
     df = raw_data['particles'].merge(raw_data['optics'])
-    return extract_data(df, mode='3.1', **kwargs)
+    return extract_data(df, mode='RELION 3.1', **kwargs)
 
 
 reader_functions = {
