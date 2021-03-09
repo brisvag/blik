@@ -4,7 +4,7 @@
 ![PyPI](https://img.shields.io/pypi/v/peepingtom)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/peepingtom)
 
-**PeepingTom** is a python tool to enable easy visualisation and interaction with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
+**PeepingTom** is a python tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
 
 **DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Feel free to report them on the issue tracker.
 
