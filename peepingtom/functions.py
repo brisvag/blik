@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from pathlib import Path
 
 from .dataset import DataSet

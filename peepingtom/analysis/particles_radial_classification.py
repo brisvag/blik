@@ -99,7 +99,8 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
     return radial_ori_profile.astype(np.float64) / 255 * 180
 
 
-def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, if_properties=None, **kwargs):
+def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_radial',
+                            max_dist=None, if_properties=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
     mode: one of:

@@ -22,7 +22,7 @@ class DataSet:
         self.extend(datablocks)
         self._viewers = viewers or {}
 
-    ######## DATA ########
+    # DATA
     @property
     def name(self):
         return self._parent._name
@@ -149,7 +149,7 @@ class DataSet:
         else:
             return NotImplemented
 
-    ######## REPRESENTATION ########
+    # REPRESENTATION
     def __shape_repr__(self):
         return f'({len(self.volumes)}, {len(self.datablocks)})'
 
@@ -192,7 +192,7 @@ class DataSet:
     def pprint(self, mode='full'):
         print(self.__pretty_repr__(mode))
 
-    ######## VISUALISATION ########
+    # VISUALISATION
     @property
     def viewers(self):
         return self._parent._viewers
@@ -224,7 +224,7 @@ class DataSet:
     def hide(self, *args, viewer_key=0, **kwargs):
         self.depictors.hide(self._get_viewer(viewer_key))
 
-    ######## IO ########
+    # IO
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
@@ -239,23 +239,23 @@ class DataSet:
         from ..io_ import write
         write(self, paths, **kwargs)
 
-    ######## ANALYSIS ########
+    # ANALYSIS
     @wrapper_method(classify_radial_profile, ignore_args=1)
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
         tag = kwargs.get('class_tag', 'class_radial')
         self.particles[0].depict(mode='class_plot', class_tag=tag)
-        # colors = distinct_colors[:kwargs['n_classes']]
-        # if kwargs['if_properties'] is not None:
-            # colors.append(faded_grey)
-        # for p in self.particles:
-            # p.depictor.point_layer.face_color = kwargs['class_tag']
-            # p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
-        # if kwargs['if_properties'] is not None:
-            # colors.pop()
-        # class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
-        # self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+        colors = distinct_colors[:kwargs['n_classes']]
+        if kwargs['if_properties'] is not None:
+            colors.append(faded_grey)
+        for p in self.particles:
+            p.depictor.point_layer.face_color = kwargs['class_tag']
+            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
+        if kwargs['if_properties'] is not None:
+            colors.pop()
+        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
+        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
     @wrapper_method(deduplicate_dataset, ignore_args=1)
     def deduplicate(self, *args, **kwargs):
