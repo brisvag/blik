@@ -4,12 +4,12 @@ from secrets import token_hex
 import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
-from .analysis import classify_radial_profile, deduplicate_dataset
+from .analysis import classify_radial_profile, deduplicate_peeper
 from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
 from .depictors import Viewer
 
 
-class DataSet:
+class Peeper:
     """
     A container for a collection of DataBlocks
     """
@@ -42,7 +42,7 @@ class DataSet:
         listified = listify(iterable)
         for item in listified:
             if not isinstance(item, DataBlock):
-                raise TypeError(f'DataSet can only hold DataBlock objects, not "{type(item).__name__}"')
+                raise TypeError(f'Peeper can only hold DataBlock objects, not "{type(item).__name__}"')
         if deduplicate:
             deduplicated = []
             while listified:
@@ -56,7 +56,7 @@ class DataSet:
 
     def _hook_onto_datablocks(self):
         for db in self:
-            db.dataset = self
+            db.peeper = self
 
     def _nested(self, as_list=False):
         sublists = defaultdict(list)
@@ -89,7 +89,7 @@ class DataSet:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return DataSet(*args, parent=self._parent, **kwargs)
+        return Peeper(*args, parent=self._parent, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -120,7 +120,7 @@ class DataSet:
     def __getitem__(self, key):
         items = self.__getitems__(key)
         if len(items) == 1 and isinstance(key, (str, int)):
-            # to enforce getting a dataset, you can simply use a 1-tuple as key
+            # to enforce getting a peeper, you can simply use a 1-tuple as key
             return items[0]
         return self.__view__(items)
 
@@ -138,14 +138,14 @@ class DataSet:
 
     def extend(self, items):
         if self.isview():
-            raise TypeError('DataSet view is immutable')
+            raise TypeError('Peeper view is immutable')
         self._data.extend(self._sanitize(items))
         self._hook_onto_datablocks()
         self._data.sort(key=lambda x: x.name)
 
     def __add__(self, other):
-        if isinstance(other, DataSet):
-            return DataSet(self._data + self._sanitize(other))
+        if isinstance(other, Peeper):
+            return Peeper(self._data + self._sanitize(other))
         else:
             return NotImplemented
 
@@ -257,6 +257,6 @@ class DataSet:
         class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
         self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
-    @wrapper_method(deduplicate_dataset, ignore_args=1)
+    @wrapper_method(deduplicate_peeper, ignore_args=1)
     def deduplicate(self, *args, **kwargs):
-        return deduplicate_dataset(self, *args, **kwargs)
+        return deduplicate_peeper(self, *args, **kwargs)

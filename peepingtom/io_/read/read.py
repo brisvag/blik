@@ -9,7 +9,7 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 
-from ...dataset import DataSet
+from ...peeper import Peeper
 
 
 # a mapping of file extensions to readers, tuple map to tuples:
@@ -98,7 +98,7 @@ def read_to_datablocks(paths, filters=None, recursive=False, strict=False, max=N
 
 def read(paths, mode=None, **kwargs):
     """
-    read generic path(s) and construct a dataset accordingly
+    read generic path(s) and construct a peeper accordingly
     mode:
         - lone: each datablock in a separate volume
         - zip_by_type: one of each datablock type per volume
@@ -138,4 +138,4 @@ def read(paths, mode=None, **kwargs):
                 db.volume = dbs[0].name
         # TODO: add rescaling?
 
-    return DataSet(datablocks)
+    return Peeper(datablocks)
