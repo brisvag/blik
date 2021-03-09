@@ -1,7 +1,6 @@
 napari[all]>=0.4.6
 numpy
 xarray
-click
 pandas
 scipy
 pyqtgraph
