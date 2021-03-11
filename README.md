@@ -4,7 +4,7 @@
 ![PyPI](https://img.shields.io/pypi/v/peepingtom)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/peepingtom)
 
-**PeepingTom** is a python tool to enable easy visualisation and interaction with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
+**PeepingTom** is a python tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
 
 **DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Feel free to report them on the issue tracker.
 
@@ -18,7 +18,7 @@ pip install peepingtom
 
 From the command line, try:
 ```bash
-peep /path/to.star /path/to/mrcs/
+peep /path/to.star /path/to/mrc/files
 ```
 PeepingTom accepts any combination of files and directory, and will try find the right files and display them in napari. `peep` will also start an ipython shell with the following setup:
 ```python
