@@ -19,7 +19,7 @@ class Peeper:
             name = token_hex(16)
         self._name = name
         self._data = []
-        self.extend(datablocks)
+        self._extend(datablocks)
         self._viewers = viewers or {}
 
     # DATA
@@ -136,12 +136,18 @@ class Peeper:
     def append(self, item):
         self.extend(item)
 
-    def extend(self, items):
-        if self.isview():
-            raise TypeError('Peeper view is immutable')
+    def _extend(self, items):
+        """
+        must be called by init to extend, otherwise views fail
+        """
         self._data.extend(self._sanitize(items))
         self._hook_onto_datablocks()
         self._data.sort(key=lambda x: x.name)
+
+    def extend(self, items):
+        if self.isview():
+            raise TypeError('Peeper view is immutable')
+        self._extend(items)
 
     def __add__(self, other):
         if isinstance(other, Peeper):
