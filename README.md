@@ -18,7 +18,7 @@ pip install peepingtom
 
 From the command line, try:
 ```bash
-peep /path/to.star /path/to/mrc/files
+peep /path/to.star /path/to/mrc/files/
 ```
 PeepingTom accepts any combination of files and directory, and will try find the right files and display them in napari. `peep` will also start an ipython shell with the following setup:
 ```python
