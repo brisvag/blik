@@ -87,7 +87,7 @@ def read(paths,
          strict=False,
          max=None,
          **kwargs):
-    """
+    r"""
     read generic path(s) and construct a peeper accordingly
 
     filters: a regex string or iterable thereof used to select filenames [default: '.*']

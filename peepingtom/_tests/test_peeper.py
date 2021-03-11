@@ -3,7 +3,6 @@ import numpy as np
 
 from peepingtom.peeper import Peeper
 from peepingtom.datablocks import PointBlock, ImageBlock
-from peepingtom.depictors.viewer import Viewer
 
 
 pb = PointBlock(volume='test')

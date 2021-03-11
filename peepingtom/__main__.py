@@ -13,7 +13,7 @@ PeepingTom command line interface.
 Opens files in napari and lands in an interactive ipython shell
 with peepingtom imported as `pt` and the initialised Peeper available as `p`.
 ''',
-                                     epilog='''
+                                     epilog=r'''
 mode choices:
   - lone: each datablock in a separate volume
   - zip_by_type: one of each datablock type per volume
@@ -38,7 +38,7 @@ and name the respective DataBlocks Protein_10 and Protein_001:
     parser.add_argument('-f', '--filter',
                         help='a regex used to select filenames [default: .*]')
     parser.add_argument('-n', '--name-regex', metavar='regex',
-                        help='a regex used to infer DataBlock names from paths [fallback: \d+]')
+                        help=r'a regex used to infer DataBlock names from paths [fallback: \d+]')
     parser.add_argument('-r', '--recursive', action='store_true',
                         help='read directories recursively')
     parser.add_argument('-d', '--dry-run', action='store_true',
