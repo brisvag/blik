@@ -47,7 +47,7 @@ and name the respective DataBlocks Protein_10 and Protein_001:
                         help='immediately fail if a matched filename cannot be read')
     parser.add_argument('--max', type=int,
                         help='max number of files to read')
-    parser.add_argument('-V', '--version', action='version', version=f'%(prog)s - PeepingTom {pt.version}')
+    parser.add_argument('-V', '--version', action='version', version=f'%(prog)s - PeepingTom {pt.__version__}')
 
     return parser.parse_args()
 
