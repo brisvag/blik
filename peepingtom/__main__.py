@@ -35,7 +35,7 @@ and name the respective DataBlocks Protein_10 and Protein_001:
                         help='any number of file or directories')
     parser.add_argument('-m', '--mode', choices=('lone', 'zip_by_type', 'bunch'),
                         help='how to arrange DataBlock into volumes [default: guess from input]')
-    parser.add_argument('-f', '--filters',
+    parser.add_argument('-f', '--filter',
                         help='a regex used to select filenames [default: .*]')
     parser.add_argument('-n', '--name-regex', metavar='regex',
                         help='a regex used to infer DataBlock names from paths [fallback: \d+]')
@@ -48,6 +48,7 @@ and name the respective DataBlocks Protein_10 and Protein_001:
     parser.add_argument('--max', type=int,
                         help='max number of files to read')
     parser.add_argument('-V', '--version', action='version', version=f'%(prog)s - PeepingTom {pt.__version__}')
+
     return parser.parse_args()
 
 
