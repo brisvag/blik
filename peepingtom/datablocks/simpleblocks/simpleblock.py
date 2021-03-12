@@ -1,4 +1,5 @@
 from xarray import DataArray
+from dask import delayed
 
 from ..datablock import DataBlock
 
@@ -13,13 +14,18 @@ class SimpleBlock(DataBlock):
 
     Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property and return a view
     """
-    def __init__(self, data=(), **kwargs):
+    def __init__(self, data=(), delayed=False, **kwargs):
         super().__init__(**kwargs)
         self.data = data
+        self._delayed = delayed
 
     @property
     def data(self):
-        return self._data
+        if self._delayed:
+            data = self._data_setter(self._data.compute())
+        else:
+            data = self._data
+        return data
 
     @data.setter
     def data(self, data):
@@ -27,6 +33,8 @@ class SimpleBlock(DataBlock):
             self._data = data.data
         elif isinstance(data, DataArray):
             self._data = data
+        elif callable(data):
+            self._data = delayed(data)
         else:
             self._data = self._data_setter(data)
         self.update()
