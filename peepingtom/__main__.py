@@ -35,8 +35,8 @@ and name the respective DataBlocks Protein_10 and Protein_001:
                         help='any number of file or directories')
     parser.add_argument('-m', '--mode', choices=('lone', 'zip_by_type', 'bunch'),
                         help='how to arrange DataBlock into volumes [default: guess from input]')
-    parser.add_argument('-f', '--filter',
-                        help='a regex used to select filenames [default: .*]')
+    parser.add_argument('-f', '--filters', nargs='+',
+                        help='any number of (additive) regexes used to select filenames [default: .*]')
     parser.add_argument('-n', '--name-regex', metavar='regex',
                         help=r'a regex used to infer DataBlock names from paths [fallback: \d+]')
     parser.add_argument('-r', '--recursive', action='store_true',

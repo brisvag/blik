@@ -8,7 +8,7 @@ def test_cli_parse():
     args = parse()
     args.paths = ['test.mrc', 'test.star']
     assert args.mode == 'bunch'
-    assert args.filter == 'test'
+    assert args.filters == 'test'
     assert args.name_regex == 'reg'
     assert args.recursive is False
     assert args.dry_run is False
