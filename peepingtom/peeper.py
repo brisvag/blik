@@ -4,12 +4,12 @@ from secrets import token_hex
 import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
-from .analysis import classify_radial_profile, deduplicate_dataset
+from .analysis import classify_radial_profile, deduplicate_peeper
 from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
 from .depictors import Viewer
 
 
-class DataSet:
+class Peeper:
     """
     A container for a collection of DataBlocks
     """
@@ -19,10 +19,10 @@ class DataSet:
             name = token_hex(16)
         self._name = name
         self._data = []
-        self.extend(datablocks)
+        self._extend(datablocks)
         self._viewers = viewers or {}
 
-    ######## DATA ########
+    # DATA
     @property
     def name(self):
         return self._parent._name
@@ -42,7 +42,7 @@ class DataSet:
         listified = listify(iterable)
         for item in listified:
             if not isinstance(item, DataBlock):
-                raise TypeError(f'DataSet can only hold DataBlock objects, not "{type(item).__name__}"')
+                raise TypeError(f'Peeper can only hold DataBlock objects, not "{type(item).__name__}"')
         if deduplicate:
             deduplicated = []
             while listified:
@@ -56,7 +56,7 @@ class DataSet:
 
     def _hook_onto_datablocks(self):
         for db in self:
-            db.dataset = self
+            db.peeper = self
 
     def _nested(self, as_list=False):
         sublists = defaultdict(list)
@@ -89,7 +89,7 @@ class DataSet:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return DataSet(*args, parent=self._parent, **kwargs)
+        return Peeper(*args, parent=self._parent, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -120,7 +120,7 @@ class DataSet:
     def __getitem__(self, key):
         items = self.__getitems__(key)
         if len(items) == 1 and isinstance(key, (str, int)):
-            # to enforce getting a dataset, you can simply use a 1-tuple as key
+            # to enforce getting a peeper, you can simply use a 1-tuple as key
             return items[0]
         return self.__view__(items)
 
@@ -136,20 +136,26 @@ class DataSet:
     def append(self, item):
         self.extend(item)
 
-    def extend(self, items):
-        if self.isview():
-            raise TypeError('DataSet view is immutable')
+    def _extend(self, items):
+        """
+        must be called by init to extend, otherwise views fail
+        """
         self._data.extend(self._sanitize(items))
         self._hook_onto_datablocks()
         self._data.sort(key=lambda x: x.name)
 
+    def extend(self, items):
+        if self.isview():
+            raise TypeError('Peeper view is immutable')
+        self._extend(items)
+
     def __add__(self, other):
-        if isinstance(other, DataSet):
-            return DataSet(self._data + self._sanitize(other))
+        if isinstance(other, Peeper):
+            return Peeper(self._data + self._sanitize(other))
         else:
             return NotImplemented
 
-    ######## REPRESENTATION ########
+    # REPRESENTATION
     def __shape_repr__(self):
         return f'({len(self.volumes)}, {len(self.datablocks)})'
 
@@ -192,7 +198,7 @@ class DataSet:
     def pprint(self, mode='full'):
         print(self.__pretty_repr__(mode))
 
-    ######## VISUALISATION ########
+    # VISUALISATION
     @property
     def viewers(self):
         return self._parent._viewers
@@ -224,7 +230,7 @@ class DataSet:
     def hide(self, *args, viewer_key=0, **kwargs):
         self.depictors.hide(self._get_viewer(viewer_key))
 
-    ######## IO ########
+    # IO
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
@@ -239,24 +245,24 @@ class DataSet:
         from ..io_ import write
         write(self, paths, **kwargs)
 
-    ######## ANALYSIS ########
+    # ANALYSIS
     @wrapper_method(classify_radial_profile, ignore_args=1)
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
         tag = kwargs.get('class_tag', 'class_radial')
         self.particles[0].depict(mode='class_plot', class_tag=tag)
-        # colors = distinct_colors[:kwargs['n_classes']]
-        # if kwargs['if_properties'] is not None:
-            # colors.append(faded_grey)
-        # for p in self.particles:
-            # p.depictor.point_layer.face_color = kwargs['class_tag']
-            # p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
-        # if kwargs['if_properties'] is not None:
-            # colors.pop()
-        # class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
-        # self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+        colors = distinct_colors[:kwargs['n_classes']]
+        if kwargs['if_properties'] is not None:
+            colors.append(faded_grey)
+        for p in self.particles:
+            p.depictor.point_layer.face_color = kwargs['class_tag']
+            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
+        if kwargs['if_properties'] is not None:
+            colors.pop()
+        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
+        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
-    @wrapper_method(deduplicate_dataset, ignore_args=1)
+    @wrapper_method(deduplicate_peeper, ignore_args=1)
     def deduplicate(self, *args, **kwargs):
-        return deduplicate_dataset(self, *args, **kwargs)
+        return deduplicate_peeper(self, *args, **kwargs)

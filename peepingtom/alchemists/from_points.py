@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.interpolate import Rbf
 
 from ..datablocks import LineBlock, ParticleBlock, PointBlock, OrientationBlock, PropertyBlock
 from .alchemist import Alchemist

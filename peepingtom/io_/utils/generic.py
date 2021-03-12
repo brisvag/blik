@@ -15,7 +15,8 @@ def _path(path):
 
 # a list of commonly used base names for starfiles in regex form
 common_name_regexes = (
-    'TS_\d+',
+    r'TS_\d+',
+    r'\d+',
 )
 
 

@@ -23,9 +23,9 @@ def deduplicate_particleblock(particle_block, exclusion_radius=1):
     return particle_block[mask].copy()
 
 
-def deduplicate_dataset(dataset, exclusion_radius=1):
-    from ..dataset import DataSet
-    ds = DataSet()
-    for pb in dataset.particles:
-        ds.append(deduplicate_particleblock(pb, exclusion_radius))
-    return ds
+def deduplicate_peeper(peeper, exclusion_radius=1):
+    from ..peeper import Peeper
+    p = Peeper()
+    for pb in peeper.particles:
+        p.append(deduplicate_particleblock(pb, exclusion_radius))
+    return p

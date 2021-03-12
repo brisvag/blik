@@ -1,10 +1,10 @@
 from peepingtom.datablocks import PointBlock, LineBlock, ParticleBlock
-from peepingtom.dataset import DataSet
+from peepingtom.peeper import Peeper
 from peepingtom.alchemists import PointToLineAlchemist, PointToParticleAlchemist
 
 
 pb = PointBlock([[0, 0], [1, 1], [2, 2], [3, 3]])
-ds = DataSet(pb)
+p = Peeper(pb)
 
 
 def test_point_to_line():

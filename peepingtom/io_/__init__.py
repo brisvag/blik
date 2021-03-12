@@ -1,2 +1,2 @@
-from .read import read
+from .read import read, find_files
 from .write import write

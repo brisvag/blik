@@ -38,6 +38,6 @@ class MultiBlock(DataBlock):
 
     def __len__(self):
         lengths = [len(block) for block in self.blocks]
-        if all(l == lengths[0] for l in lengths):
+        if all(ln == lengths[0] for ln in lengths):
             return len(self.blocks[0])
         raise TypeError(f"object of type '{type(self)}' has no len()")

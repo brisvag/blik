@@ -7,7 +7,8 @@ class DispatchList:
     will get around this. Subclasses can define a new list of _ignore_dispatch: the parent classes values
     will still be checked against.
 
-    By default, getitem acts on the list itself. To force dispatch to the most nested level, use it on the `.disp` attribute
+    By default, getitem acts on the list itself. To force dispatch to the most nested level,
+    use it on the `.disp` attribute
     """
     _ignore_dispatch = ('disp',)
 

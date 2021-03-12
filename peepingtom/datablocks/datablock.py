@@ -11,7 +11,7 @@ class DataBlock:
     """
     _depiction_modes = {}
 
-    def __init__(self, name=None, volume=None, dataset=None, parent=None):
+    def __init__(self, name=None, volume=None, peeper=None, parent=None):
         self._parent = parent
         if name is None and self._parent is None:
             name = token_hex(16)
@@ -19,11 +19,11 @@ class DataBlock:
         self.depictors = []
         self.alchemists = []
         self.volume = volume
-        self.dataset = dataset
+        self.peeper = peeper
 
     def add_to_same_volume(self, datablocks):
         datablocks = listify(datablocks)
-        self.dataset.extend(datablocks)
+        self.peeper.extend(datablocks)
         for db in datablocks:
             db.volume = self.volume
 

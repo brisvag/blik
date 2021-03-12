@@ -54,7 +54,6 @@ def write(datablocks, paths, overwrite=False, strict=False, **kwargs):
                     path = dir_path / datablock.name
                 paths.append(path)
 
-
     for datablock, path in zip(datablocks, paths):
         if not overwrite and path.exists():
             raise ValueError('file {path} exists!')

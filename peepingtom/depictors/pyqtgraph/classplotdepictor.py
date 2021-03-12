@@ -1,5 +1,5 @@
 from .plotdepictor import PlotDepictor
-from ...utils import distinct_colors, faded_grey
+from ...utils import distinct_colors
 
 
 class ClassPlotDepictor(PlotDepictor):

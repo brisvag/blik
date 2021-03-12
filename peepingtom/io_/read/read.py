@@ -9,7 +9,7 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 
-from ...dataset import DataSet
+from ...peeper import Peeper
 
 
 # a mapping of file extensions to readers, tuple map to tuples:
@@ -79,37 +79,45 @@ def find_files(paths, filters=None, recursive=False, max=None):
     return files[:max]
 
 
-def read_to_datablocks(paths, filters=None, recursive=False, strict=False, max=None, **kwargs):
-    """
-    read generic path(s) into the appropriate datablocks
-    strict: if set to False, ignore failures and read what possible
-    """
-    datablocks = []
-    for file in find_files(paths, filters=filters, recursive=recursive, max=max):
-        try:
-            datablocks.extend(read_file(file, **kwargs))
-        except ParseError:
-            if strict:
-                raise
-    if not datablocks:
-        raise ParseError(f'could not read any data from {paths}')
-    return datablocks
+def read(paths,
+         filters=None,
+         name_regex=None,
+         mode=None,
+         recursive=False,
+         strict=False,
+         max=None,
+         **kwargs):
+    r"""
+    read generic path(s) and construct a peeper accordingly
 
-
-def read(paths, mode=None, **kwargs):
-    """
-    read generic path(s) and construct a dataset accordingly
-    mode:
+    filters: a regex string or iterable thereof used to select filenames [default: '.*']
+    name_regex: a regex used to infer DataBlock names from paths. For example:
+                'Protein_\d+' will match 'MyProtein_10.star' and 'MyProtein_001.mrc'
+                and name the respective DataBlocks 'Protein_10' and 'Protein_01'
+    mode: how to arrange DataBlocks into volumes
         - lone: each datablock in a separate volume
         - zip_by_type: one of each datablock type per volume
         - bunch: all datablocks in a single volume
+    recursive: navigate directories recursively to find files
+    strict: if set to true, immediately fail if a matched filename cannot be read by PeepingTom
+    max: max number of files to read
     """
+    # if changing the signature of this function, change the one in `__main__.cli` as well!
     modes = ('lone', 'zip_by_type', 'bunch')
 
     if mode is not None and mode not in modes:
         raise ValueError(f'mode can only be one of {modes}')
 
-    datablocks = read_to_datablocks(paths, **kwargs)
+    datablocks = []
+    for file in find_files(paths, filters=filters, recursive=recursive, max=max):
+        try:
+            datablocks.extend(read_file(file, name_regex=name_regex, **kwargs))
+        except ParseError:
+            if strict:
+                raise
+    if not datablocks:
+        raise ParseError(f'could not read any data from {paths}')
+
     datablocks_by_type = defaultdict(list)
     for db in datablocks:
         datablocks_by_type[type(db)].append(db)
@@ -138,4 +146,4 @@ def read(paths, mode=None, **kwargs):
                 db.volume = dbs[0].name
         # TODO: add rescaling?
 
-    return DataSet(datablocks)
+    return Peeper(datablocks)

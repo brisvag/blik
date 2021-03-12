@@ -60,7 +60,8 @@ def extract_data(df, mode='RELION 3.1', name_regex=None):
         # TODO: better way to handle pizel size? Now we can only account for uniform size
         pixel_size = px_size.flatten()[0]
         pixel_size = [pixel_size] * dim
-        particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, pixel_size=np.array(pixel_size), name=name))
+        particleblocks.append(ParticleBlock(coords, rotation_matrices, properties,
+                                            pixel_size=np.array(pixel_size), name=name))
 
     return particleblocks
 

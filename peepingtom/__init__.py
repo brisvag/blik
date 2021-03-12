@@ -1,4 +1,8 @@
-from ._version import __version__
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "not-installed"
+
 from .io_ import read, write
 from .functions import peep
-from .dataset import DataSet
+from .peeper import Peeper

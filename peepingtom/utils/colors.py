@@ -1,3 +1,4 @@
+# flake8: noqa
 # https://sashamaps.net/docs/resources/20-colors/
 distinct_colors = [
     [230,  25,  75, 255],

@@ -1,4 +1,4 @@
-import numpy as np
+import xarray as xr
 
 from .naparidepictor import NapariDepictor
 
@@ -8,37 +8,28 @@ class ParticleDepictor(NapariDepictor):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 
-        self._make_points_layer(self.get_positions(),
+        pos, ori = self.get_positions_and_orientations()
+
+        self._make_points_layer(pos,
                                 name=f'{self.name} - particle positions',
                                 scale=self.datablock.pixel_size,
                                 properties=self.get_properties(),
                                 **pkwargs)
 
-        self._make_vectors_layer(self.get_orientations(),
+        self._make_vectors_layer(ori.values,  # need to use values cause napari complains
                                  name=f'{self.name} - particle orientations',
                                  scale=self.datablock.pixel_size,
                                  **vkwargs)
 
-    def get_positions(self):
-        return self.datablock.positions.as_zyx()
-
     def get_properties(self):
         return self.datablock.properties.data
 
-    def get_orientations(self):
-        # TODO: rewrite this using xarray!
-        # get positions and 'projection' vectors
+    def get_positions_and_orientations(self):
         positions = self.datablock.positions.as_zyx()
-        v_axis_map = {2: 'y'}
-        v_axis = v_axis_map.get(positions.shape[1], 'z')
-        unit_z_rotated_order_xyz = self.datablock.orientations.oriented_vectors(v_axis).reshape((-1, positions.shape[1]))
-        unit_z_rotated_order_zyx = unit_z_rotated_order_xyz[:, ::-1]
-        # attach appropriate higher dimensions indeces to vectors
-        # TODO: make more general
-        padded = np.zeros_like(self.datablock.positions.data)
-        padded[:, -3:] = unit_z_rotated_order_zyx
-        unit_z_rotated_order_zyx = padded
-        return np.stack([positions, unit_z_rotated_order_zyx], axis=1)
+        v_axis = self.datablock.positions.data.spatial[-1]  # y or z
+        v_rotated = self.datablock.orientations.oriented_vectors(v_axis).loc[:, list('zyx')]
+        stacked = xr.concat([positions, v_rotated], dim='vector').transpose('n', 'vector', 'spatial')
+        return positions, stacked
 
     @property
     def points(self):
@@ -49,6 +40,7 @@ class ParticleDepictor(NapariDepictor):
         return self.layers[1]
 
     def update(self):
-        self.points.data = self.get_positions()
+        pos, ori = self.get_positions_and_orientations()
+        self.points.data = pos
+        self.vectors.data = ori
         self.points.properties = self.get_properties()
-        self.vectors.data = self.get_orientations()

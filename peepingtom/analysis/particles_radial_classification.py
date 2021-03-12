@@ -99,7 +99,8 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
     return radial_ori_profile.astype(np.float64) / 255 * 180
 
 
-def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_radial', max_dist=None, if_properties=None, **kwargs):
+def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radial',
+                            max_dist=None, if_properties=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
     mode: one of:
@@ -116,7 +117,7 @@ def classify_radial_profile(dataset, n_classes=5, mode='d', class_tag='class_rad
     else:
         raise ValueError(f'mode can only be one of {[m for m in modes]}, got {mode}')
 
-    original = dataset.particles.flatten()
+    original = peeper.particles.flatten()
     particleblocks = original
     indexes = [pb.properties.data.index for pb in particleblocks]
     if if_properties is not None:
