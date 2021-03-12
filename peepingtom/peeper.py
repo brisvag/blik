@@ -223,11 +223,11 @@ class Peeper:
         viewer._check()
         return viewer
 
-    def show(self, *args, viewer_key=0, **kwargs):
-        self.datablocks.depict()
+    def show(self, viewer_key=0, **kwargs):
+        self.datablocks.depict(**kwargs)
         self.depictors.show(self._get_viewer(viewer_key))
 
-    def hide(self, *args, viewer_key=0, **kwargs):
+    def hide(self, viewer_key=0, **kwargs):
         self.depictors.hide(self._get_viewer(viewer_key))
 
     # IO
