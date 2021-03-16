@@ -29,19 +29,22 @@ class Viewer:
 
     def _init_volume_selector(self):
         self.volume_selector = VolumeSelector(self)
-        self._volume_selector_napari_dock_widget = self.napari_viewer.window.add_dock_widget(self.volume_selector.widget, name='PeepingTom - Volume Selector', area='left')
-        self.volume_selector.show = self._volume_selector_napari_dock_widget.show
-        self.volume_selector.hide = self._volume_selector_napari_dock_widget.hide
+        self._volume_selector_napari_widget = self.napari_viewer.window.add_dock_widget(self.volume_selector.widget,
+                                                                                        name=self.volume_selector.name,
+                                                                                        area='left')
+        self.volume_selector.show = self._volume_selector_napari_widget.show
+        self.volume_selector.hide = self._volume_selector_napari_widget.hide
 
     def _init_plots(self, plots_widget=None):
         if plots_widget is None:
             plots_widget = GraphicsLayoutWidget()
         self.plots = plots_widget
-        self._plots_napari_dock_widget = self.napari_viewer.window.add_dock_widget(self.plots,
-                name='PeepingTom - Plots', area='bottom')
+        self._plots_napari_widget = self.napari_viewer.window.add_dock_widget(self.plots,
+                                                                              name='PeepingTom - Plots',
+                                                                              area='bottom')
         # use napari hide and show methods
-        self.plots.show = self._plots_napari_dock_widget.show
-        self.plots.hide = self._plots_napari_dock_widget.hide
+        self.plots.show = self._plots_napari_widget.show
+        self.plots.hide = self._plots_napari_widget.hide
         self.plots.hide()
 
     def _check(self):

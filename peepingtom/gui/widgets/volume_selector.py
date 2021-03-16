@@ -2,6 +2,8 @@ from qtpy.QtWidgets import QVBoxLayout, QWidget, QComboBox, QLabel
 
 
 class VolumeSelector:
+    name = 'PeepingTom - Volume Selector'
+
     def __init__(self, viewer):
         self.viewer = viewer
         self._selected = None
@@ -16,7 +18,7 @@ class VolumeSelector:
         layout = QVBoxLayout()
         self.widget.setLayout(layout)
 
-        layout.addWidget(QLabel('PeepingTom - Volume Selector'))
+        layout.addWidget(QLabel(self.name))
 
         self.dropdown = QComboBox(self.widget)
         self.dropdown.addItems(self.volumes.keys())
@@ -55,4 +57,3 @@ class VolumeSelector:
             db.depict(**kwargs)
         self.viewer.napari_viewer.layers.clear()
         self.viewer.napari_viewer.layers.extend(self.selected_layers)
-
