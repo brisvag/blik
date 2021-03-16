@@ -54,9 +54,12 @@ class Peeper:
             listified = deduplicated
         return listified
 
-    def _hook_onto_datablocks(self):
-        for db in self:
-            db.peeper = self
+    def _hook_onto_datablocks(self, datablocks):
+        if not self.isview():
+            for db in datablocks:
+                if db.peeper is not None:
+                    raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
+                db.peeper = self
 
     def _nested(self, as_list=False):
         sublists = defaultdict(list)
@@ -140,8 +143,9 @@ class Peeper:
         """
         must be called by init to extend, otherwise views fail
         """
-        self._data.extend(self._sanitize(items))
-        self._hook_onto_datablocks()
+        items = self._sanitize(items)
+        self._hook_onto_datablocks(items)
+        self._data.extend(items)
         self._data.sort(key=lambda x: x.name)
 
     def extend(self, items):
