@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import dynamotable
 
@@ -6,7 +7,7 @@ from ...utils import rotangle2matrix
 from ....datablocks import ParticleBlock
 
 
-def read_tbl(table_path, table_map_file=None, regex_name=None, pixel_size=1):
+def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None):
     """
     Reads a dynamo format table file into a list of ParticleBlocks
     """
@@ -27,7 +28,7 @@ def read_tbl(table_path, table_map_file=None, regex_name=None, pixel_size=1):
     else:
         dim = 2
     for volume, df_volume in df.groupby(split_on):
-        name = name_from_volume(volume, regex_name)
+        name = name_from_volume(volume, name_regex)
         coords = df_volume[coord_headings[:dim]].to_numpy(dtype=float)
         shifts = df_volume.get(shift_headings[:dim], pd.Series([0.0])).to_numpy()
         coords += shifts
@@ -39,6 +40,9 @@ def read_tbl(table_path, table_map_file=None, regex_name=None, pixel_size=1):
             rotation_matrices = rotangle2matrix(eulers)
 
         properties = {key: df_volume[key].to_numpy() for key in df.columns}
+
+        if pixel_size is None:
+            pixel_size = np.array([1] * dim)
 
         particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, pixel_size=pixel_size, name=name))
 
