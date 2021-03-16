@@ -10,5 +10,3 @@ from .pyqtgraph import (
     PropertyPlotDepictor,
     ClassPlotDepictor,
 )
-
-from .viewer import Viewer

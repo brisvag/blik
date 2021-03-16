@@ -6,7 +6,7 @@ import numpy as np
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
 from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
-from .depictors import Viewer
+from .gui import Viewer
 
 
 class Peeper:
@@ -217,18 +217,16 @@ class Peeper:
     def _get_viewer(self, viewer_key):
         try:
             viewer = self.viewers[viewer_key]
-        except KeyError:
-            viewer = Viewer()
+            viewer.napari_viewer.window.qt_viewer.actions()
+        except (KeyError, RuntimeError):
+            viewer = Viewer(self)
             self._parent._viewers[viewer_key] = viewer
-        viewer._check()
         return viewer
 
-    def show(self, viewer_key=0, **kwargs):
-        self.datablocks.depict(**kwargs)
-        self.depictors.show(self._get_viewer(viewer_key))
-
-    def hide(self, viewer_key=0, **kwargs):
-        self.depictors.hide(self._get_viewer(viewer_key))
+    def show(self, viewer_key=0):
+        # TODO: accept kwargs to depictors?
+        viewer = self._get_viewer(viewer_key)
+        return viewer
 
     # IO
     def read(self, paths, **kwargs):
