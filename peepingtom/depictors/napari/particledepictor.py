@@ -41,6 +41,6 @@ class ParticleDepictor(NapariDepictor):
 
     def update(self):
         pos, ori = self.get_positions_and_orientations()
-        self.points.data = pos
-        self.vectors.data = ori
+        self.points.data = pos.values  # workaround for xarray
+        self.vectors.data = ori.values  # workaround for xarray
         self.points.properties = self.get_properties()

@@ -15,10 +15,10 @@ def euler2matrix_dynamo(euler_angles):
     return rotation_matrices
 
 
-def name_from_volume(volume_identifier, regex_name=None):
+def name_from_volume(volume_identifier, name_regex=None):
     """Generate ParticleBlock name from volume identifier from dataframe
     """
     if isinstance(volume_identifier, int):
         return str(volume_identifier)
     elif isinstance(volume_identifier, str):
-        return guess_name(volume_identifier, regex_name)
+        return guess_name(volume_identifier, name_regex)

@@ -11,7 +11,7 @@ class Depictor:
     def name(self):
         return self.datablock.name
 
-    def depict(self):
+    def depict(self, **kwargs):
         """
         generate or update depictions based on current parameters
         """
