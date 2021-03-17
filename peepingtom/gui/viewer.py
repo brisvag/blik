@@ -46,8 +46,3 @@ class Viewer:
         self.plots.show = self._plots_napari_widget.show
         self.plots.hide = self._plots_napari_widget.hide
         self.plots.hide()
-
-    def _check(self):
-        """
-        make sure that the qt viewer was not destroyed
-        """
