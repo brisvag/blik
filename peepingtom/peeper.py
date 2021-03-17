@@ -218,18 +218,23 @@ class Peeper:
             layers.extend(getattr(dep, 'layers', []))
         return layers
 
-    def _get_viewer(self, viewer_key):
-        try:
+    def _get_viewer(self, viewer_key, napari_viewer=None, **kwargs):
+        if viewer_key in self.viewers:
+            if napari_viewer is not None:
+                raise ValueError(f'cannot use existing viewer "{viewer_key}" with a new napari instance')
             viewer = self.viewers[viewer_key]
+        else:
+            viewer = Viewer(self, napari_viewer=napari_viewer)
+
+        try:
             viewer.napari_viewer.window.qt_viewer.actions()
-        except (KeyError, RuntimeError):
-            viewer = Viewer(self)
-            self._parent._viewers[viewer_key] = viewer
+        except RuntimeError:
+            self._parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
         return viewer
 
-    def show(self, viewer_key=0):
+    def show(self, viewer_key=0, **kwargs):
         # TODO: accept kwargs to depictors?
-        viewer = self._get_viewer(viewer_key)
+        viewer = self._get_viewer(viewer_key, **kwargs)
         return viewer
 
     # IO
