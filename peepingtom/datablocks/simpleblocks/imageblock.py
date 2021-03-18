@@ -20,7 +20,7 @@ class ImageBlock(SimpleBlock):
         self.pixel_size = pixel_size
 
     def _data_setter(self, data):
-        data = np.array(data)
+        data = np.asarray(data)  # asarray does not copy unless needed
         if data.ndim < 2:
             raise ValueError('images must have at least 2 dimensions')
         dims = ('z', 'y', 'x')
