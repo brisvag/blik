@@ -45,14 +45,3 @@ class NapariDepictor(Depictor):
         """
         layer.events.data.connect(self.changed)
         self.layers.append(layer)
-
-    def show(self, viewer):
-        for layer in self.layers:
-            if layer not in viewer.layers:
-                viewer.layers.append(layer)
-        viewer.napari_viewer.reset_view()
-
-    def hide(self, viewer):
-        for layer in self.layers:
-            if layer in viewer.layers:
-                viewer.layers.remove(layer)

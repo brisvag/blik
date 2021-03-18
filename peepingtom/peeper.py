@@ -6,7 +6,7 @@ import numpy as np
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
 from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
-from .depictors import Viewer
+from .gui import Viewer
 
 
 class Peeper:
@@ -54,9 +54,12 @@ class Peeper:
             listified = deduplicated
         return listified
 
-    def _hook_onto_datablocks(self):
-        for db in self:
-            db.peeper = self
+    def _hook_onto_datablocks(self, datablocks):
+        if not self.isview():
+            for db in datablocks:
+                if db.peeper is not None:
+                    raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
+                db.peeper = self
 
     def _nested(self, as_list=False):
         sublists = defaultdict(list)
@@ -140,8 +143,9 @@ class Peeper:
         """
         must be called by init to extend, otherwise views fail
         """
-        self._data.extend(self._sanitize(items))
-        self._hook_onto_datablocks()
+        items = self._sanitize(items)
+        self._hook_onto_datablocks(items)
+        self._data.extend(items)
         self._data.sort(key=lambda x: x.name)
 
     def extend(self, items):
@@ -214,21 +218,24 @@ class Peeper:
             layers.extend(getattr(dep, 'layers', []))
         return layers
 
-    def _get_viewer(self, viewer_key):
-        try:
+    def _get_viewer(self, viewer_key, napari_viewer=None, **kwargs):
+        if viewer_key in self.viewers:
+            if napari_viewer is not None:
+                raise ValueError(f'cannot use existing viewer "{viewer_key}" with a new napari instance')
             viewer = self.viewers[viewer_key]
-        except KeyError:
-            viewer = Viewer()
-            self._parent._viewers[viewer_key] = viewer
-        viewer._check()
+        else:
+            viewer = Viewer(self, napari_viewer=napari_viewer)
+
+        try:
+            viewer.napari_viewer.window.qt_viewer.actions()
+        except RuntimeError:
+            self._parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
         return viewer
 
-    def show(self, *args, viewer_key=0, **kwargs):
-        self.datablocks.depict()
-        self.depictors.show(self._get_viewer(viewer_key))
-
-    def hide(self, *args, viewer_key=0, **kwargs):
-        self.depictors.hide(self._get_viewer(viewer_key))
+    def show(self, viewer_key=0, **kwargs):
+        # TODO: accept kwargs to depictors?
+        viewer = self._get_viewer(viewer_key, **kwargs)
+        return viewer
 
     # IO
     def read(self, paths, **kwargs):
