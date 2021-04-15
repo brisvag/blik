@@ -35,3 +35,6 @@ jobs:
     - name: Upload report to codecov
       run: |
         bash <(curl -s https://codecov.io/bash)
+    - name: Check env variables
+      run: |
+          env
