@@ -8,6 +8,7 @@ from .star import read_star
 from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
+from .box import read_box
 
 from ...peeper import Peeper
 
@@ -20,7 +21,8 @@ readers = {
     ('.star',): (read_star,),
     ('.mrc', '.mrcs', '.map'): (read_mrc,),
     ('.em',): (read_em,),
-    ('.tbl'): (read_tbl,),
+    ('.tbl',): (read_tbl,),
+    ('.box',): (read_box,),
 }
 
 
