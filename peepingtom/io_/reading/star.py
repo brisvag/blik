@@ -3,8 +3,8 @@ import pandas as pd
 import eulerangles
 import starfile
 
-from ...utils import guess_name, ParseError, rotangle2matrix
-from ....datablocks import ParticleBlock
+from ..utils import guess_name, ParseError, rotangle2matrix
+from ...datablocks import ParticleBlock
 
 
 coord_headings = [f'rlnCoordinate{axis}' for axis in 'XYZ']

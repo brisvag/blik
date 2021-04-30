@@ -1,7 +1,7 @@
 import mrcfile
 
-from ....datablocks import ImageBlock
-from ...utils import guess_name
+from ...datablocks import ImageBlock
+from ..utils import guess_name
 from numpy.lib.recfunctions import structured_to_unstructured
 
 

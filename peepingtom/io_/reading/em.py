@@ -1,7 +1,7 @@
 import emfile
 
-from ....datablocks import ImageBlock
-from ...utils import guess_name
+from ...datablocks import ImageBlock
+from ..utils import guess_name
 
 
 def read_em(image_path, name_regex=None, **kwargs):

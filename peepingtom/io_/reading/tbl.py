@@ -3,8 +3,8 @@ import pandas as pd
 import dynamotable
 import eulerangles
 
-from ...utils import rotangle2matrix, guess_name
-from ....datablocks import ParticleBlock
+from ..utils import rotangle2matrix, guess_name
+from ...datablocks import ParticleBlock
 
 
 def euler2matrix_dynamo(euler_angles):
@@ -29,7 +29,7 @@ def name_from_volume(volume_identifier, name_regex=None):
         return guess_name(volume_identifier, name_regex)
 
 
-def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None):
+def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None, **kwargs):
     """
     Reads a dynamo format table file into a list of ParticleBlocks
     """

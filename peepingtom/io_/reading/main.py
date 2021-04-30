@@ -9,8 +9,10 @@ from .mrc import read_mrc
 from .em import read_em
 from .tbl import read_tbl
 from .box import read_box
+from .cbox import read_cbox
 
 from ...peeper import Peeper
+from ...datablocks import ParticleBlock, ImageBlock
 
 
 # a mapping of file extensions to readers, tuple map to tuples:
@@ -23,6 +25,7 @@ readers = {
     ('.em',): (read_em,),
     ('.tbl',): (read_tbl,),
     ('.box',): (read_box,),
+    ('.cbox',): (read_cbox,),
 }
 
 
@@ -144,8 +147,18 @@ def read(paths,
         for lst in datablocks_by_type.values():
             lst.sort()
         for dbs in zip_longest(*datablocks_by_type.values()):
+            particles_to_rescale = []
+            image = None
             for db in dbs:
                 db.volume = dbs[0].name
-        # TODO: add rescaling?
+
+                # rescale template matching data from warp. TODO: this will break if particles actually are in that range only
+                if isinstance(db, ParticleBlock) and 0 <= db.positions.data.min() <= db.positions.data.max() <= 1:
+                    particles_to_rescale.append(db)
+                elif isinstance(db, ImageBlock):
+                    image = db
+            if image and particles_to_rescale:
+                for p in particles_to_rescale:
+                    p.positions.data *= image.data.shape[::-1]
 
     return Peeper(datablocks)
