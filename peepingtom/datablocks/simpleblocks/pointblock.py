@@ -23,6 +23,7 @@ class PointBlock(SimpleBlock):
         # TODO this is a workaround until napari #2347 is fixed
         if pixel_size is None:
             pixel_size = np.ones(self.ndim)
+        pixel_size = np.broadcast_to(pixel_size, self.ndim)
         self.pixel_size = np.array(pixel_size)
 
     def _data_setter(self, data):
