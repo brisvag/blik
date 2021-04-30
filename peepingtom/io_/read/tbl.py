@@ -1,10 +1,32 @@
 import numpy as np
 import pandas as pd
 import dynamotable
+import eulerangles
 
-from .utils import euler2matrix_dynamo, name_from_volume
-from ...utils import rotangle2matrix
+from ...utils import rotangle2matrix, guess_name
 from ....datablocks import ParticleBlock
+
+
+def euler2matrix_dynamo(euler_angles):
+    """Convert (n, 3) array of Dynamo euler angles to rotation matrices
+    Resulting rotation matrices rotate references into particles
+    """
+    rotation_matrices = eulerangles.euler2matrix(euler_angles,
+                                                 axes='zxz',
+                                                 intrinsic=False,
+                                                 right_handed_rotation=True)
+
+    rotation_matrices = rotation_matrices.swapaxes(-2, -1)
+    return rotation_matrices
+
+
+def name_from_volume(volume_identifier, name_regex=None):
+    """Generate ParticleBlock name from volume identifier from dataframe
+    """
+    if isinstance(volume_identifier, int):
+        return str(volume_identifier)
+    elif isinstance(volume_identifier, str):
+        return guess_name(volume_identifier, name_regex)
 
 
 def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None):

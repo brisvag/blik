@@ -1,4 +1,3 @@
-import numpy as np
 import mrcfile
 
 from ....datablocks import ImageBlock
@@ -16,7 +15,4 @@ def read_mrc(image_path, name_regex=None, mmap=True, **kwargs):
     else:
         mrc = mrcfile.open(image_path)
     pixel_size = structured_to_unstructured(mrc.voxel_size)[::-1]
-    if np.all(pixel_size == 0):
-        # not set
-        pixel_size = None
     return ImageBlock(mrc.data, pixel_size=pixel_size, name=name)

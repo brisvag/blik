@@ -1,14 +1,7 @@
-"""This module contains various reader functions for parsing data from different types of STAR
-files.
-
-Each function should attempt to raise a ParseError quickly if it's not the right function
-for reading a given file.
-
-raw data is the dictionary produced by starfile.read()
-"""
 import numpy as np
 import pandas as pd
 import eulerangles
+import starfile
 
 from ...utils import guess_name, ParseError, rotangle2matrix
 from ....datablocks import ParticleBlock
@@ -31,7 +24,7 @@ pixel_size_headings = {
 micrograph_name_heading = 'rlnMicrographName'
 
 
-def extract_data(df, mode='RELION 3.1', name_regex=None):
+def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None):
     particleblocks = []
     if coord_headings[-1] in df.columns:
         dim = 3
@@ -43,7 +36,7 @@ def extract_data(df, mode='RELION 3.1', name_regex=None):
 
         coords = df_volume[coord_headings[:dim]].to_numpy(dtype=float)
         shifts = df_volume.get(shift_headings[mode][:dim], pd.Series([0.0])).to_numpy()
-        px_size = df_volume.get(pixel_size_headings[mode], pd.Series([1.0])).to_numpy()
+        px_size = np.array(pixel_size or df_volume.get(pixel_size_headings[mode], pd.Series([1.0])).to_numpy())
         # only relion 3.1 has shifts in angstroms
         if mode == 'RELION 3.1':
             shifts = shifts / px_size
@@ -81,7 +74,8 @@ def euler2matrix(euler_angles):
 
 
 def parse_relion30(raw_data, **kwargs):
-    """Attempt to parse raw data dict from starfile.read as a RELION 3.0 style star file
+    """
+    Attempt to parse raw data dict from starfile.read as a RELION 3.0 style star file
     """
     if len(raw_data.values()) > 1:
         raise ParseError("Cannot parse as RELION 3.0 format STAR file")
@@ -91,7 +85,8 @@ def parse_relion30(raw_data, **kwargs):
 
 
 def parse_relion31(raw_data, **kwargs):
-    """Attempt to parse raw data from starfile.read as a RELION 3.1 style star file
+    """
+    Attempt to parse raw data from starfile.read as a RELION 3.1 style star file
     """
     if list(raw_data.keys()) != ['optics', 'particles']:
         raise ParseError("Cannot parse as RELION 3.1 format STAR file")
@@ -104,3 +99,19 @@ reader_functions = {
     'relion_3.0': parse_relion30,
     'relion_3.1': parse_relion31,
 }
+
+
+def read_star(star_path, **kwargs):
+    """
+    Dispatch function for reading a starfile into one or multiple ParticleBlocks
+    """
+    raw_data = starfile.read(star_path, always_dict=True)
+
+    failed_reader_functions = []
+    for style, reader_function in reader_functions.items():
+        try:
+            particle_blocks = reader_function(raw_data, **kwargs)
+            return particle_blocks
+        except ParseError:
+            failed_reader_functions.append((style, reader_function))
+    raise ParseError(f'Failed to parse {star_path} using {failed_reader_functions}')
