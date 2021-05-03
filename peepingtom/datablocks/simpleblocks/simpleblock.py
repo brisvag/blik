@@ -1,4 +1,3 @@
-from typing import Callable
 import logging
 
 from xarray import DataArray
@@ -25,7 +24,7 @@ class SimpleBlock(DataBlock):
 
     @property
     def data(self):
-        if isinstance(self._data, Callable):
+        if callable(self._data):
             logger.debug(f'loading data for lazy datablock "{self}"')
             self.data = self._data()
         return self._data
@@ -34,7 +33,7 @@ class SimpleBlock(DataBlock):
     def data(self, data):
         if isinstance(data, type(self)):
             self._data = data.data
-        elif isinstance(data, (DataArray, Callable)):
+        elif isinstance(data, DataArray) or callable(data):
             self._data = data
         else:
             self._data = self._data_setter(data)

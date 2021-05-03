@@ -1,4 +1,3 @@
-from typing import Callable
 import logging
 
 import numpy as np
@@ -40,17 +39,17 @@ class ImageBlock(SimpleBlock):
 
     @property
     def ndim(self):
-        if isinstance(self._data, Callable):
+        if callable(self._data):
             return None
         return self.data.ndim
 
     @property
     def dims(self):
-        if isinstance(self._data, Callable):
+        if callable(self._data):
             return None
         return self.data.dims
 
     def __shape_repr__(self):
-        if isinstance(self._data, Callable):
-            return f'(not-loaded)'
+        if callable(self._data):
+            return '(not-loaded)'
         return f'{self.data.shape}'
