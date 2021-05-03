@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 from itertools import zip_longest
+import logging
 
 from ..utils import _path, ParseError
 from ...utils import listify
@@ -15,7 +16,9 @@ from ...peeper import Peeper
 from ...datablocks import ParticleBlock, ImageBlock
 
 
-# a mapping of file extensions to readers, tuple map to tuples:
+logger = logging.getLogger(__name__)
+
+# a mapping of file extensions to readers, tuple map to tuples (don't forget trailing comma!):
 #   - multiple extensions values in the keys use the same readers
 #   - multiple readers are called in order from highest to lowers in case previous ones fail
 # TODO: put this directly in the readers to make it plug and play?
@@ -85,27 +88,39 @@ def find_files(paths, filters=None, recursive=False, max=None):
 
 
 def read(paths,
-         filters=None,
-         name_regex=None,
          mode=None,
+         name_regex=None,
+         pixel_size=None,
+         rescale_particles=False,
+         filters=None,
          recursive=False,
          strict=False,
          max=None,
+         mmap=False,
+         lazy=True,
          **kwargs):
     r"""
-    read generic path(s) and construct a peeper accordingly
+    Read generic path(s) and construct a Peeper accordingly.
 
-    filters: a regex string or iterable thereof used to select filenames [default: '.*']
-    name_regex: a regex used to infer DataBlock names from paths. For example:
-                'Protein_\d+' will match 'MyProtein_10.star' and 'MyProtein_001.mrc'
-                and name the respective DataBlocks 'Protein_10' and 'Protein_01'
-    mode: how to arrange DataBlocks into volumes
-        - lone: each datablock in a separate volume
-        - zip_by_type: one of each datablock type per volume
-        - bunch: all datablocks in a single volume
-    recursive: navigate directories recursively to find files
-    strict: if set to true, immediately fail if a matched filename cannot be read by PeepingTom
-    max: max number of files to read
+    Peeper and Datablock construction arguments:
+        mode: how to arrange DataBlocks into volumes
+            - lone: each datablock in a separate volume
+            - zip_by_type: one of each datablock type per volume
+            - bunch: all datablocks in a single volume
+        name_regex: a regex used to infer DataBlock names from paths. For example:
+                    'Protein_\d+' will match 'MyProtein_10.star' and 'MyProtein_001.mrc'
+                    and name the respective DataBlocks 'Protein_10' and 'Protein_01'
+        pixel_size: manually set the pixel size (overrides the one read from file)
+        rescale_particles: if particle positions are normalized between 0 and 1, (e.g: Warp template matching),
+                           attempt to rescale them based on image sizes
+    File reading arguments:
+        filters: a regex string or iterable thereof used to select filenames [default: '.*']
+        recursive: navigate directories recursively to find files
+        strict: if set to true, immediately fail if a matched filename cannot be read by PeepingTom
+        max: max number of files to read
+    Performance arguments:
+        mmap: open file in memory map mode (if possible)
+        lazy: read data lazily (if possible)
     """
     # if changing the signature of this function, change the one in `__main__.cli` as well!
     modes = ('lone', 'zip_by_type', 'bunch')
@@ -116,8 +131,11 @@ def read(paths,
     datablocks = []
     for file in find_files(paths, filters=filters, recursive=recursive, max=max):
         try:
-            datablocks.extend(read_file(file, name_regex=name_regex, **kwargs))
-        except ParseError:
+            logger.info(f'attempting to read "{file}"')
+            datablocks.extend(read_file(file, name_regex=name_regex, pixel_size=pixel_size,
+                                        mmap=mmap, lazy=lazy, **kwargs))
+        except ParseError as e:
+            logger.info(f'failed to read "{file}": {e}')
             if strict:
                 raise
     if not datablocks:
@@ -144,6 +162,7 @@ def read(paths,
     elif mode == 'bunch':
         pass
     elif mode == 'zip_by_type':
+        # TODO: this is quite finnicky. We need a smarter way of handling volumes
         for lst in datablocks_by_type.values():
             lst.sort()
         for dbs in zip_longest(*datablocks_by_type.values()):
@@ -153,12 +172,16 @@ def read(paths,
                 db.volume = dbs[0].name
 
                 # rescale template matching data from warp. TODO: this will break if particles actually are in that range only
-                if isinstance(db, ParticleBlock) and 0 <= db.positions.data.min() <= db.positions.data.max() <= 1:
+                if isinstance(db, ParticleBlock):
                     particles_to_rescale.append(db)
                 elif isinstance(db, ImageBlock):
                     image = db
-            if image and particles_to_rescale:
+            # must be "is not None" or it breaks lazy loading
+            if image is not None and particles_to_rescale and rescale_particles:
+                logger.info('rescaling particles with coordinates between 0 and 1')
+                # important to only access `db.data` here, or we mess up the lazy loading of datablocks
                 for p in particles_to_rescale:
-                    p.positions.data *= image.data.shape[::-1]
+                    if 0 <= p.positions.data.min() <= p.positions.data.max() <= 1:
+                        p.positions.data *= image.data.shape[::-1]
 
     return Peeper(datablocks)

@@ -19,12 +19,9 @@ class PointBlock(SimpleBlock):
     _depiction_modes = {'default': PointDepictor}
 
     def __init__(self, data=(), pixel_size=None, **kwargs):
+        self.pixel_size = pixel_size  # no checking here, or we screw up lazy loading
         super().__init__(data, **kwargs)
         # TODO this is a workaround until napari #2347 is fixed
-        if pixel_size is None:
-            pixel_size = np.ones(self.ndim)
-        pixel_size = np.broadcast_to(pixel_size, self.ndim)
-        self.pixel_size = np.array(pixel_size)
 
     def _data_setter(self, data):
         if isinstance(data, DataArray):
@@ -43,7 +40,15 @@ class PointBlock(SimpleBlock):
             raise ValueError("data object should have ndim == 2")
 
         dims = ['x', 'y', 'z']
-        return DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), dims[:data.shape[1]]))
+        data = DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), dims[:data.shape[1]]))
+
+        # set pixel_size if needed
+        if self.pixel_size is None:
+            pixel_size = np.ones(len(data.spatial))
+            pixel_size = np.broadcast_to(pixel_size, len(data.spatial))
+            self.pixel_size = np.array(pixel_size)
+
+        return data
 
     @property
     def ndim(self):

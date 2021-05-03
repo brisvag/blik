@@ -24,7 +24,7 @@ pixel_size_headings = {
 micrograph_name_heading = 'rlnMicrographName'
 
 
-def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None):
+def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, **kwargs):
     particleblocks = []
     if coord_headings[-1] in df.columns:
         dim = 3
@@ -105,7 +105,10 @@ def read_star(star_path, **kwargs):
     """
     Dispatch function for reading a starfile into one or multiple ParticleBlocks
     """
-    raw_data = starfile.read(star_path, always_dict=True)
+    try:
+        raw_data = starfile.read(star_path, always_dict=True)
+    except pd.errors.EmptyDataError:  # raised sometimes by .star files with completely different data
+        raise ParseError(f'the contents of {star_path} have the wrong format')
 
     failed_reader_functions = []
     for style, reader_function in reader_functions.items():
