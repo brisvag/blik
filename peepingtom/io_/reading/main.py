@@ -91,7 +91,7 @@ def read(paths,
          mode=None,
          name_regex=None,
          pixel_size=None,
-         rescale_particles=False,
+         rescale_particles=True,
          filters=None,
          recursive=False,
          strict=False,
@@ -179,9 +179,8 @@ def read(paths,
             # must be "is not None" or it breaks lazy loading
             if image is not None and particles_to_rescale and rescale_particles:
                 logger.info('rescaling particles with coordinates between 0 and 1')
-                # important to only access `db.data` here, or we mess up the lazy loading of datablocks
                 for p in particles_to_rescale:
                     if 0 <= p.positions.data.min() <= p.positions.data.max() <= 1:
-                        p.positions.data *= image.data.shape[::-1]
+                        p.positions.data *= image.shape[::-1]
 
     return Peeper(datablocks)

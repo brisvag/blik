@@ -17,9 +17,11 @@ class ImageBlock(SimpleBlock):
     """
     _depiction_modes = {'default': ImageDepictor}
 
-    def __init__(self, data=(), pixel_size=None, mmap=False, lazy=True, **kwargs):
+    def __init__(self, data=(), pixel_size=None, shape=None, ndim=None, **kwargs):
         # TODO this is a workaround until napari #2347 is fixed
         self.pixel_size = pixel_size  # no checking here, or we screw up lazy loading
+        self._shape = shape
+        self._ndim = ndim
         super().__init__(data, **kwargs)
 
     def _data_setter(self, data):
@@ -40,16 +42,20 @@ class ImageBlock(SimpleBlock):
     @property
     def ndim(self):
         if callable(self._data):
-            return None
+            return self._ndim
         return self.data.ndim
 
     @property
     def dims(self):
         if callable(self._data):
-            return None
+            return len(self._shape)
         return self.data.dims
 
-    def __shape_repr__(self):
+    @property
+    def shape(self):
         if callable(self._data):
-            return '(not-loaded)'
-        return f'{self.data.shape}'
+            return self._shape
+        return self.data.shape
+
+    def __shape_repr__(self):
+        return f'{self.shape}'
