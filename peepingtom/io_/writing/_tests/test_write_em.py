@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.io_.write.em import write_em
+from peepingtom.io_.writing.em import write_em
 from peepingtom.datablocks import ImageBlock
 
 

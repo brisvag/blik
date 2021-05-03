@@ -1,7 +1,7 @@
 import numpy as np
 import emfile
 
-from peepingtom.io_.read.em import read_em
+from peepingtom.io_.reading.em import read_em
 from peepingtom.datablocks import ImageBlock
 
 

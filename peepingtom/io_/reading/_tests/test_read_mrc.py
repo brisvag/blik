@@ -1,7 +1,7 @@
 import numpy as np
 import mrcfile
 
-from peepingtom.io_.read.mrc import read_mrc
+from peepingtom.io_.reading.mrc import read_mrc
 from peepingtom.datablocks import ImageBlock
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import dynamotable
 
-from peepingtom.io_.read.tbl import read_tbl
+from peepingtom.io_.reading.tbl import read_tbl
 from peepingtom.datablocks import ParticleBlock
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.io_.write.star import write_star
+from peepingtom.io_.writing.star import write_star
 from peepingtom.datablocks import ParticleBlock
 
 

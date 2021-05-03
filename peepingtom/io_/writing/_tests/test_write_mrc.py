@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.io_.write.mrc import write_mrc
+from peepingtom.io_.writing.mrc import write_mrc
 from peepingtom.datablocks import ImageBlock
 
 

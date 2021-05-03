@@ -1,7 +1,7 @@
 import pandas as pd
 import starfile
 
-from peepingtom.io_.read.star import read_star
+from peepingtom.io_.reading.star import read_star
 from peepingtom.datablocks import ParticleBlock
 
 

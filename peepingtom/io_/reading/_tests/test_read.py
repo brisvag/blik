@@ -3,7 +3,7 @@ import pandas as pd
 import mrcfile
 import starfile
 
-from peepingtom.io_.read import read
+from peepingtom.io_.reading.main import read
 
 
 def test_read(tmp_path):
