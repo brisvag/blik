@@ -5,10 +5,13 @@ Analysis functions that operate on collections of data object
 from math import ceil
 
 import numpy as np
+import pandas as pd
 import scipy.spatial
 from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
+
+from ..datablocks import PropertyBlock
 
 
 def distance_matrix(particleblock, use_old=True):
@@ -18,7 +21,7 @@ def distance_matrix(particleblock, use_old=True):
     if use_old and 'dist_matrix' in particleblock.metadata:
         dist_matrix = particleblock.metadata['dist_matrix']
     else:
-        positions = particleblock.positions.data
+        positions = particleblock.positions.data * particleblock.pixel_size
         dist_matrix = scipy.spatial.distance_matrix(positions, positions)
         particleblock.metadata['dist_matrix'] = dist_matrix
     return dist_matrix
@@ -125,7 +128,7 @@ def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radi
         particleblocks, indexes = zip(*pb_and_idx)
 
     if max_dist is None:
-        max_dist = max(pb.positions.data.values.max() for pb in particleblocks)
+        max_dist = max(pb.positions.data.values.max() * pb.pixel_size for pb in particleblocks)
 
     data = []
     for pb in particleblocks:
@@ -147,11 +150,11 @@ def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radi
         orig.properties.update()
         start += n
 
-        orig.metadata[f'{class_tag}_centroids'] = centroids
-        orig.metadata[f'{class_tag}_params'] = {
-            'n_classes': n_classes,
-            'mode': mode,
-            **kwargs,
-        }
+    columns = [f'class_{cls}' for cls in range(n_classes)]
+    df = pd.DataFrame(centroids.T, columns=columns)
+    plot_block = PropertyBlock(df, name=f'{class_tag}_centroids', volume='PT_OMNI')
+    if plot_block in peeper:
+        peeper.remove(plot_block)
+    peeper.append(plot_block)
 
     return centroids, classes

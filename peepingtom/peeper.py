@@ -294,20 +294,12 @@ class Peeper:
     # ANALYSIS
     @inherit_signature(classify_radial_profile, ignore_args='peeper')
     def classify_radial_profile(self, *args, **kwargs):
-        # TODO: adapt to new depiction (plots are now handled by depictors!)
-        centroids, _ = classify_radial_profile(self, *args, **kwargs)
+        classify_radial_profile(self, *args, **kwargs)
         tag = kwargs.get('class_tag', 'class_radial')
-        self.particles[0].depict(mode='class_plot', class_tag=tag)
-        colors = distinct_colors[:kwargs['n_classes']]
-        if kwargs['if_properties'] is not None:
-            colors.append(faded_grey)
+        plot_block = self[f'{tag}_centroids']
+        plot_block.depict()
         for p in self.particles:
-            p.depictor.point_layer.face_color = kwargs['class_tag']
-            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
-        if kwargs['if_properties'] is not None:
-            colors.pop()
-        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
-        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+            p.depictors[0].color_by_categorical_property(tag)
 
     @inherit_signature(deduplicate_peeper, ignore_args='peeper')
     def deduplicate(self, *args, **kwargs):

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from ..abstractblocks import SimpleBlock
+from ...depictors import PropertyPlotDepictor
 
 
 class PropertyBlock(SimpleBlock):
@@ -9,6 +10,10 @@ class PropertyBlock(SimpleBlock):
     PropertyBlock is a simple dataframe wrapper with datablock api
     data: dataframe or dict whose values all have the same length
     """
+    _depiction_modes = {
+        'default': PropertyPlotDepictor
+    }
+
     def _data_setter(self, data=None):
         return pd.DataFrame(data)
 

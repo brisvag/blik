@@ -17,7 +17,7 @@ def test_classify_radial_distance():
     assert isinstance(classes, np.ndarray)
     assert len(classes) == p[0].n
     added_props = ['class_radial']
-    added_metadata = ['class_radial_centroids', 'class_radial_params']
+    added_metadata = ['ori_matrix', 'dist_matrix']
     assert all([x in p[0].properties for x in added_props])
     assert all([x in p[0].metadata for x in added_metadata])
 

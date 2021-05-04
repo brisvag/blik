@@ -1,6 +1,7 @@
 import xarray as xr
 
 from .naparidepictor import NapariDepictor
+from ...utils.colors import distinct_colors
 
 
 class ParticleDepictor(NapariDepictor):
@@ -50,6 +51,11 @@ class ParticleDepictor(NapariDepictor):
     @property
     def vectors(self):
         return self.layers[1]
+
+    def color_by_categorical_property(self, property, colors=None):
+        if self.layers:
+            self.points.face_color = property
+            self.points.face_color_cycle = colors or distinct_colors
 
     def update(self):
         if self.layers:
