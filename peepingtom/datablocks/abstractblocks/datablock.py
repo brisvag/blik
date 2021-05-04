@@ -13,7 +13,7 @@ class DataBlock(ABC, metaclass=MetaBlock):
     """
     _depiction_modes = {}
 
-    def __init__(self, *, name=None, volume=None, peeper=None, parent=None):
+    def __init__(self, *, name=None, volume=None, peeper=None, parent=None, file_path=''):
         self._parent = parent
         if name is None:
             name = token_hex(8)
@@ -21,6 +21,7 @@ class DataBlock(ABC, metaclass=MetaBlock):
         self._name = name
         self._peeper = peeper
         self._volume = volume
+        self._file_path = file_path
         self._depictors = []
         self._alchemists = []
 
@@ -51,6 +52,14 @@ class DataBlock(ABC, metaclass=MetaBlock):
     @volume.setter
     def volume(self, name):
         self.parent._volume = name
+
+    @property
+    def file_path(self):
+        return self.parent._file_path
+
+    @file_path.setter
+    def file_path(self, path):
+        self.parent._file_path = path
 
     @property
     def depictors(self):
@@ -133,9 +142,9 @@ class DataBlock(ABC, metaclass=MetaBlock):
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return self.name == other.name
+            return self.name == other.name and self.file_path == other.file_path
         else:
             return NotImplemented
 
     def __hash__(self):
-        return hash(type(self), self.name)
+        return hash((type(self), self.name, self.file_path))
