@@ -13,14 +13,14 @@ class Peeper:
     """
     A container for a collection of DataBlocks
     """
-    def __init__(self, datablocks=(), name=None, parent=None, viewers=None):
-        self._parent = parent
+    def __init__(self, datablocks=(), name=None, parent=None):
+        self._parent = parent or self
         if name is None and not self.isview():
-            name = token_hex(16)
+            name = token_hex(8)
         self._name = name
         self._data = []
         self._extend(datablocks)
-        self._viewers = viewers or {}
+        self._viewer = None
 
     # DATA
     @property
@@ -37,7 +37,18 @@ class Peeper:
 
     @property
     def volumes(self):
-        return self._nested()
+        volumes = self._nested()
+        volumes.pop('PT_OMNI', None)
+        return volumes
+
+    @property
+    def omni(self):
+        return self._nested().get('PT_OMNI', DispatchList())
+
+    @property
+    def ndim(self):
+        ndims = [getattr(db, 'ndim', 0) for db in self]
+        return max(ndims)
 
     def isview(self):
         return self.parent is not self
@@ -132,6 +143,21 @@ class Peeper:
             return items[0]
         return self.__view__(items)
 
+    def find_datablocks(self, name=None, volume=None, type=None):
+        if name is volume is type is None:
+            raise ValueError('at least one of "name", "volume" or "type" must be provided')
+        if type is None:
+            type = DataBlock
+        dbs = self._filter_types(type)
+        if name is not None:
+            dbs = [db for db in dbs if name in db.name]
+        if volume:
+            dbs = [db for db in dbs if volume in db.volume]
+        if not dbs:
+            raise ValueError(f'no datablock corresponds to {name=}, {volume=} and {type=}')
+        else:
+            return dbs
+
     def __iter__(self):
         yield from self._data
 
@@ -158,15 +184,19 @@ class Peeper:
             raise TypeError('Peeper view is immutable')
         self._extend(items)
 
-    def __add__(self, other):
-        if isinstance(other, Peeper):
-            return Peeper(self._data + self._sanitize(other))
-        else:
-            return NotImplemented
+    def remove(self, item):
+        self._data.remove(item)
+
+    # TODO: adding peeper needs some more work. Name clashing and similar issues need to be solved.
+    # def __add__(self, other):
+        # if isinstance(other, Peeper):
+            # return Peeper(self._data + self._sanitize(other))
+        # else:
+            # return NotImplemented
 
     # REPRESENTATION
     def __shape_repr__(self):
-        return f'({len(self.volumes)}, {len(self.datablocks)})'
+        return f'({len(self._nested())}, {len(self.datablocks)})'
 
     def __name_repr__(self):
         return f'<{self.name}>'
@@ -209,8 +239,14 @@ class Peeper:
 
     # VISUALISATION
     @property
-    def viewers(self):
-        return self.parent._viewers
+    def viewer(self):
+        if self.parent._viewer is None:
+            self.parent._viewer = Viewer(self)
+        return self.parent._viewer
+
+    def show(self, **kwargs):
+        self.viewer.show(**kwargs)
+        return self.viewer
 
     @property
     def depictors(self):
@@ -223,19 +259,13 @@ class Peeper:
             layers.extend(getattr(dep, 'layers', []))
         return layers
 
-    def _get_viewer(self, viewer_key, napari_viewer=None, **kwargs):
-        if viewer_key in self.viewers:
-            if napari_viewer is not None:
-                raise ValueError(f'cannot use existing viewer "{viewer_key}" with a new napari instance')
-            viewer = self.viewers[viewer_key]
-        else:
-            viewer = Viewer(self, napari_viewer=napari_viewer)
+    def purge_gui(self):
+        for dep in self.depictors:
+            dep.purge()
 
-        try:
-            viewer.napari_viewer.window.qt_viewer.actions()
-        except RuntimeError:
-            self.parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
-        return viewer
+    @property
+    def napari_viewer(self):
+        return self.viewer.napari_viewer
 
     @property
     def plots(self):
