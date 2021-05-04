@@ -35,10 +35,11 @@ class LineDepictor(NapariDepictor):
         return self.layers[1]
 
     def update(self):
-        backbone_data = self.datablock.smooth_backbone[:, ::-1]
-        self.backbone.selected_data = {0}
-        self.backbone.remove_selected()
-        self.backbone.add(backbone_data, shape_type='path')
+        if self.layers:
+            backbone_data = self.datablock.smooth_backbone[:, ::-1]
+            self.backbone.selected_data = {0}
+            self.backbone.remove_selected()
+            self.backbone.add(backbone_data, shape_type='path')
 
     def changed(self, event):
         self.datablock.data = self.points.data[:, ::-1]

@@ -9,8 +9,8 @@ class NapariDepictor(Depictor):
     NapariDepictors are SimpleBlock or MultiBlock wrappers controlling depiction of their contents in napari
     """
     def __init__(self, datablock):
-        self.layers = []
         super().__init__(datablock)
+        self.layers = []
 
     def _make_image_layer(self, image, name, scale=None, **kwargs):
         layer = Image(image, name=name, scale=scale, **kwargs)
@@ -45,3 +45,6 @@ class NapariDepictor(Depictor):
         """
         layer.events.data.connect(self.changed)
         self.layers.append(layer)
+
+    def purge(self):
+        self.layers.clear()

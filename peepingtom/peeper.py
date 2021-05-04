@@ -237,24 +237,28 @@ class Peeper:
             self.parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
         return viewer
 
-    def show(self, viewer_key=0, **kwargs):
-        # TODO: accept kwargs to depictors?
-        viewer = self._get_viewer(viewer_key, **kwargs)
-        return viewer
+    @property
+    def plots(self):
+        plots = DispatchList()
+        for dep in self.depictors:
+            plot = getattr(dep, 'plot', None)
+            if plot:
+                plots.append(plot)
+        return plots
 
     # IO
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
         """
-        from ..io_ import read
+        from .io_ import read
         self.extend(read(paths, **kwargs))
 
     def write(self, paths, **kwargs):
         """
         write datablock contents to disk
         """
-        from ..io_ import write
+        from .io_ import write
         write(self, paths, **kwargs)
 
     # ANALYSIS
