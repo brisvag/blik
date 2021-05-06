@@ -61,12 +61,13 @@ def expand_globs(globs, recursive=False, base_dir='.'):
         path = _path(glob)
         if path.is_file():
             yield path
-        if path.is_dir():
-            curr_base_dir = base_dir / path
-            glob = '*'
-        if recursive and not glob.startswith('**'):
-            glob = '**/' + glob.lstrip('/')
-        yield from _path(curr_base_dir).glob(glob)
+        else:
+            if path.is_dir():
+                curr_base_dir = base_dir / path
+                glob = '*'
+            if recursive and not glob.startswith('**'):
+                glob = '**/' + glob.lstrip('/')
+            yield from _path(curr_base_dir).glob(glob)
 
 
 def filter_readable(paths):
@@ -79,8 +80,8 @@ def find_files(globs, recursive=False, base_dir='.'):
     """
     take a glob pattern or iterable thereof and find all readable files that match it
     """
-    globs = expand_globs(globs, recursive=recursive, base_dir=base_dir)
-    readable = filter_readable(globs)
+    files = expand_globs(globs, recursive=recursive, base_dir=base_dir)
+    readable = filter_readable(files)
 
     yield from readable
 

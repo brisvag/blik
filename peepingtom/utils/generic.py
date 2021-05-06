@@ -33,7 +33,7 @@ def inherit_signature(*other_functions, ignore_args=None, add_args={}):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
 
         all_params = []
         for other_func in other_functions:
