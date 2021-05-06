@@ -12,8 +12,11 @@ def listify(obj):
     """
     # avoid circular import
     from ..datablocks import DataBlock
-    if isinstance(obj, Iterable) and not isinstance(obj, (str, DispatchList, DataBlock, Path)):
-        return list(obj)
+    if isinstance(obj, Iterable):
+        if isinstance(obj, (str, DataBlock, Path)):
+            return [obj]
+        else:
+            return list(obj)
     if obj is None:
         return []
     return [obj]
