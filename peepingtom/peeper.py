@@ -5,7 +5,7 @@ import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
-from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
+from .utils import DispatchList, distinct_colors, faded_grey, inherit_signature, listify
 from .gui import Viewer
 
 
@@ -257,7 +257,7 @@ class Peeper:
         write(self, paths, **kwargs)
 
     # ANALYSIS
-    @wrapper_method(classify_radial_profile, ignore_args=1)
+    @inherit_signature(classify_radial_profile, ignore_args='peeper')
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
@@ -274,6 +274,6 @@ class Peeper:
         class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
         self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
-    @wrapper_method(deduplicate_peeper, ignore_args=1)
+    @inherit_signature(deduplicate_peeper, ignore_args='peeper')
     def deduplicate(self, *args, **kwargs):
         return deduplicate_peeper(self, *args, **kwargs)
