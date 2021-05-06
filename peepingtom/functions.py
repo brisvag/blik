@@ -15,11 +15,9 @@ def peep(*args, **kwargs):
     datablocks = []
     globs = []
     for obj in args:
-        obj = listify(obj)
-        for item in obj:
-            if isinstance(item, Peeper):
-                datablocks.extend(item.datablocks)
-            elif isinstance(item, DataBlock):
+        obj_list = listify(obj)
+        for item in obj_list:
+            if isinstance(item, DataBlock):
                 datablocks.append(item)
             elif isinstance(item, (Path, str)):
                 globs.append(item)
