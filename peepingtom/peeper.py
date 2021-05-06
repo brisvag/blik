@@ -14,7 +14,7 @@ class Peeper:
     A container for a collection of DataBlocks
     """
     def __init__(self, datablocks=(), name=None, parent=None, viewers=None):
-        self._parent = parent or self
+        self._parent = parent
         if name is None and not self.isview():
             name = token_hex(16)
         self._name = name
@@ -24,8 +24,12 @@ class Peeper:
 
     # DATA
     @property
+    def parent(self):
+        return self._parent or self
+
+    @property
     def name(self):
-        return self._parent._name
+        return self.parent._name
 
     @property
     def datablocks(self):
@@ -36,7 +40,7 @@ class Peeper:
         return self._nested()
 
     def isview(self):
-        return self._parent is not self
+        return self.parent is not self
 
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
@@ -92,7 +96,7 @@ class Peeper:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return Peeper(*args, parent=self._parent, **kwargs)
+        return Peeper(*args, parent=self.parent, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -205,7 +209,7 @@ class Peeper:
     # VISUALISATION
     @property
     def viewers(self):
-        return self._parent._viewers
+        return self.parent._viewers
 
     @property
     def depictors(self):
@@ -229,7 +233,7 @@ class Peeper:
         try:
             viewer.napari_viewer.window.qt_viewer.actions()
         except RuntimeError:
-            self._parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
+            self.parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
         return viewer
 
     def show(self, viewer_key=0, **kwargs):

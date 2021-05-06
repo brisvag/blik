@@ -18,8 +18,28 @@ class DataBlock:
         self._name = name
         self.depictors = []
         self.alchemists = []
-        self.volume = volume
+        self._volume = volume
         self.peeper = peeper
+
+    @property
+    def parent(self):
+        """
+        points to the parent in case of a view, or to self otherwise
+        """
+        return self._parent or self
+
+    @property
+    def name(self):
+        # not settable on purpose, should be immutable
+        return self.parent._name
+
+    @property
+    def volume(self):
+        return self.parent._volume
+
+    @volume.setter
+    def volume(self, name):
+        self.parent._volume = name
 
     def add_to_same_volume(self, datablocks):
         datablocks = listify(datablocks)
@@ -54,11 +74,6 @@ class DataBlock:
         for alchemist in self.alchemists:
             alchemist.update()
 
-    @property
-    def name(self):
-        viewname = getattr(self._parent, 'name', None)
-        return viewname or self._name
-
     def __shape_repr__(self):
         return ''
 
@@ -67,7 +82,7 @@ class DataBlock:
 
     def __base_repr__(self):
         view = ''
-        if self._parent is not None:
+        if self.parent is not self:
             view = '-View'
         return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
 
