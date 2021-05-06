@@ -6,17 +6,6 @@ from .utils import listify, inherit_signature
 from .io_ import read
 
 
-def which_isinstance(iterable, type):
-    """
-    filter an iterable and return only elements of a specific type
-    """
-    ret = []
-    for item in iterable:
-        if isinstance(item, type):
-            ret.append(item)
-    return ret
-
-
 @inherit_signature(read, Peeper, ignore_args=['globs', 'name', 'datablocks'], add_args={'name': None})
 def peep(*args, **kwargs):
     """
