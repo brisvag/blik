@@ -2,8 +2,6 @@ import pandas as pd
 import starfile
 import eulerangles
 
-from ...utils import _path
-
 
 def matrix2euler(rotation_matrices):
     """
@@ -64,7 +62,7 @@ def write_star(particleblock, file_path, data_colums=None, overwrite=False):
         for name, values in zip(column_names, [x, y, psi] + properties):
             df[name] = values
 
-    path = str(_path(file_path))
+    path = file_path
     if not path.endswith('.star'):
         path = f'{path}.star'
     starfile.write(df, path, overwrite=overwrite)

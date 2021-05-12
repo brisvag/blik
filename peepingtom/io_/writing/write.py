@@ -1,9 +1,9 @@
 from collections import Counter
+from pathlib import Path
 
 from ...datablocks import ImageBlock, ParticleBlock
 
 from ...utils import listify
-from ..utils import _path
 from .mrc import write_mrc
 from .em import write_em
 from .star import write_star
@@ -29,7 +29,7 @@ def write(datablocks, paths, overwrite=False, strict=False, **kwargs):
     """
     # sanitize input
     datablocks = listify(datablocks)
-    paths = [_path(path) for path in listify(paths)]
+    paths = [Path(path).expanduser().resolve() for path in listify(paths)]
 
     # check if numbers match
     if len(datablocks) != len(paths) and len(datablocks):

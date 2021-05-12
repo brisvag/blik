@@ -1,13 +1,10 @@
 import emfile
 
-from ...utils import _path
-
 
 def write_em(imageblock, file_path, overwrite=False):
     """
     write an image block to disk as an .em file
     """
-    path = str(_path(file_path))
-    if not path.endswith('.em'):
-        path = f'{path}.em'
-    emfile.write(path, imageblock.data.values, header_params={}, overwrite=overwrite)
+    if not file_path.endswith('.em'):
+        file_path = file_path + '.em'
+    emfile.write(file_path, imageblock.data.values, header_params={}, overwrite=overwrite)

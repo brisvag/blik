@@ -1,8 +1,9 @@
 from collections import defaultdict
 from itertools import zip_longest
+from pathlib import Path
 import logging
 
-from ..utils import _path, ParseError
+from ..utils import ParseError
 from ...utils import listify
 from .star import read_star
 from .mrc import read_mrc
@@ -12,7 +13,6 @@ from .box import read_box
 from .cbox import read_cbox
 
 from ...peeper import Peeper
-from ...datablocks import ParticleBlock, ImageBlock
 
 
 logger = logging.getLogger(__name__)
@@ -50,24 +50,25 @@ def read_file(file_path, **kwargs):
     raise ParseError(f'could not read {file_path}')
 
 
-def expand_globs(globs, recursive=False, base_dir='.'):
+def root_relative_glob(glob):
+    return Path(glob).expanduser().resolve().relative_to('/')
+
+
+def expand_globs(globs, recursive=False):
     """
     expand globs to single files as appropriate for recursiveness; assume that
     a directory as glob means "the contents of this directory"
     """
     globs = listify(globs)
-    curr_base_dir = _path(base_dir)
     for glob in globs:
-        path = _path(glob)
-        if path.is_file():
-            yield path
+        glob = root_relative_glob(glob)
+        if glob.is_dir():
+            glob = str(glob).rstrip('/') + '/*'
         else:
-            if path.is_dir():
-                curr_base_dir = base_dir / path
-                glob = '*'
-            if recursive and not glob.startswith('**'):
-                glob = '**/' + glob.lstrip('/')
-            yield from _path(curr_base_dir).glob(glob)
+            glob = str(glob)
+        if recursive and not glob.startswith('**/'):
+            glob = '**/' + glob.lstrip('/')
+        yield from Path('/').glob(glob)
 
 
 def filter_readable(paths):
@@ -76,11 +77,11 @@ def filter_readable(paths):
             yield path
 
 
-def find_files(globs, recursive=False, base_dir='.'):
+def find_files(globs, recursive=False):
     """
     take a glob pattern or iterable thereof and find all readable files that match it
     """
-    files = expand_globs(globs, recursive=recursive, base_dir=base_dir)
+    files = expand_globs(globs, recursive=recursive)
     readable = filter_readable(files)
 
     yield from readable
@@ -91,8 +92,6 @@ def read(*globs,
          mode=None,
          name_regex=None,
          pixel_size=None,
-         rescale_particles=True,
-         base_dir='.',
          recursive=False,
          strict=False,
          mmap=False,
@@ -111,10 +110,7 @@ def read(*globs,
                     'Protein_\d+' will match 'MyProtein_10.star' and 'MyProtein_001.mrc'
                     and name the respective DataBlocks 'Protein_10' and 'Protein_01'
         pixel_size: manually set the pixel size (overrides the one read from file)
-        rescale_particles: if particle positions are normalized between 0 and 1, (e.g: Warp template matching),
-                           attempt to rescale them based on image sizes
     File reading arguments:
-        base_dir: base directory for glob search (default: '.')
         recursive: navigate directories recursively to find files
         strict: if set to true, immediately fail if a matched filename cannot be read by PeepingTom
     Performance arguments:
@@ -128,7 +124,7 @@ def read(*globs,
         raise ValueError(f'mode can only be one of {modes}')
 
     datablocks = []
-    for file in find_files(globs, recursive=recursive, base_dir=base_dir):
+    for file in find_files(globs, recursive=recursive):
         try:
             logger.info(f'attempting to read "{file}"')
             datablocks.extend(read_file(file, name_regex=name_regex, pixel_size=pixel_size,
@@ -165,21 +161,7 @@ def read(*globs,
         for lst in datablocks_by_type.values():
             lst.sort()
         for dbs in zip_longest(*datablocks_by_type.values()):
-            particles_to_rescale = []
-            image = None
             for db in dbs:
                 db.volume = dbs[0].name
-
-                # rescale template matching data from warp. TODO: this will break if particles actually are in that range only
-                if isinstance(db, ParticleBlock):
-                    particles_to_rescale.append(db)
-                elif isinstance(db, ImageBlock):
-                    image = db
-            # must be "is not None" or it breaks lazy loading
-            if image is not None and particles_to_rescale and rescale_particles:
-                logger.info('rescaling particles with coordinates between 0 and 1')
-                for p in particles_to_rescale:
-                    if 0 <= p.positions.data.min() <= p.positions.data.max() <= 1:
-                        p.positions.data *= image.shape[::-1]
 
     return Peeper(datablocks, name=name)

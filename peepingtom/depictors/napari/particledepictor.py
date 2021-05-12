@@ -4,11 +4,11 @@ from .naparidepictor import NapariDepictor
 
 
 class ParticleDepictor(NapariDepictor):
-    def depict(self):
+    def depict(self, rescale=True):
         pkwargs = {'size': 3}
         vkwargs = {'length': 10}
 
-        pos, ori = self.get_positions_and_orientations()
+        pos, ori = self.get_positions_and_orientations(rescale=rescale)
 
         self._make_points_layer(pos,
                                 name=f'{self.name} - particle positions',
@@ -24,10 +24,20 @@ class ParticleDepictor(NapariDepictor):
     def get_properties(self):
         return self.datablock.properties.data
 
-    def get_positions_and_orientations(self):
+    def get_positions_and_orientations(self, rescale=True):
         positions = self.datablock.positions.as_zyx()
+        # rescale if needed
+        if 0 <= positions.min() <= positions.max() <= 1 and rescale:
+            same_volume = self.datablock.peeper.volumes[self.datablock.volume]
+            for db in same_volume:
+                from ...datablocks import ImageBlock
+                if isinstance(db, ImageBlock):
+                    positions *= db.shape
+                    break
+
         v_axis = self.datablock.positions.data.spatial[-1]  # y or z
         v_rotated = self.datablock.orientations.oriented_vectors(v_axis).loc[:, list('zyx')]
+
         stacked = xr.concat([positions, v_rotated], dim='vector').transpose('n', 'vector', 'spatial')
         return positions, stacked
 
