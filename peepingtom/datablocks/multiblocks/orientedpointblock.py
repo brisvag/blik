@@ -1,25 +1,16 @@
-from .multiblock import MultiBlock
+from ..abstractblocks import SpatialBlock, MultiBlock
 from ..simpleblocks import PointBlock, OrientationBlock
 
 
-class OrientedPointBlock(MultiBlock):
-    def __init__(self, positions=(), orientations=(), pixel_size=None, **kwargs):
+class OrientedPointBlock(SpatialBlock, MultiBlock):
+    def __init__(self, *, positions=(), orientations=(), **kwargs):
         super().__init__(**kwargs)
-        self.positions = PointBlock(positions, pixel_size=pixel_size)
-        self.orientations = OrientationBlock(orientations)
+        self.positions = PointBlock(data=positions, parent=self)
+        self.orientations = OrientationBlock(data=orientations, parent=self)
 
     @property
     def n(self):
         return self.positions.n
 
-    @property
-    def ndim(self):
-        return self.positions.ndim
-
-    @property
-    def dims(self):
-        return self.positions.dims
-
-    @property
-    def pixel_size(self):
-        return self.positions.pixel_size
+    def __shape_repr__(self):
+        return f'({self.n}, {self.ndim})'

@@ -1,4 +1,4 @@
-from ..datablock import DataBlock
+from .datablock import DataBlock
 
 
 class MultiBlock(DataBlock):
@@ -36,9 +36,3 @@ class MultiBlock(DataBlock):
         for block in self.blocks:
             subslices.append(block.__getitem__(key))
         return self.__view__(*subslices)
-
-    def __len__(self):
-        lengths = [len(block) for block in self.blocks]
-        if all(ln == lengths[0] for ln in lengths):
-            return len(self.blocks[0])
-        raise TypeError(f"object of type '{type(self)}' has no len()")

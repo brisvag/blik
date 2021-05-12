@@ -1,25 +1,28 @@
+from abc import ABC
 from functools import total_ordering
 from secrets import token_hex
 
-from ..utils import listify
+from .metablock import MetaBlock
+from ...utils import listify
 
 
 @total_ordering
-class DataBlock:
+class DataBlock(ABC, metaclass=MetaBlock):
     """
     Base class for all datablocks.
     """
     _depiction_modes = {}
 
-    def __init__(self, name=None, volume=None, peeper=None, parent=None):
+    def __init__(self, *, name=None, volume=None, peeper=None, parent=None):
         self._parent = parent
-        if name is None and self._parent is None:
-            name = token_hex(16)
-        self._name = name
-        self.depictors = []
-        self.alchemists = []
-        self._volume = volume
-        self.peeper = peeper
+        if self.parent is self:
+            if name is None:
+                name = token_hex(8)
+            self._name = name
+            self._peeper = peeper
+            self._volume = volume
+            self._depictors = []
+            self._alchemists = []
 
     @property
     def parent(self):
@@ -27,6 +30,14 @@ class DataBlock:
         points to the parent in case of a view, or to self otherwise
         """
         return self._parent or self
+
+    @property
+    def peeper(self):
+        return self.parent._peeper
+
+    @peeper.setter
+    def peeper(self, peeper):
+        self.parent._peeper = peeper
 
     @property
     def name(self):
@@ -40,6 +51,22 @@ class DataBlock:
     @volume.setter
     def volume(self, name):
         self.parent._volume = name
+
+    @property
+    def depictors(self):
+        return self.parent._depictors
+
+    @depictors.setter
+    def depictors(self, depictors):
+        self.parent._depictors = depictors
+
+    @property
+    def alchemists(self):
+        return self.parent._alchemists
+
+    @alchemists.setter
+    def alchemists(self, alchemists):
+        self.parent._alchemists = alchemists
 
     def add_to_same_volume(self, datablocks):
         datablocks = listify(datablocks)
@@ -74,20 +101,23 @@ class DataBlock:
         for alchemist in self.alchemists:
             alchemist.update()
 
-    def __shape_repr__(self):
-        return ''
-
     def __name_repr__(self):
         return f'<{self.name}>'
 
-    def __base_repr__(self):
+    def __view_repr__(self):
         view = ''
         if self.parent is not self:
-            view = '-View'
-        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
+            # if type is different, we're just the contents of a multiblock
+            if isinstance(self.parent, type(self)):
+                view = '-View'
+        return view
+
+    def __shape_repr__(self):
+        return ''
 
     def __repr__(self):
-        return self.__base_repr__()
+        return (f'{type(self).__name__}{self.__view_repr__()}'
+                f'{self.__name_repr__()}{self.__shape_repr__()}')
 
     def __lt__(self, other):
         if isinstance(other, type(self)):

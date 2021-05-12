@@ -1,8 +1,9 @@
+from abc import abstractmethod
 import logging
 
 from xarray import DataArray
 
-from ..datablock import DataBlock
+from .datablock import DataBlock
 
 
 logger = logging.getLogger(__name__)
@@ -18,32 +19,51 @@ class SimpleBlock(DataBlock):
 
     Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property and return a view
     """
-    def __init__(self, data=(), **kwargs):
+    def __init__(self, *, data=None, lazy_loader=None, **kwargs):
         super().__init__(**kwargs)
+        if (data is None and lazy_loader is None) or \
+           (data is not None and lazy_loader is not None):
+            raise ValueError('either one of data or lazy_loader must be provided')
+        self._lazy_loader = lazy_loader
+        self._loaded = lazy_loader is None
+        self._data = None
         self.data = data
 
     @property
     def data(self):
-        if callable(self._data):
-            logger.debug(f'loading data for lazy datablock "{self}"')
-            self.data = self._data()
+        self.load()
         return self._data
 
     @data.setter
     def data(self, data):
         if isinstance(data, type(self)):
             self._data = data.data
-        elif isinstance(data, DataArray) or callable(data):
+        elif isinstance(data, DataArray) or data is None:
             self._data = data
         else:
             self._data = self._data_setter(data)
         self.update()
 
+    def load(self):
+        if not self._loaded and self._lazy_loader is not None:
+            logger.debug(f'loading data for lazy datablock "{self}"')
+            self.data = self._lazy_loader()
+            self._loaded = True
+
+    def unload(self):
+        if self._loaded and self._lazy_loader is not None:
+            self._data = ()
+            self._loaded = False
+
+    @property
+    def nbytes(self):
+        return self.data.nbytes
+
+    @abstractmethod
     def _data_setter(self, data):
         """
         takes raw data and returns it properly formatted to the SimpleBlock subclass specification.
         """
-        raise NotImplementedError('SimpleBlocks must implement this method')
 
     def __setitem__(self, key, value):
         self.data[key] = value

@@ -1,11 +1,11 @@
 import numpy as np
 from xarray import DataArray
 
-from .simpleblock import SimpleBlock
+from ..abstractblocks import SpatialBlock, SimpleBlock
 from ...depictors import PointDepictor
 
 
-class PointBlock(SimpleBlock):
+class PointBlock(SpatialBlock, SimpleBlock):
     """
     PointBlock objects for representing points with convenience methods
 
@@ -18,14 +18,7 @@ class PointBlock(SimpleBlock):
     """
     _depiction_modes = {'default': PointDepictor}
 
-    def __init__(self, data=(), pixel_size=None, **kwargs):
-        self.pixel_size = pixel_size  # no checking here, or we screw up lazy loading
-        super().__init__(data, **kwargs)
-        # TODO this is a workaround until napari #2347 is fixed
-
     def _data_setter(self, data):
-        if isinstance(data, DataArray):
-            return data
         # cast as array
         data = np.asarray(data)
 
@@ -39,28 +32,12 @@ class PointBlock(SimpleBlock):
         if not data.ndim == 2:
             raise ValueError("data object should have ndim == 2")
 
-        dims = ['x', 'y', 'z']
-        data = DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), dims[:data.shape[1]]))
-
-        # set pixel_size if needed
-        if self.pixel_size is None:
-            pixel_size = np.ones(len(data.spatial))
-            pixel_size = np.broadcast_to(pixel_size, len(data.spatial))
-            self.pixel_size = np.array(pixel_size)
-
+        data = DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), list(self.dims)))
         return data
 
     @property
-    def ndim(self):
-        """
-        as ndim for numpy arrays, but treating the points as a sparse matrix.
-        returns the number of dimensions (spatial or not) describing the points
-        """
-        return self.data.shape[1]
-
-    @property
-    def dims(self):
-        return tuple(self.data.spatial.data)
+    def n(self):
+        return len(self.data)
 
     def _get_named_dimensions(self, dim):
         """
@@ -103,10 +80,6 @@ class PointBlock(SimpleBlock):
         return self.data.sel(spatial=new_order)
 
     @property
-    def n(self):
-        return len(self)
-
-    @property
     def center_of_mass(self):
         return np.mean(self.data, axis=0)
 
@@ -129,9 +102,9 @@ class PointBlock(SimpleBlock):
                 f"'{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
-    def __shape_repr__(self):
-        return f'{self.data.shape}'
-
     def to_line(self):
         from ...alchemists import PointToLineAlchemist
         self.alchemists.append(PointToLineAlchemist(self))
+
+    def __shape_repr__(self):
+        return f'({self.n}, {self.ndim})'

@@ -1,10 +1,10 @@
 import numpy as np
 import xarray as xr
 
-from .simpleblock import SimpleBlock
+from ..abstractblocks import SpatialBlock, SimpleBlock
 
 
-class OrientationBlock(SimpleBlock):
+class OrientationBlock(SpatialBlock, SimpleBlock):
     """
     OrientationBlock objects represent orientations in a 2d or 3d space
 
@@ -14,7 +14,7 @@ class OrientationBlock(SimpleBlock):
                         R should satisfy Rv = v' where v is a column vector
 
     """
-    def _data_setter(self, data=()):
+    def _data_setter(self, data):
         data = np.array(data)
         # check for single matrix case and assert dimensionality
         val_error = ValueError(f'rotation matrices should be of shape '
@@ -31,17 +31,12 @@ class OrientationBlock(SimpleBlock):
             m = data.shape[-1]
             data = data.reshape((1, m, m))
 
-        dims = ['x', 'y', 'z']
         return xr.DataArray(data, dims=['n', 'spatial', 'spatial2'],
-                            coords=(range(len(data)), dims[:data.shape[1]], dims[:data.shape[1]]))
+                            coords=(range(len(data)), list(self.dims), list(self.dims)))
 
     @property
     def n(self):
-        return len(self)
-
-    @property
-    def ndim(self):
-        return self.data.shape[-1]
+        return len(self.data)
 
     def _unit_vector(self, axis: str):
         """

@@ -16,12 +16,9 @@ class ParticleBlock(OrientedPointBlock):
         'class_plot': ClassPlotDepictor,
     }
 
-    def __init__(self, positions=(), orientations=(), properties=None, metadata=None, **kwargs):
-        # Initialise OrientedPointBlock
-        super().__init__(positions, orientations, **kwargs)
-
-        # Add PropertyBlock
-        self.properties = PropertyBlock(properties)
+    def __init__(self, *, properties=None, metadata=None, **kwargs):
+        super().__init__(**kwargs)
+        self.properties = PropertyBlock(data=properties, parent=self)
         self.metadata = metadata or {}
 
     def if_properties(self, conditions, index=False):
@@ -40,6 +37,3 @@ class ParticleBlock(OrientedPointBlock):
             return self[idx], idx
         else:
             return self[idx]
-
-    def __shape_repr__(self):
-        return f'{self.positions.data.shape}'

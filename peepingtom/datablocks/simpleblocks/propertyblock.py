@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .simpleblock import SimpleBlock
+from ..abstractblocks import SimpleBlock
 
 
 class PropertyBlock(SimpleBlock):
