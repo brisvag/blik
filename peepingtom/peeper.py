@@ -5,7 +5,7 @@ import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
-from .utils import DispatchList, distinct_colors, faded_grey, inherit_signature, listify
+from .utils import DispatchList, inherit_signature, listify
 from .gui import Viewer
 
 

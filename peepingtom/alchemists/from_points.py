@@ -26,7 +26,9 @@ class PointToParticleAlchemist(Alchemist):
         pointblock = PointBlock(data=points)
         oriblock = OrientationBlock(data=np.zeros((pointblock.n, pointblock.ndim, pointblock.ndim)))
         propblock = PropertyBlock(data={})
-        self.outputs.append(ParticleBlock(positions_data=pointblock, orientations_data=oriblock, properties_data=propblock))
+        self.outputs.append(ParticleBlock(positions_data=pointblock,
+                                          orientations_data=oriblock,
+                                          properties_data=propblock))
 
     def update(self):
         self.outputs[0].positions.data = self.inputs[0].data
