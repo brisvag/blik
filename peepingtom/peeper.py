@@ -297,7 +297,7 @@ class Peeper:
         classify_radial_profile(self, *args, **kwargs)
         tag = kwargs.get('class_tag', 'class_radial')
         plot_block = self[f'{tag}_centroids']
-        plot_block.depict()
+        plot_block.init_depictor()
         for p in self.particles:
             p.depictors[0].color_by_categorical_property(tag)
 

@@ -93,7 +93,7 @@ class DataBlock(ABC, metaclass=MetaBlock):
             cp.name = new_name
         return cp
 
-    def depict(self, mode='default', new_depictor=False, **kwargs):
+    def init_depictor(self, mode='default', new_depictor=False, **kwargs):
         depictor_type = self._depiction_modes.get(mode)
         if depictor_type is None:
             raise ValueError(f'unknown depiction mode "{mode}"')

@@ -11,6 +11,6 @@ def test_imageblock_instantiation():
 
 def test_depiction():
     ib = ImageBlock(data=np.ones((10, 10, 10)))
-    ib.depict()
+    ib.init_depictor()
     assert isinstance(ib.depictors[0], ImageDepictor)
     ib.update()

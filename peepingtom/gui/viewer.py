@@ -18,7 +18,7 @@ class Viewer:
     def show(self, **kwargs):
         self.ensure_ready()
         for db in self.peeper:
-            db.depict(**kwargs)
+            db.init_depictor(**kwargs)
         if self.peeper.volumes:
             self.show_volume(list(self.peeper.volumes.keys())[0])
 
