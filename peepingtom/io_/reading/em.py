@@ -10,9 +10,6 @@ def read_em(image_path, name_regex=None, lazy=True, **kwargs):
     """
     name = guess_name(image_path, name_regex)
 
-    def data():
-        return emfile.read(image_path)[1]
+    data = emfile.read(image_path)[1]
 
-    if not lazy:
-        data = data()
-    return ImageBlock(data, name=name)
+    return ImageBlock(data=data, ndim=data.ndim, name=name)

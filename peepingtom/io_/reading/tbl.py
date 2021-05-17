@@ -66,6 +66,10 @@ def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None, 
         if pixel_size is None:
             pixel_size = np.array([1] * dim)
 
-        particleblocks.append(ParticleBlock(coords, rotation_matrices, properties, pixel_size=pixel_size, name=name))
+        particleblocks.append(ParticleBlock(positions_data=coords,
+                                            orientations_data=rotation_matrices,
+                                            properties_data=properties,
+                                            pixel_size=pixel_size,
+                                            name=name))
 
     return particleblocks

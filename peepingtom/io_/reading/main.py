@@ -51,23 +51,16 @@ def read_file(file_path, **kwargs):
 
 
 def root_relative_glob(glob):
-    return Path(glob).expanduser().resolve().relative_to('/')
+    return str(Path(glob).expanduser().resolve().relative_to('/'))
 
 
-def expand_globs(globs, recursive=False):
+def expand_globs(globs):
     """
-    expand globs to single files as appropriate for recursiveness; assume that
-    a directory as glob means "the contents of this directory"
+    expand globs to single files
     """
     globs = listify(globs)
     for glob in globs:
         glob = root_relative_glob(glob)
-        if glob.is_dir():
-            glob = str(glob).rstrip('/') + '/*'
-        else:
-            glob = str(glob)
-        if recursive and not glob.startswith('**/'):
-            glob = '**/' + glob.lstrip('/')
         yield from Path('/').glob(glob)
 
 
@@ -77,11 +70,11 @@ def filter_readable(paths):
             yield path
 
 
-def find_files(globs, recursive=False):
+def find_files(globs):
     """
     take a glob pattern or iterable thereof and find all readable files that match it
     """
-    files = expand_globs(globs, recursive=recursive)
+    files = expand_globs(globs)
     readable = filter_readable(files)
 
     yield from readable
@@ -92,7 +85,6 @@ def read(*globs,
          mode=None,
          name_regex=None,
          pixel_size=None,
-         recursive=False,
          strict=False,
          mmap=False,
          lazy=True,
@@ -111,7 +103,6 @@ def read(*globs,
                     and name the respective DataBlocks 'Protein_10' and 'Protein_01'
         pixel_size: manually set the pixel size (overrides the one read from file)
     File reading arguments:
-        recursive: navigate directories recursively to find files
         strict: if set to true, immediately fail if a matched filename cannot be read by PeepingTom
     Performance arguments:
         mmap: open file in memory map mode (if possible)
@@ -124,7 +115,7 @@ def read(*globs,
         raise ValueError(f'mode can only be one of {modes}')
 
     datablocks = []
-    for file in find_files(globs, recursive=recursive):
+    for file in find_files(globs):
         try:
             logger.info(f'attempting to read "{file}"')
             datablocks.extend(read_file(file, name_regex=name_regex, pixel_size=pixel_size,

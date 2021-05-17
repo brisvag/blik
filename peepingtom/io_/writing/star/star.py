@@ -63,6 +63,6 @@ def write_star(particleblock, file_path, data_colums=None, overwrite=False):
             df[name] = values
 
     path = file_path
-    if not path.endswith('.star'):
-        path = f'{path}.star'
+    if not path.suffix:
+        path = str(path) + '.star'
     starfile.write(df, path, overwrite=overwrite)

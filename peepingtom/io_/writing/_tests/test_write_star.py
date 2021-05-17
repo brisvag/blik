@@ -6,6 +6,8 @@ from peepingtom.datablocks import ParticleBlock
 
 def test_write_star(tmp_path):
     file_path = tmp_path / 'test.star'
-    particleblock = ParticleBlock(np.ones((2, 3)), np.ones((2, 3, 3)), {'a': np.ones((2,))})
+    particleblock = ParticleBlock(positions_data=np.ones((2, 3)),
+                                  orientations_data=np.ones((2, 3, 3)),
+                                  properties_data={'a': np.ones((2,))})
 
     write_star(particleblock, file_path)

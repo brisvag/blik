@@ -29,7 +29,7 @@ def test_read(tmp_path):
     star_path = tmp_path / 'test.star'
     starfile.new(df, star_path)
 
-    p = read(tmp_path, filters='test', name_regex='test\d')
+    p = read(tmp_path / '*', name_regex='test\d')
 
     assert len(p) == 4
     assert len(p.volumes) == 2
