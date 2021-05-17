@@ -61,8 +61,9 @@ class Peeper:
     def _hook_onto_datablocks(self, datablocks):
         if not self.isview():
             for db in datablocks:
-                if db.peeper is not None:
-                    raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
+                # TODO: this is broken. Needs to be fixed, if possible.
+                # if db.peeper is not None:
+                    # raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
                 db.peeper = self
 
     def _nested(self, as_list=False):

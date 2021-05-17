@@ -10,7 +10,7 @@ class PointToLineAlchemist(Alchemist):
     """
     def transform(self):
         points = self.inputs[0].data
-        self.outputs.append(LineBlock(points))
+        self.outputs.append(LineBlock(data=points))
 
     def update(self):
         self.outputs[0].data = self.inputs[0].data
@@ -23,10 +23,10 @@ class PointToParticleAlchemist(Alchemist):
     """
     def transform(self):
         points = self.inputs[0].data
-        pointblock = PointBlock(points)
-        oriblock = OrientationBlock(np.zeros((pointblock.n, pointblock.ndim, pointblock.ndim)))
-        propblock = PropertyBlock({})
-        self.outputs.append(ParticleBlock(pointblock, oriblock, propblock))
+        pointblock = PointBlock(data=points)
+        oriblock = OrientationBlock(data=np.zeros((pointblock.n, pointblock.ndim, pointblock.ndim)))
+        propblock = PropertyBlock(data={})
+        self.outputs.append(ParticleBlock(positions_data=pointblock, orientations_data=oriblock, properties_data=propblock))
 
     def update(self):
         self.outputs[0].positions.data = self.inputs[0].data

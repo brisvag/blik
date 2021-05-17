@@ -6,7 +6,9 @@ from peepingtom.depictors import ParticleDepictor
 
 
 def test_particle_depictor():
-    particleblock = ParticleBlock(np.ones((2, 3)), np.ones((2, 3, 3)), {})
+    particleblock = ParticleBlock(positions_data=np.ones((2, 3)),
+                                  orientations_data=np.ones((2, 3, 3)),
+                                  properties_data={})
     particle_depictor = ParticleDepictor(particleblock)
     assert particle_depictor.datablock is particleblock
     assert len(particle_depictor.layers) == 2
