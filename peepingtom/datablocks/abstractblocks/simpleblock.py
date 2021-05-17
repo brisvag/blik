@@ -70,7 +70,7 @@ class SimpleBlock(DataBlock):
         self.update()
 
     def __getitem__(self, key):
-        return self.__view__(self.data[key])
+        return self.__view__(data=self.data[key])
 
     def __len__(self):
         return len(self.data)

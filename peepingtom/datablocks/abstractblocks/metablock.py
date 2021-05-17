@@ -19,15 +19,30 @@ class MetaBlock(ABCMeta):
                 if param.kind != Parameter.VAR_KEYWORD:
                     super_params.append(param)
 
-        # get signature of this class
-        self_sig = signature(new_cls.__init__)  # directly to init to avoid recursion issues
-        self_params = list(self_sig.parameters.values())
-        other_params = [p for p in super_params if p not in self_params]
+        # update the signature with unique and sorted parameters
+        updated_cls = cls.update_signature(new_cls, super_params)
+        return updated_cls
+
+    @staticmethod
+    def update_signature(cls, new_params):  # cls here is the new_cls
+        # class signature (not equal to init signature if already changed!)
+        prev_sig = signature(cls)
+        prev_params = list(prev_sig.parameters.values())
+        # init signature (if different from class signature)
+        init_sig = signature(cls.__init__)
+        init_params = list(init_sig.parameters.values())
 
         # merge and sort all params, and set new signature
-        all_params = self_params + other_params
-        all_params.sort(key=lambda x: x.kind)
+        all_params = prev_params + init_params + new_params
+        unique_params = []
+        for param in all_params:
+            if any(param.name == param_unique.name for param_unique in unique_params):
+                continue
+            unique_params.append(param)
+        unique_params.sort(key=lambda x: x.kind)
 
-        new_sig = self_sig.replace(parameters=(all_params))
-        new_cls.__signature__ = new_sig
-        return new_cls
+        new_sig = prev_sig.replace(parameters=(unique_params))
+        # if this fails because signature is non-writeable, uninstall pyside2.
+        # for some reason, it makes all user-defined classes signatures unwriteable
+        cls.__signature__ = new_sig
+        return cls

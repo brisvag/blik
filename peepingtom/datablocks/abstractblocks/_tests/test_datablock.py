@@ -1,6 +1,6 @@
 from pytest import raises
 
-from peepingtom.datablocks.datablock import DataBlock
+from peepingtom.datablocks.abstractblocks.datablock import DataBlock
 
 
 def test_datablock():

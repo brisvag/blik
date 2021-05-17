@@ -16,6 +16,9 @@ class ImageBlock(SpatialBlock, SimpleBlock):
     """
     _depiction_modes = {'default': ImageDepictor}
 
+    def __init__(self, *, dims_order='zyx', **kwargs):
+        super().__init__(dims_order=dims_order, **kwargs)
+
     def _data_setter(self, data):
         data = np.asarray(data)  # asarray does not copy unless needed
         if data.ndim < 2:

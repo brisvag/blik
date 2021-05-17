@@ -36,4 +36,4 @@ class SpatialBlock(ABC):
         """
         names and order of spatial dimensions
         """
-        return tuple(self.parent._dims_order[-self.ndim:])
+        return tuple(self.parent._dims_order[:self.ndim])

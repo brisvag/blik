@@ -3,10 +3,7 @@ from ..simpleblocks import PointBlock, OrientationBlock
 
 
 class OrientedPointBlock(SpatialBlock, MultiBlock):
-    def __init__(self, *, positions=(), orientations=(), **kwargs):
-        super().__init__(**kwargs)
-        self.positions = PointBlock(data=positions, parent=self)
-        self.orientations = OrientationBlock(data=orientations, parent=self)
+    _block_types = {'positions': PointBlock, 'orientations': OrientationBlock}
 
     @property
     def n(self):

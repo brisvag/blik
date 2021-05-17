@@ -10,12 +10,10 @@ class DipoleBlock(SpatialBlock, MultiBlock):
     A DipoleBlock represents a set of n dipoles in an m-dimensional space
     defined by start points and end points
     """
-    def __init__(self, *, startpoints=(), endpoints=(), **kwargs):
-        super().__init__(**kwargs)
-        # Set dipole info
-        self.startpoints = PointBlock(data=startpoints, parent=self)
-        self.endpoints = PointBlock(data=endpoints, parent=self)
+    _block_types = {'startpoints': PointBlock, 'endpoints': PointBlock}
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # Check endpoint shape matches that of startpoints
         self._check_shapes()
 
@@ -71,7 +69,7 @@ class DipoleBlock(SpatialBlock, MultiBlock):
 
         # calculate rotation matrices
         rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors.values)
-        return OrientationBlock(rotation_matrices)
+        return OrientationBlock(data=rotation_matrices)
 
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'

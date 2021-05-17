@@ -1,26 +1,32 @@
 from .datablock import DataBlock
+from .metamultiblock import MetaMultiBlock
 
 
-class MultiBlock(DataBlock):
+class MultiBlock(DataBlock, metaclass=MetaMultiBlock):
     """
     Unites multiple SimpleBlocks into a more complex data object
-
-    Note: classes which inherit from 'MultiBlock' should call super().__init__()
-    first in their constructors so that references to blocks are correctly defined.
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._blocks = []
+    _block_types = {}
 
-    def __setattr__(self, name, value):
-        """
-        Extend the functionality of __setattr__ to automatically add datablocks to the
-        'blocks' attribute of a 'MultiBlock' when set
-        """
-        # excepting _parent is necessary here: self._parent is not supposed to be part of `blocks`
-        if isinstance(value, DataBlock) and name != '_parent':
-            self._blocks.append(value)
-        super().__setattr__(name, value)
+    def __init__(self, **kwargs):
+        self._blocks = []
+        block_args = {k: {} for k in self._block_types.keys()}
+        other_kwargs = {}
+        for kwarg, value in kwargs.items():
+            for block_name in block_args:
+                if kwarg.startswith(f'{block_name}_'):
+                    original_name = kwarg.replace(f'{block_name}_', '')
+                    block_args[block_name][original_name] = value
+                    break
+            else:
+                other_kwargs[kwarg] = value
+
+        for block_name, block_type in self._block_types.items():
+            block = block_type(**block_args[block_name])
+            self.__setattr__(block_name, block)
+            self._blocks.append(block)
+
+        super().__init__(**other_kwargs)
 
     @property
     def blocks(self):
@@ -32,7 +38,9 @@ class MultiBlock(DataBlock):
             block.depictors = self.depictors
 
     def __getitem__(self, key):
-        subslices = []
-        for block in self.blocks:
-            subslices.append(block.__getitem__(key))
-        return self.__view__(*subslices)
+        subslices = {}
+        for block_name in self._block_types.keys():
+            block = self.__getattribute__(block_name)
+            sliced = block.__getitem__(key)
+            subslices[f'{block_name}_data'] = sliced
+        return self.__view__(**subslices)

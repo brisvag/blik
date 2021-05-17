@@ -24,7 +24,7 @@ class PropertyBlock(SimpleBlock):
             data = self.data.iloc.__getitem__(key)
         else:
             data = self.data.__getitem__(key)
-        return self.__view__(data)
+        return self.__view__(data=data)
 
     def __shape_repr__(self):
         return f'({len(self.data)}, {len(self.data.columns)})'

@@ -15,14 +15,14 @@ class DataBlock(ABC, metaclass=MetaBlock):
 
     def __init__(self, *, name=None, volume=None, peeper=None, parent=None):
         self._parent = parent
-        if self.parent is self:
-            if name is None:
-                name = token_hex(8)
-            self._name = name
-            self._peeper = peeper
-            self._volume = volume
-            self._depictors = []
-            self._alchemists = []
+        if name is None:
+            name = token_hex(8)
+        # these are useless in case of parent, but it's fine
+        self._name = name
+        self._peeper = peeper
+        self._volume = volume
+        self._depictors = []
+        self._alchemists = []
 
     @property
     def parent(self):
@@ -74,8 +74,8 @@ class DataBlock(ABC, metaclass=MetaBlock):
         for db in datablocks:
             db.volume = self.volume
 
-    def __view__(self, *args, **kwargs):
-        return type(self)(*args, parent=self, **kwargs)
+    def __view__(self, **kwargs):
+        return type(self)(parent=self, **kwargs)
 
     def copy(self, new_name=None):
         from copy import deepcopy

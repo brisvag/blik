@@ -10,15 +10,15 @@ class ParticleBlock(OrientedPointBlock):
     """
     Represents a set of particles with coordinates, orientations and arbitrary properties
     """
+    _block_types = {'properties': PropertyBlock}
     _depiction_modes = {
         'default': ParticleDepictor,
         'property_plot': PropertyPlotDepictor,
         'class_plot': ClassPlotDepictor,
     }
 
-    def __init__(self, *, properties=None, metadata=None, **kwargs):
+    def __init__(self, *, metadata=None, **kwargs):
         super().__init__(**kwargs)
-        self.properties = PropertyBlock(data=properties, parent=self)
         self.metadata = metadata or {}
 
     def if_properties(self, conditions, index=False):

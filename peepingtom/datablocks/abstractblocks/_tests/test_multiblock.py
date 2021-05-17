@@ -1,4 +1,4 @@
-from peepingtom.datablocks.multiblocks.multiblock import MultiBlock
+from peepingtom.datablocks.abstractblocks.multiblock import MultiBlock
 
 
 def test_multiblock():
