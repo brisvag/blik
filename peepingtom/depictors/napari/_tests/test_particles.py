@@ -11,6 +11,8 @@ def test_particle_depictor():
                                   properties_data={})
     particle_depictor = ParticleDepictor(particleblock)
     assert particle_depictor.datablock is particleblock
+    assert len(particle_depictor.layers) == 0
+    particle_depictor.depict()
     assert len(particle_depictor.layers) == 2
     assert isinstance(particle_depictor.points, Points)
     assert isinstance(particle_depictor.vectors, Vectors)

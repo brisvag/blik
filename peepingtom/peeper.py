@@ -14,8 +14,8 @@ class Peeper:
     A container for a collection of DataBlocks
     """
     def __init__(self, datablocks=(), name=None, parent=None):
-        self._parent = parent or self
-        if name is None and not self.isview():
+        self._parent = parent
+        if name is None:
             name = token_hex(8)
         self._name = name
         self._data = []

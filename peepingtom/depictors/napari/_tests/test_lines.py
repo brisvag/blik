@@ -9,6 +9,8 @@ def test_line_depictor():
     lineblock = LineBlock(data=np.random.rand(5, 3))
     line_depictor = LineDepictor(lineblock)
     assert line_depictor.datablock is lineblock
+    assert len(line_depictor.layers) == 0
+    line_depictor.depict()
     assert len(line_depictor.layers) == 2
     assert isinstance(line_depictor.points, Points)
     assert isinstance(line_depictor.backbone, Shapes)

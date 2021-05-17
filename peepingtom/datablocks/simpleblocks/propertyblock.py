@@ -17,6 +17,10 @@ class PropertyBlock(SimpleBlock):
     def _data_setter(self, data=None):
         return pd.DataFrame(data)
 
+    @property
+    def n(self):
+        return len(self)
+
     def items(self):
         # numpy array instead of pandas series, for compatibility
         for k, v in self.data.items():
