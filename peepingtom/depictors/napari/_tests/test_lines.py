@@ -6,7 +6,7 @@ from peepingtom.depictors import LineDepictor
 
 
 def test_line_depictor():
-    lineblock = LineBlock(np.random.rand(5, 3))
+    lineblock = LineBlock(data=np.random.rand(5, 3))
     line_depictor = LineDepictor(lineblock)
     assert line_depictor.datablock is lineblock
     assert len(line_depictor.layers) == 2

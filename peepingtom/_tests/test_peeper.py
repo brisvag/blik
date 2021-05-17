@@ -5,8 +5,8 @@ from peepingtom.peeper import Peeper
 from peepingtom.datablocks import PointBlock, ImageBlock
 
 
-pb = PointBlock(volume='test')
-ib = ImageBlock(np.random.rand(10, 10, 10), volume='test')
+pb = PointBlock(data=(), volume='test')
+ib = ImageBlock(data=np.random.rand(10, 10, 10), volume='test')
 peeper = Peeper([pb, ib])
 
 

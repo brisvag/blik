@@ -1,16 +1,8 @@
 import re
-from pathlib import Path
 
 
 class ParseError(RuntimeError):
     pass
-
-
-def _path(path):
-    """
-    clean up a path
-    """
-    return Path(path).expanduser().resolve()
 
 
 # a list of commonly used base names for starfiles in regex form

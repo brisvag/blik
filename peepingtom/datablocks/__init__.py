@@ -1,7 +1,11 @@
-from .datablock import DataBlock
+from .abstractblocks import (
+    DataBlock,
+    SimpleBlock,
+    MultiBlock,
+    SpatialBlock,
+)
 
 from .simpleblocks import (
-    SimpleBlock,
     ImageBlock,
     LineBlock,
     MeshBlock,
@@ -12,7 +16,6 @@ from .simpleblocks import (
 )
 
 from .multiblocks import (
-    MultiBlock,
     DipoleBlock,
     OrientedPointBlock,
     ParticleBlock,

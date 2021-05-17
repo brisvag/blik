@@ -17,19 +17,19 @@ point_nd = np.arange(48).reshape(6, 8)
 
 def test_pointblock_instantiation():
     # test instantiation for 2d, 3d and nd points
-    PointBlock(single_point_2d)
-    PointBlock(points_2d)
-    PointBlock(single_point_3d)
-    PointBlock(points_3d)
+    PointBlock(data=single_point_2d, ndim=2)
+    PointBlock(data=points_2d, ndim=2)
+    PointBlock(data=single_point_3d)
+    PointBlock(data=points_3d)
 
 
 def test_pointblock_xyz():
     # test 'x', 'y' and 'z' properties
-    block = PointBlock(single_point_2d)
+    block = PointBlock(data=single_point_2d, ndim=2)
     assert_array_equal(block.x, [[1]])
     assert_array_equal(block.y, [[2]])
 
-    block = PointBlock(single_point_3d)
+    block = PointBlock(data=single_point_3d)
     assert_array_equal(block.x, [[1]])
     assert_array_equal(block.y, [[2]])
     assert_array_equal(block.z, [[3]])
@@ -37,7 +37,7 @@ def test_pointblock_xyz():
 
 def test_pointblock_get_named_dimensions():
     # test _get_named_dimensions method
-    block = PointBlock(single_point_3d)
+    block = PointBlock(data=single_point_3d)
 
     # check output is array
     x = block._get_named_dimensions('x')
@@ -52,17 +52,17 @@ def test_pointblock_get_named_dimensions():
 def test_pointblock_center_of_mass():
     # test center_of_mass property
     # single point case
-    block = PointBlock(single_point_3d)
+    block = PointBlock(data=single_point_3d)
     assert_array_equal(block.center_of_mass, single_point_3d)
 
     # multi point case
-    block = PointBlock(points_3d)
+    block = PointBlock(data=points_3d)
     assert_array_equal(block.center_of_mass, [2.5, 3.5, 4.5])
 
 
 def test_pointblock_distance_to():
     # test distance_to method
-    block = PointBlock(single_point_3d)
+    block = PointBlock(data=single_point_3d)
 
     assert block.distance_to([1, 2, 3]) == 0
     assert block.distance_to([2, 3, 4]) == np.sqrt(3)

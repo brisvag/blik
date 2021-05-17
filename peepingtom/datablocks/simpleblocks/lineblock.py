@@ -21,7 +21,7 @@ class LineBlock(PointBlock):
     """
     _depiction_modes = {'default': LineDepictor}
 
-    def __init__(self, data=(), spline_smoothing_parameter=0, **kwargs):
+    def __init__(self, *, spline_smoothing_parameter=0, **kwargs):
         """
 
         Parameters
@@ -31,7 +31,7 @@ class LineBlock(PointBlock):
         kwargs : kwargs are passed to SimpleBlock object
 
         """
-        super().__init__(data, **kwargs)
+        super().__init__(**kwargs)
 
         # initialise attributes related to spline fitting
         self.spline_smoothing_parameter = spline_smoothing_parameter

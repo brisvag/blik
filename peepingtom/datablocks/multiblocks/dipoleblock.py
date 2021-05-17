@@ -1,23 +1,25 @@
 import numpy as np
 
-from .multiblock import MultiBlock
+from ..abstractblocks import SpatialBlock, MultiBlock
 from ..simpleblocks import PointBlock, OrientationBlock
 from ...utils import align_vectors
 
 
-class DipoleBlock(MultiBlock):
+class DipoleBlock(SpatialBlock, MultiBlock):
     """
     A DipoleBlock represents a set of n dipoles in an m-dimensional space
     defined by start points and end points
     """
-    def __init__(self, startpoints: np.ndarray, endpoints: np.ndarray, **kwargs):
-        super().__init__(**kwargs)
-        # Set dipole info
-        self.startpoints = PointBlock(startpoints)
-        self.endpoints = PointBlock(endpoints)
+    _block_types = {'startpoints': PointBlock, 'endpoints': PointBlock}
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # Check endpoint shape matches that of startpoints
         self._check_shapes()
+
+    @property
+    def n(self):
+        return self.startpoints.n
 
     @property
     def orientation_vectors(self):
@@ -67,4 +69,7 @@ class DipoleBlock(MultiBlock):
 
         # calculate rotation matrices
         rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors.values)
-        return OrientationBlock(rotation_matrices)
+        return OrientationBlock(data=rotation_matrices)
+
+    def __shape_repr__(self):
+        return f'({self.n}, {self.ndim})'

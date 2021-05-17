@@ -3,7 +3,7 @@ from peepingtom.peeper import Peeper
 from peepingtom.alchemists import PointToLineAlchemist, PointToParticleAlchemist
 
 
-pb = PointBlock([[0, 0], [1, 1], [2, 2], [3, 3]])
+pb = PointBlock(data=[[0, 0], [1, 1], [2, 2], [3, 3]], ndim=2)
 p = Peeper(pb)
 
 

@@ -17,7 +17,7 @@ class NapariDepictor(Depictor):
         self._init_layer(layer)
 
     def _make_points_layer(self, points, name, scale=None, **kwargs):
-        layer = Points(points, name=name, scale=scale, **kwargs)
+        layer = Points(points, name=name, scale=scale, n_dimensional=True, **kwargs)
         self._init_layer(layer)
 
     def _make_vectors_layer(self, vectors, name, scale=None, **kwargs):

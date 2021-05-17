@@ -13,10 +13,10 @@ def test_peep_peeper():
 
 
 def test_peep_datablock():
-    peeper = peep(PointBlock())
+    peeper = peep(PointBlock(data=()))
     assert isinstance(peeper, Peeper)
     assert len(peeper) == 1
-    peeper = peep([PointBlock(), PointBlock()])
+    peeper = peep([PointBlock(data=()), PointBlock(data=())])
     assert isinstance(peeper, Peeper)
     assert len(peeper) == 2
 

@@ -14,12 +14,12 @@ rotation_matrices = euler2matrix(eulers, axes='zyz', intrinsic=True, right_hande
 
 
 def test_orientationblock_instantiation():
-    block = OrientationBlock(rotation_matrices)
+    block = OrientationBlock(data=rotation_matrices)
     assert isinstance(block, OrientationBlock)
 
 
 def test_orientationblock_unit_vectors():
-    block = OrientationBlock(rotation_matrices)
+    block = OrientationBlock(data=rotation_matrices)
     x = block._unit_vector('x')
     y = block._unit_vector('y')
     z = block._unit_vector('z')

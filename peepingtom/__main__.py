@@ -5,7 +5,7 @@ from IPython.terminal.embed import InteractiveShellEmbed
 import peepingtom as pt
 
 
-def parse():
+def parse(args=None):
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description='''
 PeepingTom command line interface.
@@ -29,14 +29,12 @@ Open particles and images from a directory:
 
 Match files such as MyProtein_10.star and MyProtein_001.mrc,
 and name the respective DataBlocks Protein_10 and Protein_001:
-  peep /path/to/dir/ -f Protein -n 'Protein_\d+'
+  peep /path/to/dir/MyProtein* -n 'Protein_\d+'
 ''')
     parser.add_argument('paths', nargs='+',
                         help='any number of file or directories')
     parser.add_argument('-m', '--mode', choices=('lone', 'zip_by_type', 'bunch'),
                         help='how to arrange DataBlock into volumes [default: guess from input]')
-    parser.add_argument('-f', '--filters', nargs='+',
-                        help='any number of (additive) regexes used to select filenames [default: .*]')
     parser.add_argument('-n', '--name-regex', metavar='regex',
                         help=r'a regex used to infer DataBlock names from paths [fallback: \d+]')
     parser.add_argument('-r', '--recursive', action='store_true',
@@ -45,26 +43,26 @@ and name the respective DataBlocks Protein_10 and Protein_001:
                         help='only show the list of files that would be read')
     parser.add_argument('--strict', action='store_true',
                         help='immediately fail if a matched filename cannot be read')
-    parser.add_argument('--max', type=int,
-                        help='max number of files to read')
+    parser.add_argument('--name', help='the name of the generated Peeper')
     parser.add_argument('-V', '--version', action='version', version=f'%(prog)s - PeepingTom {pt.__version__}')
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def _read_embed(**kwargs):
     sh = InteractiveShellEmbed()
     sh.enable_gui('qt')
 
-    p = pt.read(**kwargs)  # noqa: F841
+    paths = kwargs.pop('paths')
+    p = pt.read(*paths, **kwargs)  # noqa: F841
     sh.push('p')
     sh.run_cell('p.show()')
 
     sh()
 
 
-def cli():
-    args = parse()
+def cli(args=None):
+    args = parse(args)
     if args.dry_run:
         files = pt.io_.find_files(args.paths, args.filters, args.recursive, args.max)
         print('Files found:')

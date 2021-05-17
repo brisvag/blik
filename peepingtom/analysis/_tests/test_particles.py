@@ -5,7 +5,9 @@ from peepingtom.peeper import Peeper
 from peepingtom.analysis import classify_radial_profile, deduplicate_peeper
 
 
-p = Peeper(ParticleBlock(np.stack([np.arange(10)] * 3, axis=1), np.zeros((10, 3, 3)), {'a': np.zeros(10)}))
+p = Peeper(ParticleBlock(positions_data=np.stack([np.arange(10)] * 3, axis=1),
+                         orientations_data=np.zeros((10, 3, 3)),
+                         properties_data={'a': np.zeros(10)}))
 
 
 def test_classify_radial_distance():
@@ -13,7 +15,7 @@ def test_classify_radial_distance():
     assert isinstance(centroids, np.ndarray)
     assert len(centroids) == 1
     assert isinstance(classes, np.ndarray)
-    assert len(classes) == len(p[0])
+    assert len(classes) == p[0].n
     added_props = ['class_radial']
     added_metadata = ['class_radial_centroids', 'class_radial_params']
     assert all([x in p[0].properties for x in added_props])
@@ -23,5 +25,5 @@ def test_classify_radial_distance():
 def test_deduplicate_peeper():
     p_ded1 = deduplicate_peeper(p, exclusion_radius=20)
     p_ded2 = deduplicate_peeper(p, exclusion_radius=0)
-    assert len(p_ded1[0]) == 1
-    assert len(p_ded2[0]) == len(p[0])
+    assert p_ded1[0].n == 1
+    assert p_ded2[0].n == p[0].n

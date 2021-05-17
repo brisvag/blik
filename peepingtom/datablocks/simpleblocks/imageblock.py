@@ -1,38 +1,36 @@
+import logging
+
 import numpy as np
 from xarray import DataArray
 
-from .simpleblock import SimpleBlock
+from ..abstractblocks import SpatialBlock, SimpleBlock
 from ...depictors import ImageDepictor
 
 
-class ImageBlock(SimpleBlock):
+logger = logging.getLogger(__name__)
+
+
+class ImageBlock(SpatialBlock, SimpleBlock):
     """
-    n-dimensional image block
-    data can be interpreted as n-dimensional images
+    Image block
     """
     _depiction_modes = {'default': ImageDepictor}
 
-    def __init__(self, data=(), pixel_size=None, **kwargs):
-        super().__init__(data, **kwargs)
-        # TODO this is a workaround until napari #2347 is fixed
-        if pixel_size is None:
-            pixel_size = np.ones(self.ndim)
-        self.pixel_size = pixel_size
+    def __init__(self, *, dims_order='zyx', **kwargs):
+        super().__init__(dims_order=dims_order, **kwargs)
 
     def _data_setter(self, data):
         data = np.asarray(data)  # asarray does not copy unless needed
         if data.ndim < 2:
             raise ValueError('images must have at least 2 dimensions')
-        dims = ('z', 'y', 'x')
-        return DataArray(data, dims=dims[-data.ndim:])
+        elif data.ndim > 3:
+            raise NotImplementedError('images with more than 3 dimensions are not yet implemented')
+        data = DataArray(data, dims=self.dims)
+        if data.dims != self.dims:
+            raise ValueError(f'data {dict(data.sizes)} does not match '
+                             f'expected shape {self.dims}')
+        return data
 
     @property
-    def ndim(self):
-        return self.data.ndim
-
-    @property
-    def dims(self):
-        return self.data.dims
-
-    def __shape_repr__(self):
-        return f'{self.data.shape}'
+    def shape(self):
+        return self.data.shape

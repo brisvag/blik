@@ -5,7 +5,7 @@ import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
-from .utils import DispatchList, distinct_colors, faded_grey, wrapper_method, listify
+from .utils import DispatchList, distinct_colors, faded_grey, inherit_signature, listify
 from .gui import Viewer
 
 
@@ -14,7 +14,7 @@ class Peeper:
     A container for a collection of DataBlocks
     """
     def __init__(self, datablocks=(), name=None, parent=None, viewers=None):
-        self._parent = parent or self
+        self._parent = parent
         if name is None and not self.isview():
             name = token_hex(16)
         self._name = name
@@ -24,8 +24,12 @@ class Peeper:
 
     # DATA
     @property
+    def parent(self):
+        return self._parent or self
+
+    @property
     def name(self):
-        return self._parent._name
+        return self.parent._name
 
     @property
     def datablocks(self):
@@ -36,7 +40,7 @@ class Peeper:
         return self._nested()
 
     def isview(self):
-        return self._parent is not self
+        return self.parent is not self
 
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
@@ -57,8 +61,9 @@ class Peeper:
     def _hook_onto_datablocks(self, datablocks):
         if not self.isview():
             for db in datablocks:
-                if db.peeper is not None:
-                    raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
+                # TODO: this is broken. Needs to be fixed, if possible.
+                # if db.peeper is not None:
+                    # raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
                 db.peeper = self
 
     def _nested(self, as_list=False):
@@ -92,7 +97,7 @@ class Peeper:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return Peeper(*args, parent=self._parent, **kwargs)
+        return Peeper(*args, parent=self.parent, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -205,7 +210,7 @@ class Peeper:
     # VISUALISATION
     @property
     def viewers(self):
-        return self._parent._viewers
+        return self.parent._viewers
 
     @property
     def depictors(self):
@@ -229,7 +234,7 @@ class Peeper:
         try:
             viewer.napari_viewer.window.qt_viewer.actions()
         except RuntimeError:
-            self._parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
+            self.parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
         return viewer
 
     def show(self, viewer_key=0, **kwargs):
@@ -253,7 +258,7 @@ class Peeper:
         write(self, paths, **kwargs)
 
     # ANALYSIS
-    @wrapper_method(classify_radial_profile, ignore_args=1)
+    @inherit_signature(classify_radial_profile, ignore_args='peeper')
     def classify_radial_profile(self, *args, **kwargs):
         # TODO: adapt to new depiction (plots are now handled by depictors!)
         centroids, _ = classify_radial_profile(self, *args, **kwargs)
@@ -270,6 +275,6 @@ class Peeper:
         class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
         self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
 
-    @wrapper_method(deduplicate_peeper, ignore_args=1)
+    @inherit_signature(deduplicate_peeper, ignore_args='peeper')
     def deduplicate(self, *args, **kwargs):
         return deduplicate_peeper(self, *args, **kwargs)

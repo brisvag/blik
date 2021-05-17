@@ -4,5 +4,5 @@ from peepingtom.datablocks.multiblocks.particleblock import ParticleBlock
 
 
 def test_particleblock_instantiation():
-    block = ParticleBlock(np.zeros((5, 3)), np.zeros((5, 3, 3)))
+    block = ParticleBlock(positions_data=np.zeros((5, 3)), orientations_data=np.zeros((5, 3, 3)), properties_data={})
     assert isinstance(block, ParticleBlock)

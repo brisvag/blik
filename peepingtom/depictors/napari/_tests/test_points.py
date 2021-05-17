@@ -6,7 +6,7 @@ from peepingtom.depictors import PointDepictor
 
 
 def test_points_depictor():
-    pointblock = PointBlock(np.ones((2, 3)))
+    pointblock = PointBlock(data=np.ones((2, 3)))
     point_depictor = PointDepictor(pointblock)
     assert point_depictor.datablock is pointblock
     assert len(point_depictor.layers) == 1

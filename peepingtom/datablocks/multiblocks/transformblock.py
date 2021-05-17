@@ -13,7 +13,6 @@ class TransformBlock(ParticleBlock):
     * orientations : (n, 3, 3) array of rotation matrices which
       rotate (by premultiplication) the unit vectors (i, j, k)
     """
-
     def apply_on(self, particles: ParticleBlock):
         """
         Applies the transforms encoded in this TransformBlock on a
