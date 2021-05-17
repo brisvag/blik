@@ -18,7 +18,7 @@ class MetaMultiBlock(MetaBlock):
         block_types = dct['_block_types']
         for base in bases:
             base_block_types = base.__dict__.get('_block_types', {})
-            block_types |= base_block_types
+            block_types.update(base_block_types)
 
         new_cls = super().__new__(cls, name, bases, dct)
 
