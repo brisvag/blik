@@ -156,7 +156,7 @@ class Peeper:
         if not dbs:
             raise ValueError(f'no datablock corresponds to {name=}, {volume=} and {type=}')
         else:
-            return dbs
+            return DispatchList(dbs)
 
     def __iter__(self):
         yield from self._data
@@ -262,6 +262,10 @@ class Peeper:
     def purge_gui(self):
         for dep in self.depictors:
             dep.purge()
+
+    def purge_depictors(self):
+        for db in self:
+            db.depictors = []
 
     @property
     def napari_viewer(self):
