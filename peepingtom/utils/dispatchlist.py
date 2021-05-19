@@ -125,7 +125,7 @@ class DispatchList:
             return NotImplemented
 
     def __repr__(self):
-        return f'*{self._data.__repr__()}'
+        return f'*{self._data.__repr__()}*'
 
     def append(self, item):
         self._data.append(item)

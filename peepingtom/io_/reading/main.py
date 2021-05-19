@@ -42,6 +42,8 @@ def read_file(file_path, **kwargs):
             for func in funcs:
                 try:
                     datablocks = listify(func(file_path, **kwargs))
+                    for db in datablocks:
+                        db.file_path = file_path
                     return datablocks
                 except ParseError:
                     # this will be raised by individual readers when the file can't be read.

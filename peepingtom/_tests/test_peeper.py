@@ -37,5 +37,6 @@ def test_pprint():
 
 
 def test_depict():
-    peeper.datablocks.depict()
+    peeper.datablocks.init_depictor()
+    peeper.depictors.depict()
     assert len(peeper.napari_layers) == 2

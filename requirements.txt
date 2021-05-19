@@ -1,4 +1,4 @@
-napari[all]>=0.4.6
+napari[all]>=0.4.8
 numpy
 xarray
 pandas

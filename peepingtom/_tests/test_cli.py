@@ -1,5 +1,3 @@
-import sys
-
 from peepingtom.__main__ import parse
 
 

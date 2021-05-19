@@ -5,10 +5,13 @@ Analysis functions that operate on collections of data object
 from math import ceil
 
 import numpy as np
+import pandas as pd
 import scipy.spatial
 from scipy.ndimage import convolve1d
 from scipy.cluster.vq import kmeans2
 from scipy.signal.windows import gaussian
+
+from ..datablocks import PropertyBlock
 
 
 def distance_matrix(particleblock, use_old=True):
@@ -18,7 +21,7 @@ def distance_matrix(particleblock, use_old=True):
     if use_old and 'dist_matrix' in particleblock.metadata:
         dist_matrix = particleblock.metadata['dist_matrix']
     else:
-        positions = particleblock.positions.data
+        positions = particleblock.positions.data * particleblock.pixel_size
         dist_matrix = scipy.spatial.distance_matrix(positions, positions)
         particleblock.metadata['dist_matrix'] = dist_matrix
     return dist_matrix
@@ -31,7 +34,7 @@ def orientation_matrix(particleblock, use_old=True):
     if use_old and 'ori_matrix' in particleblock.metadata:
         ori_matrix = particleblock.metadata['ori_matrix']
     else:
-        ori_vectors = particleblock.orientations.oriented_vectors('z').reshape(-1, 3)
+        ori_vectors = particleblock.orientations.oriented_vectors('z').values.reshape(-1, 3)
         ori_matrix = scipy.spatial.distance.cdist(ori_vectors, ori_vectors, 'cosine')
         particleblock.metadata['ori_matrix'] = ori_matrix
     return ori_matrix
@@ -100,7 +103,7 @@ def radial_orientation_profile(particleblock, max_dist, n_shells=50, convolve=Tr
 
 
 def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radial',
-                            max_dist=None, if_properties=None, **kwargs):
+                            max_dist=100, if_properties=None, **kwargs):
     """
     classify particles based on their radial distance and orientation profile
     mode: one of:
@@ -124,9 +127,6 @@ def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radi
         pb_and_idx = particleblocks.if_properties(if_properties, index=True)
         particleblocks, indexes = zip(*pb_and_idx)
 
-    if max_dist is None:
-        max_dist = max(pb.positions.data.values.max() for pb in particleblocks)
-
     data = []
     for pb in particleblocks:
         radial_profile = func(pb, max_dist=max_dist, **kwargs)
@@ -147,11 +147,11 @@ def classify_radial_profile(peeper, n_classes=5, mode='d', class_tag='class_radi
         orig.properties.update()
         start += n
 
-        orig.metadata[f'{class_tag}_centroids'] = centroids
-        orig.metadata[f'{class_tag}_params'] = {
-            'n_classes': n_classes,
-            'mode': mode,
-            **kwargs,
-        }
+    columns = [f'class_{cls}' for cls in range(n_classes)]
+    df = pd.DataFrame(centroids.T, columns=columns)
+    plot_block = PropertyBlock(data=df, name=f'{class_tag}_centroids', volume='PT_OMNI')
+    if plot_block in peeper:
+        peeper.remove(plot_block)
+    peeper.append(plot_block)
 
     return centroids, classes

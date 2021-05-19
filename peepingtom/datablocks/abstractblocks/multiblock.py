@@ -33,7 +33,7 @@ class MultiBlock(DataBlock, metaclass=MetaMultiBlock):
         return self._blocks
 
     def depict(self, mode='default', **kwargs):
-        super().depict(mode=mode, **kwargs)
+        super().init_depictor(mode=mode, **kwargs)
         for block in self.blocks:
             block.depictors = self.depictors
 

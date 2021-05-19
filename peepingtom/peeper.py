@@ -1,11 +1,12 @@
 from collections import defaultdict
 from secrets import token_hex
+from math import log10, ceil
 
 import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
 from .analysis import classify_radial_profile, deduplicate_peeper
-from .utils import DispatchList, distinct_colors, faded_grey, inherit_signature, listify
+from .utils import DispatchList, inherit_signature, listify
 from .gui import Viewer
 
 
@@ -13,14 +14,14 @@ class Peeper:
     """
     A container for a collection of DataBlocks
     """
-    def __init__(self, datablocks=(), name=None, parent=None, viewers=None):
+    def __init__(self, datablocks=(), name=None, parent=None):
         self._parent = parent
-        if name is None and not self.isview():
-            name = token_hex(16)
+        if name is None:
+            name = token_hex(8)
         self._name = name
         self._data = []
         self._extend(datablocks)
-        self._viewers = viewers or {}
+        self._viewer = None
 
     # DATA
     @property
@@ -37,7 +38,18 @@ class Peeper:
 
     @property
     def volumes(self):
-        return self._nested()
+        volumes = self._nested()
+        volumes.pop('PT_OMNI', None)
+        return volumes
+
+    @property
+    def omni(self):
+        return self._nested().get('PT_OMNI', DispatchList())
+
+    @property
+    def ndim(self):
+        ndims = [getattr(db, 'ndim', 0) for db in self]
+        return max(ndims)
 
     def isview(self):
         return self.parent is not self
@@ -67,15 +79,19 @@ class Peeper:
                 db.peeper = self
 
     def _nested(self, as_list=False):
-        sublists = defaultdict(list)
+        nested = defaultdict(list)
+        i = 0
+        length = len(self._data) or 1  # avoid math domain error
+        pad = ceil(log10(length))
         for el in self._data:
-            sublists[el.volume].append(el)
-        no_volume = sublists.pop(None, None)
-        if no_volume is not None:
-            sublists['unassigned'] = no_volume
+            if el.volume is None:
+                nested[f'None_{i:0{pad}}'].append(el)
+                i += 1
+            else:
+                nested[el.volume].append(el)
         if as_list:
-            return list(sublists.values())
-        return dict(sublists)
+            return list(nested.values())
+        return dict(nested)
 
     def _filter_types(self, block_types):
         """
@@ -132,6 +148,21 @@ class Peeper:
             return items[0]
         return self.__view__(items)
 
+    def find_datablocks(self, name=None, volume=None, type=None):
+        if name is volume is type is None:
+            raise ValueError('at least one of "name", "volume" or "type" must be provided')
+        if type is None:
+            type = DataBlock
+        dbs = self._filter_types(type)
+        if name is not None:
+            dbs = [db for db in dbs if name in db.name]
+        if volume:
+            dbs = [db for db in dbs if volume in db.volume]
+        if not dbs:
+            raise ValueError(f'no datablock corresponds to {name=}, {volume=} and {type=}')
+        else:
+            return DispatchList(dbs)
+
     def __iter__(self):
         yield from self._data
 
@@ -158,24 +189,32 @@ class Peeper:
             raise TypeError('Peeper view is immutable')
         self._extend(items)
 
-    def __add__(self, other):
-        if isinstance(other, Peeper):
-            return Peeper(self._data + self._sanitize(other))
-        else:
-            return NotImplemented
+    def remove(self, item):
+        self._data.remove(item)
+
+    # TODO: adding peeper needs some more work. Name clashing and similar issues need to be solved.
+    # def __add__(self, other):
+        # if isinstance(other, Peeper):
+            # return Peeper(self._data + self._sanitize(other))
+        # else:
+            # return NotImplemented
 
     # REPRESENTATION
     def __shape_repr__(self):
-        return f'({len(self.volumes)}, {len(self.datablocks)})'
+        return f'({len(self._nested())}, {len(self.datablocks)})'
 
     def __name_repr__(self):
         return f'<{self.name}>'
 
-    def __base_repr__(self):
+    def __view_repr__(self):
         view = ''
         if self.isview():
             view = '-View'
-        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
+        return view
+
+    def __base_repr__(self):
+        return (f'{type(self).__name__}{self.__view_repr__()}'
+                f'{self.__name_repr__()}{self.__shape_repr__()}')
 
     def __pretty_repr__(self, mode):
         modes = ('base', 'flat_compact', 'flat', 'nested_compact', 'nested', 'full')
@@ -209,8 +248,14 @@ class Peeper:
 
     # VISUALISATION
     @property
-    def viewers(self):
-        return self.parent._viewers
+    def viewer(self):
+        if self.parent._viewer is None:
+            self.parent._viewer = Viewer(self)
+        return self.parent._viewer
+
+    def show(self, **kwargs):
+        self.viewer.show(**kwargs)
+        return self.viewer
 
     @property
     def depictors(self):
@@ -223,57 +268,51 @@ class Peeper:
             layers.extend(getattr(dep, 'layers', []))
         return layers
 
-    def _get_viewer(self, viewer_key, napari_viewer=None, **kwargs):
-        if viewer_key in self.viewers:
-            if napari_viewer is not None:
-                raise ValueError(f'cannot use existing viewer "{viewer_key}" with a new napari instance')
-            viewer = self.viewers[viewer_key]
-        else:
-            viewer = Viewer(self, napari_viewer=napari_viewer)
+    def purge_gui(self):
+        for dep in self.depictors:
+            dep.purge()
 
-        try:
-            viewer.napari_viewer.window.qt_viewer.actions()
-        except RuntimeError:
-            self.parent._viewers[viewer_key] = Viewer(self, napari_viewer=napari_viewer)
-        return viewer
+    def purge_depictors(self):
+        for db in self:
+            db.depictors = []
 
-    def show(self, viewer_key=0, **kwargs):
-        # TODO: accept kwargs to depictors?
-        viewer = self._get_viewer(viewer_key, **kwargs)
-        return viewer
+    @property
+    def napari_viewer(self):
+        return self.viewer.napari_viewer
+
+    @property
+    def plots(self):
+        plots = DispatchList()
+        for dep in self.depictors:
+            plot = getattr(dep, 'plot', None)
+            if plot:
+                plots.append(plot)
+        return plots
 
     # IO
     def read(self, paths, **kwargs):
         """
         read paths into datablocks and append them to the datacrates
         """
-        from ..io_ import read
+        from .io_ import read
         self.extend(read(paths, **kwargs))
 
     def write(self, paths, **kwargs):
         """
         write datablock contents to disk
         """
-        from ..io_ import write
+        from .io_ import write
         write(self, paths, **kwargs)
 
     # ANALYSIS
     @inherit_signature(classify_radial_profile, ignore_args='peeper')
     def classify_radial_profile(self, *args, **kwargs):
-        # TODO: adapt to new depiction (plots are now handled by depictors!)
-        centroids, _ = classify_radial_profile(self, *args, **kwargs)
+        classify_radial_profile(self, *args, **kwargs)
         tag = kwargs.get('class_tag', 'class_radial')
-        self.particles[0].depict(mode='class_plot', class_tag=tag)
-        colors = distinct_colors[:kwargs['n_classes']]
-        if kwargs['if_properties'] is not None:
-            colors.append(faded_grey)
+        plot_block = self[f'{tag}_centroids']
+        plot_block.init_depictor()
         for p in self.particles:
-            p.depictor.point_layer.face_color = kwargs['class_tag']
-            p.depictor.point_layer.face_color_cycle = [list(x) for x in colors]
-        if kwargs['if_properties'] is not None:
-            colors.pop()
-        class_names = [f'class{i}' for i in range(kwargs['n_classes'])]
-        self.add_plot(centroids, colors, class_names, f'{kwargs["class_tag"]}')
+            p.depictors[0].color_by_categorical_property(tag)
 
     @inherit_signature(deduplicate_peeper, ignore_args='peeper')
     def deduplicate(self, *args, **kwargs):

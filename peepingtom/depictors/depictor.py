@@ -5,7 +5,6 @@ class Depictor:
     """
     def __init__(self, datablock):
         self.datablock = datablock
-        self.depict()
 
     @property
     def name(self):
@@ -14,18 +13,6 @@ class Depictor:
     def depict(self, **kwargs):
         """
         generate or update depictions based on current parameters
-        """
-        raise NotImplementedError
-
-    def show(self, viewer):
-        """
-        display depictions in a viewer
-        """
-        raise NotImplementedError
-
-    def hide(self, viewer):
-        """
-        hide depictions from a viewer
         """
         raise NotImplementedError
 
@@ -40,6 +27,11 @@ class Depictor:
         Subclasses can overload this method with the logic to update
         the data in the datablock accordingly
         don't forget to accept the `event` argument!
+        """
+
+    def purge(self):
+        """
+        delete all depictions, resetting to initialized state
         """
 
     def __repr__(self):
