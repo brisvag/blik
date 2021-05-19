@@ -21,6 +21,8 @@ class Viewer:
             db.init_depictor(**kwargs)
         if self.peeper.volumes:
             self.show_volume(list(self.peeper.volumes.keys())[0])
+        if self.peeper.plots:
+            self.plots.show()
 
     def ensure_ready(self):
         # check if viewer exists and is still open
@@ -33,6 +35,8 @@ class Viewer:
 
     def _init_viewer(self):
         self.napari_viewer = napari.Viewer(ndisplay=3, title='napari - PeepingTom')
+        self.napari_viewer.scale_bar.unit = '0.1nm'
+        self.napari_viewer.scale_bar.visible = True
         # TODO: workaround until layer issues are fixed (napari #2110)
         self.napari_viewer.window.qt_viewer.destroyed.connect(self.peeper.purge_gui)
 
