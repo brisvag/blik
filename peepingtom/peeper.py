@@ -1,5 +1,6 @@
 from collections import defaultdict
 from secrets import token_hex
+from math import log10, ceil
 
 import numpy as np
 
@@ -78,15 +79,19 @@ class Peeper:
                 db.peeper = self
 
     def _nested(self, as_list=False):
-        sublists = defaultdict(list)
+        nested = defaultdict(list)
+        i = 0
+        length = len(self._data) or 1  # avoid math domain error
+        pad = ceil(log10(length))
         for el in self._data:
-            sublists[el.volume].append(el)
-        no_volume = sublists.pop(None, None)
-        if no_volume is not None:
-            sublists['unassigned'] = no_volume
+            if el.volume is None:
+                nested[f'None_{i:0{pad}}'].append(el)
+                i += 1
+            else:
+                nested[el.volume].append(el)
         if as_list:
-            return list(sublists.values())
-        return dict(sublists)
+            return list(nested.values())
+        return dict(nested)
 
     def _filter_types(self, block_types):
         """
@@ -201,11 +206,15 @@ class Peeper:
     def __name_repr__(self):
         return f'<{self.name}>'
 
-    def __base_repr__(self):
+    def __view_repr__(self):
         view = ''
         if self.isview():
             view = '-View'
-        return f'{type(self).__name__}{view}{self.__name_repr__()}{self.__shape_repr__()}'
+        return view
+
+    def __base_repr__(self):
+        return (f'{type(self).__name__}{self.__view_repr__()}'
+                f'{self.__name_repr__()}{self.__shape_repr__()}')
 
     def __pretty_repr__(self, mode):
         modes = ('base', 'flat_compact', 'flat', 'nested_compact', 'nested', 'full')
