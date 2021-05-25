@@ -102,9 +102,5 @@ class PointBlock(SpatialBlock, SimpleBlock):
                 f"'{self.center_of_mass.shape}'")
         return np.linalg.norm(point - self.center_of_mass)
 
-    def to_line(self):
-        from ...alchemists import PointToLineAlchemist
-        self.alchemists.append(PointToLineAlchemist(self))
-
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'

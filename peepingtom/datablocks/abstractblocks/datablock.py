@@ -23,7 +23,6 @@ class DataBlock(ABC, metaclass=MetaBlock):
         self._volume = volume
         self._file_path = file_path
         self._depictors = []
-        self._alchemists = []
 
     @property
     def parent(self):
@@ -69,14 +68,6 @@ class DataBlock(ABC, metaclass=MetaBlock):
     def depictors(self, depictors):
         self.parent._depictors = depictors
 
-    @property
-    def alchemists(self):
-        return self.parent._alchemists
-
-    @alchemists.setter
-    def alchemists(self, alchemists):
-        self.parent._alchemists = alchemists
-
     def add_to_same_volume(self, datablocks):
         datablocks = listify(datablocks)
         self.peeper.extend(datablocks)
@@ -107,8 +98,6 @@ class DataBlock(ABC, metaclass=MetaBlock):
     def update(self):
         for depictor in self.depictors:
             depictor.update()
-        for alchemist in self.alchemists:
-            alchemist.update()
 
     def __name_repr__(self):
         return f'<{self.name}>'

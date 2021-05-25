@@ -5,7 +5,6 @@ from math import log10, ceil
 import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
-from .analysis import classify_radial_profile, deduplicate_peeper
 from .utils import DispatchList, inherit_signature, listify
 from .gui import Viewer
 
@@ -303,17 +302,3 @@ class Peeper:
         """
         from .io_ import write
         write(self, paths, **kwargs)
-
-    # ANALYSIS
-    @inherit_signature(classify_radial_profile, ignore_args='peeper')
-    def classify_radial_profile(self, *args, **kwargs):
-        classify_radial_profile(self, *args, **kwargs)
-        tag = kwargs.get('class_tag', 'class_radial')
-        plot_block = self[f'{tag}_centroids']
-        plot_block.init_depictor()
-        for p in self.particles:
-            p.depictors[0].color_by_categorical_property(tag)
-
-    @inherit_signature(deduplicate_peeper, ignore_args='peeper')
-    def deduplicate(self, *args, **kwargs):
-        return deduplicate_peeper(self, *args, **kwargs)
