@@ -24,7 +24,7 @@ def test_sanitize_peeper():
 def test_view():
     view = peeper[:1]
     assert len(view) == 1
-    assert view._parent is peeper
+    assert view._view_of is peeper
     with pytest.raises(TypeError):
         view.append(pb)
 
