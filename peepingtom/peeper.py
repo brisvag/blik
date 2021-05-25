@@ -227,7 +227,7 @@ class Peeper:
                 vol_rep = f'{volume}({len(dbs)})'
             else:
                 vol_rep = []
-                vol_contents = [f'{db}' for db in dbs]
+                vol_contents = [f'{db.__short_repr__()}' for db in dbs]
                 if mode in ('nested_compact', 'nested') and len(vol_contents) > 7:
                     vol_contents = vol_contents[:3] + ['[...]'] + vol_contents[-3:]
                 vol_contents_repr = '\n        '.join(vol_contents)
@@ -240,7 +240,7 @@ class Peeper:
         return f'{self.__base_repr__()}:\n    {contents_rep}'
 
     def __repr__(self):
-        return self.__pretty_repr__('flat_compact')
+        return self.__pretty_repr__('nested_compact')
 
     def pprint(self, mode='full'):
         print(self.__pretty_repr__(mode))

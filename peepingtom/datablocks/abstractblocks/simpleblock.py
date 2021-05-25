@@ -46,7 +46,7 @@ class SimpleBlock(DataBlock):
 
     def load(self):
         if not self._loaded and self._lazy_loader is not None:
-            logger.debug(f'loading data for lazy datablock "{self}"')
+            logger.debug(f'loading data for lazy datablock "{self.__short_repr__()}"')
             self.data = self._lazy_loader()
             self._loaded = True
 
@@ -80,3 +80,6 @@ class SimpleBlock(DataBlock):
 
     def __reversed__(self):
         yield from reversed(self.data)
+
+    def __repr__(self):
+        return f'{self.__short_repr__()}\n{self.data}'
