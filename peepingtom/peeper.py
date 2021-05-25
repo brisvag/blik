@@ -5,7 +5,7 @@ from math import log10, ceil
 import numpy as np
 
 from .datablocks import DataBlock, ParticleBlock, ImageBlock
-from .utils import DispatchList, inherit_signature, listify
+from .utils import DispatchList, listify
 from .gui import Viewer
 
 
