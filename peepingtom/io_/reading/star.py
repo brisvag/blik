@@ -62,6 +62,7 @@ def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, star_p
         particleblocks.append(ParticleBlock(positions_data=coords,
                                             orientations_data=rotation_matrices,
                                             properties_data=properties,
+                                            properties_protected=list(properties.keys()),
                                             pixel_size=np.array(pixel_size),
                                             ndim=dim,
                                             name=name))

@@ -14,6 +14,10 @@ class PropertyBlock(SimpleBlock):
         'default': PropertyPlotDepictor
     }
 
+    def __init__(self, *, protected=None, **kwargs):
+        super().__init__(**kwargs)
+        self._protected = protected or []
+
     def _data_setter(self, data=None):
         return pd.DataFrame(data)
 
@@ -25,6 +29,19 @@ class PropertyBlock(SimpleBlock):
         # numpy array instead of pandas series, for compatibility
         for k, v in self.data.items():
             yield k, np.array(v)
+
+    def __setitem__(self, key, value):
+        # does not work on view (we lose track of how nested we are and how we got here)
+        if self.is_view():
+            raise TypeError('cannot set data with nested getitem calls.')
+        # this allows indexing using slices and/or functionality like ParticleBlock.if_properties()
+        if isinstance(key, (list)) and all(isinstance(i, (int, bool)) for i in key) or \
+                isinstance(key, (np.ndarray, pd.Index)):
+            self.data.iloc.__setitem__(key, value)
+        else:
+            if key in self._protected:
+                raise KeyError(f'"{key}" is a protected property and cannot be changed')
+            self.data.__setitem__(key, value)
 
     def __getitem__(self, key):
         # this allows indexing using slices and/or functionality like ParticleBlock.if_properties()
