@@ -24,13 +24,19 @@ pixel_size_headings = {
 micrograph_name_heading = 'rlnMicrographName'
 
 
-def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, **kwargs):
+def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, star_path='', **kwargs):
     particleblocks = []
     if coord_headings[-1] in df.columns:
         dim = 3
     else:
         dim = 2
-    for micrograph_name, df_volume in df.groupby('rlnMicrographName'):
+
+    if micrograph_name_heading in df.columns:
+        groups = df.groupby(micrograph_name_heading)
+    else:
+        groups = [(star_path, df)]
+
+    for micrograph_name, df_volume in groups:
 
         name = guess_name(micrograph_name, name_regex)
 
@@ -117,7 +123,7 @@ def read_star(star_path, **kwargs):
     failed_reader_functions = []
     for style, reader_function in reader_functions.items():
         try:
-            particle_blocks = reader_function(raw_data, **kwargs)
+            particle_blocks = reader_function(raw_data, star_path=star_path, **kwargs)
             return particle_blocks
         except ParseError:
             failed_reader_functions.append((style, reader_function))
