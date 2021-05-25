@@ -33,7 +33,7 @@ class PropertyBlock(SimpleBlock):
     def __setitem__(self, key, value):
         # does not work on view (we lose track of how nested we are and how we got here)
         if self.is_view():
-            raise TypeError('cannot set data in a view. Use the parent datablock.')
+            raise TypeError('cannot set data with nested getitem calls.')
         # this allows indexing using slices and/or functionality like ParticleBlock.if_properties()
         if isinstance(key, (list)) and all(isinstance(i, (int, bool)) for i in key) or \
                 isinstance(key, (np.ndarray, pd.Index)):
