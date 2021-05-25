@@ -54,18 +54,25 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy):
         print(*(str(file) for file in files), sep='\n')
         sys.exit()
 
-    sh = InteractiveShellEmbed()
+    peeper = pt.read(*paths,  # noqa: F841
+                     name=name,
+                     mode=mode,
+                     name_regex=name_regex,
+                     pixel_size=pixel_size,
+                     strict=strict,
+                     mmap=mmap,
+                     lazy=lazy)
+
+    # set up ipython shell nicely
+    banner = '''=== PeepingTom ===
+initialised variables:
+    - peeper
+    - viewer
+    '''
+    sh = InteractiveShellEmbed(banner1=banner)
     sh.enable_gui('qt')
-
-    p = pt.read(*paths,  # noqa: F841
-                name=name,
-                mode=mode,
-                name_regex=name_regex,
-                pixel_size=pixel_size,
-                strict=strict,
-                mmap=mmap,
-                lazy=lazy)
-    sh.push('p')
-    sh.run_cell('p.show()')
-
+    sh.push('peeper')
+    sh.run_cell('peeper.show();')
+    viewer = peeper.napari_viewer  # noqa: F841
+    sh.push('viewer')
     sh()
