@@ -14,3 +14,4 @@ def test_line_depictor():
     assert len(line_depictor.layers) == 2
     assert isinstance(line_depictor.points, Points)
     assert isinstance(line_depictor.backbone, Shapes)
+    line_depictor.update()
