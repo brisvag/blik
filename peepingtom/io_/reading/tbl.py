@@ -69,6 +69,7 @@ def read_tbl(table_path, table_map_file=None, name_regex=None, pixel_size=None, 
         particleblocks.append(ParticleBlock(positions_data=coords,
                                             orientations_data=rotation_matrices,
                                             properties_data=properties,
+                                            properties_protected=list(properties.keys()),
                                             pixel_size=pixel_size,
                                             name=name))
 
