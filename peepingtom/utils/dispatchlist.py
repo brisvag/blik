@@ -82,9 +82,9 @@ class DispatchList:
         yield from self._data
 
     def __contains__(self, item):
-        found = item in self
+        found = item in self._data
         if not found:
-            for el in self:
+            for el in self._data:
                 try:
                     found = item in el
                 except TypeError:
