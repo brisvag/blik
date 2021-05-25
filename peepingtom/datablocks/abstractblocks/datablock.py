@@ -123,9 +123,12 @@ class DataBlock(ABC, metaclass=MetaBlock):
     def __shape_repr__(self):
         return ''
 
-    def __repr__(self):
+    def __short_repr__(self):
         return (f'{type(self).__name__}{self.__view_repr__()}'
                 f'{self.__name_repr__()}{self.__shape_repr__()}')
+
+    def __repr__(self):
+        return self.__short_repr__()
 
     def __lt__(self, other):
         if isinstance(other, type(self)):
