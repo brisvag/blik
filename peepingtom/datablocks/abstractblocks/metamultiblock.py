@@ -8,7 +8,7 @@ class MetaMultiBlock(MetaBlock):
     Metaclass for datablocks. Provides programmatic init signature construction
     for all subclasses of DataBlock
     """
-    _inherited_params = ('name', 'volume', 'peeper', 'parent',
+    _inherited_params = ('name', 'volume', 'peeper', 'parent', 'view_of',
                          'pixel_size', 'dims_order', 'ndim')
 
     def __new__(cls, name, bases, dct):

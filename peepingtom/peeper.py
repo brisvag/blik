@@ -13,8 +13,8 @@ class Peeper:
     """
     A container for a collection of DataBlocks
     """
-    def __init__(self, datablocks=(), name=None, parent=None):
-        self._parent = parent
+    def __init__(self, datablocks=(), name=None, view_of=None):
+        self._view_of = view_of
         if name is None:
             name = token_hex(8)
         self._name = name
@@ -24,12 +24,12 @@ class Peeper:
 
     # DATA
     @property
-    def parent(self):
-        return self._parent or self
+    def view_of(self):
+        return self._view_of or self
 
     @property
     def name(self):
-        return self.parent._name
+        return self.view_of._name
 
     @property
     def datablocks(self):
@@ -50,8 +50,8 @@ class Peeper:
         ndims = [getattr(db, 'ndim', 0) for db in self]
         return max(ndims)
 
-    def isview(self):
-        return self.parent is not self
+    def is_view(self):
+        return self.view_of is not self
 
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
@@ -70,7 +70,7 @@ class Peeper:
         return listified
 
     def _hook_onto_datablocks(self, datablocks):
-        if not self.isview():
+        if not self.is_view():
             for db in datablocks:
                 # TODO: this is broken. Needs to be fixed, if possible.
                 # if db.peeper is not None:
@@ -112,7 +112,7 @@ class Peeper:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return Peeper(*args, parent=self.parent, **kwargs)
+        return Peeper(*args, view_of=self.view_of, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -184,7 +184,7 @@ class Peeper:
         self._data.sort(key=lambda x: x.name)
 
     def extend(self, items):
-        if self.isview():
+        if self.is_view():
             raise TypeError('Peeper view is immutable')
         self._extend(items)
 
@@ -207,7 +207,7 @@ class Peeper:
 
     def __view_repr__(self):
         view = ''
-        if self.isview():
+        if self.is_view():
             view = '-View'
         return view
 
@@ -248,9 +248,9 @@ class Peeper:
     # VISUALISATION
     @property
     def viewer(self):
-        if self.parent._viewer is None:
-            self.parent._viewer = Viewer(self)
-        return self.parent._viewer
+        if self.view_of._viewer is None:
+            self.view_of._viewer = Viewer(self)
+        return self.view_of._viewer
 
     def show(self, **kwargs):
         self.viewer.show(**kwargs)

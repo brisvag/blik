@@ -21,12 +21,11 @@ class MultiBlock(DataBlock, metaclass=MetaMultiBlock):
             else:
                 other_kwargs[kwarg] = value
 
+        super().__init__(**other_kwargs)
         for block_name, block_type in self._block_types.items():
-            block = block_type(**block_args[block_name])
+            block = block_type(**block_args[block_name], multiblock=self)
             self.__setattr__(block_name, block)
             self._blocks.append(block)
-
-        super().__init__(**other_kwargs)
 
     @property
     def blocks(self):

@@ -13,11 +13,12 @@ class DataBlock(ABC, metaclass=MetaBlock):
     """
     _depiction_modes = {}
 
-    def __init__(self, *, name=None, volume=None, peeper=None, parent=None, file_path=''):
-        self._parent = parent
+    def __init__(self, *, name=None, volume=None, peeper=None, multiblock=None, view_of=None, file_path=''):
+        self._multiblock = multiblock
+        self._view_of = view_of
         if name is None:
             name = token_hex(8)
-        # these are useless in case of parent, but it's fine
+        # set even in case of view/multiblock, as fallback
         self._name = name
         self._peeper = peeper
         self._volume = volume
@@ -25,11 +26,19 @@ class DataBlock(ABC, metaclass=MetaBlock):
         self._depictors = []
 
     @property
+    def view_of(self):
+        return self._view_of or self
+
+    @property
+    def multiblock(self):
+        return self._multiblock or self
+
+    @property
     def parent(self):
         """
-        points to the parent in case of a view, or to self otherwise
+        points to the highest authority for this datablock's attributes
         """
-        return self._parent or self
+        return self.view_of.multiblock
 
     @property
     def peeper(self):
@@ -75,7 +84,10 @@ class DataBlock(ABC, metaclass=MetaBlock):
             db.volume = self.volume
 
     def __view__(self, **kwargs):
-        return type(self)(parent=self, **kwargs)
+        return type(self)(view_of=self.view_of, **kwargs)
+
+    def is_view(self):
+        return self.view_of is not self
 
     def copy(self, new_name=None):
         from copy import deepcopy
@@ -104,10 +116,8 @@ class DataBlock(ABC, metaclass=MetaBlock):
 
     def __view_repr__(self):
         view = ''
-        if self.parent is not self:
-            # if type is different, we're just the contents of a multiblock
-            if isinstance(self.parent, type(self)):
-                view = '-View'
+        if self.is_view():
+            view = '-View'
         return view
 
     def __shape_repr__(self):
