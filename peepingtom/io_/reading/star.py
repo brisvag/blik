@@ -40,7 +40,7 @@ def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, **kwar
         # only relion 3.1 has shifts in angstroms
         if mode == 'RELION 3.1':
             shifts = shifts / px_size
-        coords += shifts
+        coords -= shifts
 
         eulers = df_volume.get(euler_headings[dim], pd.Series([0])).to_numpy()
         if dim == 3:
