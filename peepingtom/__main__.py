@@ -69,10 +69,10 @@ initialised variables:
     - peeper
     - viewer
     '''
-    sh = InteractiveShellEmbed(banner1=banner)
+    sh = InteractiveShellEmbed(banner2=banner)
     sh.enable_gui('qt')
     sh.push('peeper')
-    sh.run_cell('peeper.show();')
+    sh.run_cell('peeper.show()', silent=True)
     viewer = peeper.napari_viewer  # noqa: F841
     sh.push('viewer')
     sh()
