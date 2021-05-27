@@ -1,10 +1,12 @@
+![logo](docs/images/logo.png)
+
 # PeepingTom
 
 ![Codecov branch](https://img.shields.io/codecov/c/github/gutsche-lab/peepingtom/master?label=codecov)
 ![PyPI](https://img.shields.io/pypi/v/peepingtom)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/peepingtom)
 
-**PeepingTom** is a python tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://github.com/napari/napari) and the scientific python stack.
+**PeepingTom** is a python tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
 
 **DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
 
