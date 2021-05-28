@@ -72,7 +72,7 @@ class ParticleDepictor(NapariDepictor):
 
     @property
     def vectors(self):
-        return self.layers[1]
+        return self.layers[1:]
 
     def color_by_categorical_property(self, property, colors=None):
         if self.layers:
@@ -81,7 +81,10 @@ class ParticleDepictor(NapariDepictor):
 
     def update(self):
         if self.layers:
-            pos, ori = self.get_positions_and_orientations()
+            pos = self.get_positions()
             self.points.data = pos.values  # workaround for xarray
-            self.vectors.data = ori.values  # workaround for xarray
-            self.points.properties = self.get_properties()
+            self.points.properties = self.datablock.properties.data
+
+            vectors = self.get_vectors().values()
+            for layer, vector in zip(self.vectors, vectors):
+                layer.data = vector.values

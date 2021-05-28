@@ -5,7 +5,7 @@ class PointDepictor(NapariDepictor):
     def depict(self):
         pkwargs = {'size': 3}
 
-        self._make_points_layer(self.datablock.as_zyx(),
+        self._make_points_layer(self.datablock.zyx,
                                 name=f'{self.name}',
                                 scale=self.datablock.pixel_size,
                                 **pkwargs)
