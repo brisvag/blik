@@ -57,9 +57,17 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
         return unit_vector
 
     def oriented_vectors(self, axis):
-        return xr.DataArray(np.dot(self.data, self._unit_vector(axis)),
-                            dims=self.data.dims[:-1],
-                            coords=[self.data.n, self.data.spatial])
+        vectors = xr.DataArray(np.dot(self.data, self._unit_vector(axis)),
+                               dims=self.data.dims[:-1],
+                               coords=[self.data.n, self.data.spatial])
+        return vectors
+
+    def zyx_vectors(self):
+        axes = [d for d in 'zyx' if d in self.dims]
+        all_vectors = {}
+        for ax in axes:
+            all_vectors[ax] = (self.oriented_vectors(ax).sel(spatial=list(axes)))
+        return all_vectors
 
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'

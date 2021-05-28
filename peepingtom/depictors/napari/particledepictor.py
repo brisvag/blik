@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 
 from .naparidepictor import NapariDepictor
@@ -5,44 +6,65 @@ from ...utils.colors import distinct_colors
 
 
 class ParticleDepictor(NapariDepictor):
+    def __init__(self, datablock):
+        super().__init__(datablock)
+        self.point_size = 2
+        self.point_color = 'cornflowerblue'
+        self.point_edge_color = 'black'
+        self.vector_lengths = dict(z=10, y=5, x=5)
+        self.vector_widths = dict(z=0.7, y=0.5, x=0.5)
+        self.vector_colors = dict(
+            z='darkblue',
+            y='purple',
+            x='green',
+        )
+        self.rescale = 1
+
     def depict(self, rescale=True):
-        pkwargs = {'size': 3}
-        vkwargs = {'length': 10}
+        if rescale:
+            self.set_rescale()
 
-        pos, ori = self.get_positions_and_orientations(rescale=rescale)
-
+        pos = self.get_positions()
         self._make_points_layer(pos,
                                 name=f'{self.name} - particle positions',
                                 scale=self.datablock.pixel_size,
-                                properties=self.get_properties(),
-                                **pkwargs)
+                                properties=self.datablock.properties.data,
+                                face_color=self.point_color,
+                                size=self.point_size,
+                                edge_color=self.point_edge_color,
+                                )
 
-        self._make_vectors_layer(ori.values,  # need to use values cause napari complains
-                                 name=f'{self.name} - particle orientations',
-                                 scale=self.datablock.pixel_size,
-                                 **vkwargs)
+        for ax, vectors in self.get_vectors().items():
+            self._make_vectors_layer(vectors.values,  # need to use values cause napari complains
+                                     name=f'{self.name} - particle orientations ({ax})',
+                                     scale=self.datablock.pixel_size,
+                                     edge_color=self.vector_colors[ax],
+                                     length=self.vector_lengths[ax],
+                                     edge_width=self.vector_widths[ax],
+                                     )
 
-    def get_properties(self):
-        return self.datablock.properties.data
+    def get_positions(self):
+        return self.datablock.positions.zyx * self.rescale
 
-    def get_positions_and_orientations(self, rescale=True):
-        positions = self.datablock.positions.as_zyx()
-        # rescale if needed
-        if 0 <= positions.min() <= positions.max() <= 1 and rescale:
+    def get_vectors(self):
+        pos = self.get_positions()
+        all_vectors = self.datablock.orientations.zyx_vectors()
+        stacked = {}
+        for ax, vectors in all_vectors.items():
+            stacked[ax] = xr.concat([pos, vectors], 'v').transpose('n', 'v', 'spatial')
+        return stacked
+
+    def set_rescale(self):
+        pos = self.datablock.positions.data
+        if 0 <= pos.min().item() <= pos.max().item() <= 1:
             peeper = self.datablock.peeper
             if peeper:
                 same_volume = peeper.volumes[self.datablock.volume]
+                from ...datablocks import ImageBlock
                 for db in same_volume:
-                    from ...datablocks import ImageBlock
                     if isinstance(db, ImageBlock):
-                        positions *= db.shape
+                        self.rescale = db.shape
                         break
-
-        v_axis = self.datablock.positions.data.spatial[-1]  # y or z
-        v_rotated = self.datablock.orientations.oriented_vectors(v_axis).loc[:, list('zyx')]
-
-        stacked = xr.concat([positions, v_rotated], dim='vector').transpose('n', 'vector', 'spatial')
-        return positions, stacked
 
     @property
     def points(self):

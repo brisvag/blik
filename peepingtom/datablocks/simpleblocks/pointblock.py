@@ -39,12 +39,16 @@ class PointBlock(SpatialBlock, SimpleBlock):
     def n(self):
         return len(self.data)
 
-    def _get_named_dimensions(self, dim):
+    def _get_named_dimensions(self, dim, remainder=False):
         """
         Get data for a named dimension or multiple named dimensions of the object
         """
-        dim = list(dim)
-        return self.data.sel(spatial=dim)
+        dims = [d for d in dim if d in self.data.spatial]
+        if remainder:
+            dims.extend(d.item() for d in self.spatial if d.item() not in dims)
+        if not dims:
+            raise ValueError(f'no such spatial dimension "{dim}"')
+        return self.data.sel(spatial=dims)
 
     @property
     def x(self):
@@ -65,19 +69,6 @@ class PointBlock(SpatialBlock, SimpleBlock):
     @property
     def zyx(self):
         return self._get_named_dimensions('zyx')
-
-    def as_zyx(self):
-        """
-        return the data with the order of the spatial axes switched to 'zyx' style rather than 'xyz'
-
-        Returns
-        -------
-        correct view into data no matter the dimensionality
-        """
-        spatial = sorted([d for d in self.data.spatial.values if d in 'xyz'], reverse=True)
-        rest = [d for d in self.data.spatial.values if d not in spatial]
-        new_order = list(rest + spatial)
-        return self.data.sel(spatial=new_order)
 
     @property
     def center_of_mass(self):
