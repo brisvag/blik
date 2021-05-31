@@ -17,10 +17,10 @@ class Peeper:
         self._view_of = view_of
         if name is None:
             name = token_hex(8)
-        self._name = name
-        self._data = []
-        self._extend(datablocks)
         self._viewer = None
+        self._data = []
+        self._name = name
+        self._extend(datablocks)
 
     # DATA
     @property
@@ -182,6 +182,8 @@ class Peeper:
         self._hook_onto_datablocks(items)
         self._data.extend(items)
         self._data.sort(key=lambda x: x.name)
+        if self._viewer is not None:
+            self.viewer.update_pt_widget()
 
     def extend(self, items):
         if self.is_view():
