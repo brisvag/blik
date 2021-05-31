@@ -8,7 +8,6 @@ from .abstractblocks import (
 from .simpleblocks import (
     ImageBlock,
     LineBlock,
-    MeshBlock,
     OrientationBlock,
     PointBlock,
     PropertyBlock,
@@ -17,6 +16,7 @@ from .simpleblocks import (
 
 from .multiblocks import (
     DipoleBlock,
+    MeshBlock,
     OrientedPointBlock,
     ParticleBlock,
     TransformBlock,
