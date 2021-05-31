@@ -82,4 +82,7 @@ class SimpleBlock(DataBlock):
         yield from reversed(self.data)
 
     def __repr__(self):
-        return f'{self.__short_repr__()}\n{self.data}'
+        data_repr = ''
+        if self._loaded:
+            data_repr = f'\n{self.data}'
+        return f'{self.__short_repr__()}{data_repr}'

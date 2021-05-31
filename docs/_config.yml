@@ -1,0 +1,66 @@
+# Book settings
+# Learn more at https://jupyterbook.org/customize/config.html
+title: PeepingTom
+logo: images/logo.png
+author: PeepingTom Team
+email: peepingtom_team@googlegroups.com
+copyright: "2020" # Copyright year to be placed in the footer
+only_build_toc_files: true
+
+# Force re-execution of notebooks on each build.
+# See https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: force
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/gutsche-lab/peepingtom # Online location of your book
+  path_to_book: docs # Optional path to your book, relative to the repository root
+  branch: master # Which branch of the repository should be used when creating links (optional)
+
+# Add GitHub buttons to your book
+# See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
+html:
+  use_issues_button: true
+  use_repository_button: true
+
+sphinx:
+  extra_extensions:
+    - sphinx.ext.viewcode
+    - sphinx.ext.autodoc
+    - sphinx.ext.intersphinx
+
+  config:
+    autodoc_default_options:
+        special-members: False
+        undoc-members: True
+        show-inheritance: True
+    intersphinx_mapping:
+      python:
+        - "https://docs.python.org/3"
+        - null
+      napari:
+        - "https://napari.org/docs/dev/"
+        - null
+    html_favicon: "images/favicon.ico"
+    html_theme: "sphinx_material"
+    html_show_sourcelink: False
+    pygments_style: "default"
+    html_theme_options:
+      base_url: "https://gutsche-lab.github.io/peepingtom"  # Specify a base_url used to generate sitemap.xml links
+      repo_url: "https://github.com/gutsche-lab/peepingtom"
+      repo_name: "gutsche-lab/peepingtom"
+      html_minify: True
+      css_minify: True
+      repo_type: "github"
+      globaltoc_depth: 2
+      color_primary: deep-purple
+      color_accent: "orange"
+      theme_color: "4093d6"
+      master_doc: False
+    html_sidebars:
+      "**":
+        - globaltoc.html
+        - logo-text.html
+        - localtoc.html
+        - searchbox.html

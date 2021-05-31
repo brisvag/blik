@@ -15,13 +15,18 @@ class SpatialBlock(ABC):
 
     @property
     def pixel_size(self):
-        # cannot put in setter, otherwise views and children will overwrite parent time
+        # cannot put in setter, otherwise views and children will overwrite parent
         value = self.parent._pixel_size
-        if value is None or np.all(value == 0):
+        if value is None or not np.any(value):
             value = np.ones(self.ndim)
         else:
             value = np.broadcast_to(value, self.ndim)
-        return value
+        return value.astype(float)
+
+    @pixel_size.setter
+    def pixel_size(self, value):
+        self._pixel_size = value
+        self.update()
 
     @property
     def dims_order(self):

@@ -1,6 +1,18 @@
+from contextlib import contextmanager
+
 import napari
 from pyqtgraph import GraphicsLayoutWidget
 from qtpy.QtWidgets import QVBoxLayout, QWidget, QComboBox, QPushButton
+
+
+@contextmanager
+def block_signals(widget):
+    """
+    temporarily disable signals
+    """
+    widget.blockSignals(True)
+    yield
+    widget.blockSignals(False)
 
 
 class Viewer:
@@ -72,11 +84,26 @@ class Viewer:
         layout.addWidget(self.plots_toggler)
 
         self._pt_napari_widget = self.napari_viewer.window.add_dock_widget(self.pt_widget,
-                                                                           name='PeepingTom - Viewer',
+                                                                           name='PeepingTom',
                                                                            area='left')
         # use napari hide and show methods
         self.pt_widget.show = self._pt_napari_widget.show
         self.pt_widget.hide = self._pt_napari_widget.hide
+
+    def update_pt_widget(self):
+        if self.pt_widget is not None:
+            current_text = self.volume_selector.currentText()
+            with block_signals(self.volume_selector):
+                self.volume_selector.clear()
+                self.volume_selector.addItems(self.peeper.volumes.keys())
+                self.volume_selector.setCurrentText(current_text)
+        self.show()
+
+    def clear_shown(self):
+        for layer in self.napari_viewer.layers.copy():
+            if layer in self.peeper.napari_layers:
+                self.napari_viewer.layers.remove(layer)
+        self.plots.clear()
 
     def show_volume(self, volume):
         if volume is None:
@@ -98,10 +125,9 @@ class Viewer:
                     plots.append(dep.plot)
         layers = sorted(layers, key=lambda l: isinstance(l, napari.layers.Image), reverse=True)
 
-        self.napari_viewer.layers.clear()
-        self.napari_viewer.layers.extend(layers)
 
-        self.plots.clear()
+        self.clear_shown()
+        self.napari_viewer.layers.extend(layers)
         for plt in plots:
             self.plots.addItem(plt)
 
