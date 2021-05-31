@@ -83,8 +83,10 @@ class ParticleDepictor(NapariDepictor):
         if self.layers:
             pos = self.get_positions()
             self.points.data = pos.values  # workaround for xarray
+            self.points.scale = self.datablock.pixel_size
             self.points.properties = self.datablock.properties.data
 
             vectors = self.get_vectors().values()
             for layer, vector in zip(self.vectors, vectors):
                 layer.data = vector.values
+                layer.scale = self.datablock.pixel_size
