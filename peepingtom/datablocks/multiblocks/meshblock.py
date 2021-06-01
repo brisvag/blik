@@ -13,7 +13,9 @@ class MeshBlock(SpatialBlock, MultiBlock):
 
     @property
     def triangles(self):
-        triangles = self.vertices.data[self.faces.data.to_numpy()]
+        # TODO: can't figure out how to do it with xarray
+        indexes = self.faces.data.to_numpy()
+        triangles = self.vertices.data.values[indexes]
         return triangles
 
     @property
