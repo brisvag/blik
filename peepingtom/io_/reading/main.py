@@ -97,7 +97,7 @@ def read(*globs,
     Peeper and Datablock construction arguments:
         name: the name of the Peeper (default: Peeper)
         mode: how to arrange DataBlocks into volumes. By default tries to guess.
-            - lone: each datablock in a separate volume
+            - by_name: volumes are assigned based on name
             - zip_by_type: one of each datablock type per volume
             - bunch: all datablocks in a single volume
         name_regex: a regex used to infer DataBlock names from paths. For example:
@@ -111,7 +111,7 @@ def read(*globs,
         lazy: read data lazily (if possible)
     """
     # if changing the signature of this function, change the one in `__main__.cli` as well!
-    modes = ('lone', 'zip_by_type', 'bunch')
+    modes = ('by_name', 'zip_by_type', 'bunch')
 
     if mode is not None and mode not in modes:
         raise ValueError(f'mode can only be one of {modes}')
@@ -140,11 +140,11 @@ def read(*globs,
             if len(set(count_per_type)) == 1:
                 mode = 'zip_by_type'
             else:
-                mode = 'lone'
+                mode = 'by_name'
         else:
-            mode = 'lone'
+            mode = 'by_name'
 
-    if mode == 'lone':
+    if mode == 'by_name':
         for db in datablocks:
             db.volume = db.name
     elif mode == 'bunch':

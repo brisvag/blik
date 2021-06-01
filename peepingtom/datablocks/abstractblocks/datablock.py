@@ -96,9 +96,9 @@ class DataBlock(ABC, metaclass=MetaBlock):
             cp.name = new_name
         return cp
 
-    def init_depictor(self, mode='default', new_depictor=False, **kwargs):
+    def init_depictor(self, mode='default', new_depictor=False, strict=True, **kwargs):
         depictor_type = self._depiction_modes.get(mode)
-        if depictor_type is None:
+        if depictor_type is None and strict:
             raise ValueError(f'mode must be one of {tuple(self._depiction_modes.keys())}, not "{mode}"')
         if not new_depictor:
             for depictor in self.depictors:
