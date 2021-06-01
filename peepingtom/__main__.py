@@ -8,7 +8,7 @@ import peepingtom as pt
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument('paths', nargs=-1)
-@click.option('-m', '--mode', type=click.Choice(['lone', 'zip_by_type', 'bunch']),
+@click.option('-m', '--mode', type=click.Choice(['by_name', 'zip_by_type', 'bunch']),
               help='how to arrange DataBlock into volumes [default: guess from input]')
 @click.option('-n', '--name-regex', metavar='regex',
               help=r'a regex used to infer DataBlock names from paths [fallback: \d+]')
@@ -34,7 +34,7 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy):
 
     \b
     MODE choices:
-      - lone: each datablock in a separate volume
+      - by_name: each datablock in a separate volume
       - zip_by_type: one of each datablock type per volume
       - bunch: all datablocks in a single volume
 
