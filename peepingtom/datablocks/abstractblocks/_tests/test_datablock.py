@@ -7,4 +7,4 @@ def test_datablock():
     db = DataBlock()
 
     with raises(ValueError):
-        db.init_depictor()
+        db.init_depictor(strict=True)
