@@ -1,6 +1,6 @@
 import numpy as np
 
-from peepingtom.datablocks.simpleblocks.meshblock import MeshBlock
+from peepingtom.datablocks.multiblocks.meshblock import MeshBlock
 
 vertices = np.array([[0, 0, 0],
                      [0, 0, 1],
@@ -21,20 +21,20 @@ faces = np.array([[0, 3, 4],
 
 def test_meshblock_instantiation():
     # check that meshblock can be instantiated properly
-    block = MeshBlock(vertices, faces)
+    block = MeshBlock(vertices_data=vertices, faces_data=faces)
     assert isinstance(block, MeshBlock)
     assert hasattr(block, 'vertices')
     assert hasattr(block, 'faces')
 
 
 def test_triangles():
-    block = MeshBlock(vertices, faces)
+    block = MeshBlock(vertices_data=vertices, faces_data=faces)
     triangles = block.triangles
-    assert triangles.shape[0] == faces.shape[0]
-    assert triangles.shape[2] == 3
+    assert len(triangles) == len(faces)
+    assert triangles.shape[-1] == 3
 
 
 def test_midpoints():
-    block = MeshBlock(vertices, faces)
+    block = MeshBlock(vertices_data=vertices, faces_data=faces)
     midpoints = block.midpoints
     assert midpoints.shape == (faces.shape[0], 3)

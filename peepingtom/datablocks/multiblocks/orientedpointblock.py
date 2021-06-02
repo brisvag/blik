@@ -1,5 +1,3 @@
-import xarray as xr
-
 from ..abstractblocks import SpatialBlock, MultiBlock
 from ..simpleblocks import PointBlock, OrientationBlock
 
