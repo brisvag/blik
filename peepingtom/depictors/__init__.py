@@ -2,7 +2,8 @@ from .napari import (
     ImageDepictor,
     LineDepictor,
     MeshDepictor,
-    ParticleDepictor,
+    ParticlePointDepictor,
+    ParticleMeshDepictor,
     PointDepictor,
 )
 

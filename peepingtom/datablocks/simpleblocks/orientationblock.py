@@ -69,5 +69,10 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
             all_vectors[ax] = (self.oriented_vectors(ax).sel(spatial=list(axes)))
         return all_vectors
 
+    @property
+    def zyx(self):
+        zyx = list('xyz')
+        return self.data.sel(spatial=zyx, spatial2=zyx)
+
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'
