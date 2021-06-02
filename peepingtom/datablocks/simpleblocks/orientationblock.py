@@ -39,5 +39,10 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
     def _ndim(self):
         return self.data.shape[-1]
 
+    @property
+    def zyx(self):
+        zyx = list('xyz')
+        return self.data.sel(spatial=zyx, spatial2=zyx)
+
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'

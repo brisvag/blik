@@ -29,9 +29,10 @@ class NapariDepictor(Depictor):
         self._init_layer(layer)
 
     def _make_surface_layer(self, vertices, faces, name, values=None, **kwargs):
-        if values is None:
-            values = np.ones(vertices.shape[0])
-        data = (vertices, faces, values)
+        if values:
+            data = (vertices, faces, values)
+        else:
+            data = (vertices, faces)
         layer = Surface(data, name=name, **kwargs)
         self._init_layer(layer)
 
