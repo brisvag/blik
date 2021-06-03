@@ -18,7 +18,7 @@ shift_headings = {
 }
 
 pixel_size_headings = {
-    'RELION 3.0': ['rlnPixelSize'],
+    'RELION 3.0': ['rlnDetectorPixelSize'],
     'RELION 3.1': ['rlnImagePixelSize']
 }
 micrograph_name_heading = 'rlnMicrographName'
