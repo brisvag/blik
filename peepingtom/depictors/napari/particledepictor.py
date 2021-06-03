@@ -8,11 +8,11 @@ from ...utils.colors import distinct_colors
 class ParticleDepictor(NapariDepictor):
     def __init__(self, datablock):
         super().__init__(datablock)
-        self.point_size = 2
+        self.point_size = 40
         self.point_color = 'cornflowerblue'
         self.point_edge_color = 'black'
-        self.vector_lengths = dict(z=10, y=5, x=5)
-        self.vector_widths = dict(z=0.7, y=0.5, x=0.5)
+        self.vector_lengths = dict(z=150, y=75, x=75)
+        self.vector_widths = dict(z=15, y=15, x=15)
         self.vector_colors = dict(
             z='darkblue',
             y='purple',
@@ -27,7 +27,6 @@ class ParticleDepictor(NapariDepictor):
         pos = self.get_positions()
         self._make_points_layer(pos,
                                 name=f'{self.name} - particle positions',
-                                scale=self.datablock.pixel_size,
                                 properties=self.datablock.properties.data,
                                 face_color=self.point_color,
                                 size=self.point_size,
@@ -35,23 +34,24 @@ class ParticleDepictor(NapariDepictor):
                                 )
 
         for ax, vectors in self.get_vectors().items():
-            self._make_vectors_layer(vectors.values,  # need to use values cause napari complains
+            # need to use .values cause napari complains
+            self._make_vectors_layer(vectors,
                                      name=f'{self.name} - particle orientations ({ax})',
-                                     scale=self.datablock.pixel_size,
                                      edge_color=self.vector_colors[ax],
                                      length=self.vector_lengths[ax],
                                      edge_width=self.vector_widths[ax],
                                      )
 
     def get_positions(self):
-        return self.datablock.positions.zyx * self.rescale
+        return self.datablock.positions.zyx * self.rescale * self.datablock.pixel_size
 
     def get_vectors(self):
         pos = self.get_positions()
         all_vectors = self.datablock.orientations.zyx_vectors()
         stacked = {}
         for ax, vectors in all_vectors.items():
-            stacked[ax] = xr.concat([pos, vectors], 'v').transpose('n', 'v', 'spatial')
+            vec = xr.concat([pos, vectors], 'v').transpose('n', 'v', 'spatial').values
+            stacked[ax] = vec
         return stacked
 
     def set_rescale(self):
@@ -83,10 +83,8 @@ class ParticleDepictor(NapariDepictor):
         if self.layers:
             pos = self.get_positions()
             self.points.data = pos.values  # workaround for xarray
-            self.points.scale = self.datablock.pixel_size
             self.points.properties = self.datablock.properties.data
 
             vectors = self.get_vectors().values()
             for layer, vector in zip(self.vectors, vectors):
-                layer.data = vector.values
-                layer.scale = self.datablock.pixel_size
+                layer.data = vector
