@@ -36,6 +36,12 @@ class Viewer:
         if self.peeper.plots:
             self.plots.show()
 
+    @property
+    def shown(self):
+        if self.napari_viewer and self.volume_selector:
+            return self.peeper.volumes[self.volume_selector.currentText()]
+        return None
+
     def ensure_ready(self, napari_viewer=None):
         if napari_viewer is not None:
             self._init_viewer(napari_viewer)
