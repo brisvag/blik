@@ -48,6 +48,9 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy):
     and name the respective DataBlocks Protein_10 and Protein_001:
         peep /path/to/dir/MyProtein* -n 'Protein_\d+'
     """  # noqa: W605
+    if not paths:
+        paths = ['./*']
+
     if dry_run:
         files = pt.io_.find_files(paths)
         print('Files found:')
@@ -61,7 +64,8 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy):
                      pixel_size=pixel_size,
                      strict=strict,
                      mmap=mmap,
-                     lazy=lazy)
+                     lazy=lazy,
+                     )
 
     # set up ipython shell nicely
     banner = '''=== PeepingTom ===

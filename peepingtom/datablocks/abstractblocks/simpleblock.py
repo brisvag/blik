@@ -20,6 +20,11 @@ class SimpleBlock(DataBlock):
     Calling __getitem__ on a SimpleBlock will call __getitem__ on its data property and return a view
     """
     def __init__(self, *, data=None, lazy_loader=None, **kwargs):
+        """
+        data: a xarray.DataArray containing data for the datablock
+        lazy_loader: a loader function that takes the datablock as argument and
+                     loads data into it, plus any other modification
+        """
         super().__init__(**kwargs)
         if (data is None and lazy_loader is None) or \
            (data is not None and lazy_loader is not None):
@@ -47,7 +52,7 @@ class SimpleBlock(DataBlock):
     def load(self):
         if not self._loaded and self._lazy_loader is not None:
             logger.debug(f'loading data for lazy datablock "{self.__short_repr__()}"')
-            self.data = self._lazy_loader()
+            self._lazy_loader(self)
             self._loaded = True
 
     def unload(self):

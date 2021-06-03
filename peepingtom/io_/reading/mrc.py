@@ -15,17 +15,17 @@ def read_mrc(image_path, name_regex=None, mmap=False, lazy=True, **kwargs):
     read an mrc file and return an ImageBlock
     """
     name = guess_name(image_path, name_regex)
-    mrc_header = mrcfile.open(image_path, header_only=True)
-    pixel_size = structured_to_unstructured(mrc_header.voxel_size)[::-1]
 
-    def loader():
+    def loader(imageblock):
         if mmap is True:
-            mrc = mrcfile.mmap(image_path).data
+            mrc = mrcfile.mmap(image_path)
         else:
-            mrc = mrcfile.open(image_path).data
-        return mrc
+            mrc = mrcfile.open(image_path)
+        imageblock.data = mrc.data
+        pixel_size = structured_to_unstructured(mrc.voxel_size)[::-1]
+        imageblock.pixel_size = pixel_size
 
-    ib = ImageBlock(lazy_loader=loader, pixel_size=pixel_size, name=name)
+    ib = ImageBlock(lazy_loader=loader, name=name)
     if not lazy:
         ib.load()
     logger.debug(f'succesfully read "{image_path}", {lazy=}, {mmap=}')
