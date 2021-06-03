@@ -259,6 +259,10 @@ class Peeper:
         return self.viewer
 
     @property
+    def shown(self):
+        return self.viewer.shown
+
+    @property
     def depictors(self):
         return DispatchList(dep for db in self for dep in db.depictors)
 
