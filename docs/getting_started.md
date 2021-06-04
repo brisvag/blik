@@ -17,6 +17,7 @@ peeper.show()
 
 ## Navigating your data
 In the napari GUI, you'll find the PeepingTom widget at the bottom left. Select which volume to visualize with the dropdown menu.
+Alternatively, you can use `PageUp` and `PageDown` to switch to the previous or next volume.
 
 All napari functionality works as normal, and `peeper` will keep track of which layers come from where. Feel free to add any custom layer: peepingtom won't interfere with them (if it does, please report it in an issue!).
 
