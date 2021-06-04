@@ -19,7 +19,11 @@ class PropertyBlock(SimpleBlock):
         self._protected = protected or []
 
     def _data_setter(self, data=None):
-        return pd.DataFrame(data)
+        try:
+            data = pd.DataFrame(data)
+        except ValueError:
+            data = pd.DataFrame(np.array(data).reshape(-1))
+        return data
 
     @property
     def n(self):
