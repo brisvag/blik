@@ -47,6 +47,7 @@ class Viewer:
             self._init_viewer(napari_viewer)
             self._init_plots()
             self._init_pt_widget()
+            self._hook_keybindings()
         # check if viewer exists and is still open
         try:
             self.napari_viewer.window.qt_viewer.actions()
@@ -54,6 +55,7 @@ class Viewer:
             self._init_viewer()
             self._init_plots()
             self._init_pt_widget()
+            self._hook_keybindings()
 
     def _init_viewer(self, napari_viewer=None):
         if napari_viewer is not None:
@@ -96,6 +98,10 @@ class Viewer:
         self.pt_widget.show = self._pt_napari_widget.show
         self.pt_widget.hide = self._pt_napari_widget.hide
 
+    def _hook_keybindings(self):
+        self.napari_viewer.bind_key('PageUp', self.previous_volume)
+        self.napari_viewer.bind_key('PageDown', self.next_volume)
+
     def update_pt_widget(self):
         if self.pt_widget is not None:
             current_text = self.volume_selector.currentText()
@@ -131,11 +137,20 @@ class Viewer:
                     plots.append(dep.plot)
         layers = sorted(layers, key=lambda l: isinstance(l, napari.layers.Image), reverse=True)
 
-
         self.clear_shown()
         self.napari_viewer.layers.extend(layers)
         for plt in plots:
             self.plots.addItem(plt)
+
+    def previous_volume(self, viewer=None):
+        idx = self.volume_selector.currentIndex()
+        previous_idx = (idx - 1) % self.volume_selector.count()
+        self.volume_selector.setCurrentIndex(previous_idx)
+
+    def next_volume(self, viewer=None):
+        idx = self.volume_selector.currentIndex()
+        next_idx = (idx + 1) % self.volume_selector.count()
+        self.volume_selector.setCurrentIndex(next_idx)
 
     def toggle_plots(self):
         if self.plots.isVisible():
