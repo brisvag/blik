@@ -124,6 +124,14 @@ class DispatchList:
         else:
             return NotImplemented
 
+    def __eq__(self, other):
+        if isinstance(other, DispatchList):
+            return self._data == other._data
+        elif isinstance(other, list):
+            return self._data == other
+        else:
+            return all(item == other for item in self)
+
     def __repr__(self):
         return f'*{self._data.__repr__()}*'
 

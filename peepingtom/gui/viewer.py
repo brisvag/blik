@@ -61,7 +61,7 @@ class Viewer:
         if napari_viewer is not None:
             self.napari_viewer = napari_viewer
         else:
-            self.napari_viewer = napari.Viewer(ndisplay=3, title='napari - PeepingTom')
+            self.napari_viewer = napari.Viewer(title='napari - PeepingTom')
         self.napari_viewer.scale_bar.unit = '0.1nm'
         self.napari_viewer.scale_bar.visible = True
         # TODO: workaround until layer issues are fixed (napari #2110)
@@ -122,6 +122,10 @@ class Viewer:
             return
         self.volume_selector.setCurrentText(volume)
         datablocks = self.peeper.omni + self.peeper.volumes[volume]
+        ndim = 2
+        for db in datablocks:
+            ndim = max(ndim, getattr(db, 'ndim', 2))
+        self.napari_viewer.dims.ndisplay = ndim
 
         layers = []
         plots = []
