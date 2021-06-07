@@ -64,7 +64,6 @@ def extract_data(df, mode='RELION 3.1', name_regex=None, pixel_size=None, star_p
                                             properties_data=properties,
                                             properties_protected=list(properties.keys()),
                                             pixel_size=np.array(pixel_size),
-                                            ndim=dim,
                                             name=name))
 
     return particleblocks

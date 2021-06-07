@@ -11,11 +11,13 @@ class MeshBlock(SpatialBlock, MultiBlock):
     _block_types = {'vertices': PointBlock, 'faces': PropertyBlock}
     _depiction_modes = {'default': MeshDepictor}
 
+    def _ndim(self):
+        return self.vertices._ndim()
+
     @property
     def triangles(self):
-        # TODO: can't figure out how to do it with xarray
         indexes = self.faces.data.to_numpy()
-        triangles = self.vertices.data.values[indexes]
+        triangles = self.vertices.data[indexes]
         return triangles
 
     @property

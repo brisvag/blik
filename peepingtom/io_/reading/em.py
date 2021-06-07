@@ -10,6 +10,12 @@ def read_em(image_path, name_regex=None, lazy=True, **kwargs):
     """
     name = guess_name(image_path, name_regex)
 
-    data = emfile.read(image_path)[1]
+    def loader(imageblock):
+        header, data = emfile.read(image_path)
+        imageblock.data = data
+        imageblock.pixel_size = header['OBJ']
 
-    return ImageBlock(data=data, ndim=data.ndim, name=name)
+    ib = ImageBlock(lazy_loader=loader, name=name)
+    if not lazy:
+        ib.load()
+    return ib

@@ -1,8 +1,6 @@
 from abc import abstractmethod
 import logging
 
-from xarray import DataArray
-
 from .datablock import DataBlock
 
 
@@ -12,7 +10,7 @@ logger = logging.getLogger(__name__)
 class SimpleBlock(DataBlock):
     """
     Base class for all simple DataBlock objects, data types which can be visualised by Depictors
-    and are defined by a single xarray `data` attribute
+    and are defined by a single `data` attribute
 
     SimpleBlock objects must implement a data setter method as _data_setter which returns
     the appropriately formatted data
@@ -21,9 +19,9 @@ class SimpleBlock(DataBlock):
     """
     def __init__(self, *, data=None, lazy_loader=None, **kwargs):
         """
-        data: a xarray.DataArray containing data for the datablock
+        data: a single object (typically a numpy array) containing data for the datablock
         lazy_loader: a loader function that takes the datablock as argument and
-                     loads data into it, plus any other modification
+                     loads data into it and applies any other modification as necessary
         """
         super().__init__(**kwargs)
         if (data is None and lazy_loader is None) or \
@@ -43,8 +41,8 @@ class SimpleBlock(DataBlock):
     def data(self, data):
         if isinstance(data, type(self)):
             self._data = data.data
-        elif isinstance(data, DataArray) or data is None:
-            self._data = data
+        elif data is None:
+            self._data = None
         else:
             self._data = self._data_setter(data)
         self.update()
@@ -89,5 +87,5 @@ class SimpleBlock(DataBlock):
     def __repr__(self):
         data_repr = ''
         if self._loaded:
-            data_repr = f'\n{self.data}'
+            data_repr = f'\n{self.data.__repr__()}'
         return f'{self.__short_repr__()}{data_repr}'

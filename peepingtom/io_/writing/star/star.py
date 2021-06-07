@@ -36,9 +36,9 @@ def write_star(particleblock, file_path, data_colums=None, overwrite=False):
     write a particle block to disk as a .star file
     data_colums: particleblock properties to include as columns
     """
-    coords = particleblock.positions.data.values
+    coords = particleblock.positions.data
     dim = particleblock.ndim
-    orientation_matrices = particleblock.orientations.data.values
+    orientation_matrices = particleblock.orientations.data
     if data_colums is not None:
         properties = particleblock.properties.data[data_colums].to_numpy()
     else:
