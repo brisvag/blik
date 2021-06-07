@@ -19,11 +19,13 @@ import peepingtom as pt
               help='only show the list of files that would be read')
 @click.option('--strict', is_flag=True,
               help='immediately fail if a matched path cannot be read')
-@click.option('--mmap', is_flag=True, default=False,
+@click.option('--mmap', is_flag=True,
               help='open file in memory map mode (if possible)')
 @click.option('--lazy', is_flag=True, default=True,
               help='read data lazily (if possible)')
-def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy):
+@click.option('--no-show', is_flag=True,
+              help='only create the Peeper, without showing the data in napari')
+def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, no_show):
     """
     PeepingTom command line interface.
 
@@ -76,7 +78,8 @@ initialised variables:
     sh = InteractiveShellEmbed(banner2=banner)
     sh.enable_gui('qt')
     sh.push('peeper')
-    sh.run_cell('peeper.show()', silent=True)
+    if not no_show:
+        sh.run_cell('peeper.show()', silent=True)
     viewer = peeper.napari_viewer  # noqa: F841
     sh.push('viewer')
     sh()
