@@ -1,2 +1,2 @@
-jupyter-book
+jupyter-book>=0.11
 sphinx_material
