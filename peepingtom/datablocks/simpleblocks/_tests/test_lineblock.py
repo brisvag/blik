@@ -10,7 +10,7 @@ line_3d = np.column_stack([v, np.sin(v), np.cos(v)])
 
 def test_lineblock_instantiation():
     # test LineBlock instantiation
-    LineBlock(data=line_2d, ndim=2)
+    LineBlock(data=line_2d)
     LineBlock(data=line_3d)
 
 

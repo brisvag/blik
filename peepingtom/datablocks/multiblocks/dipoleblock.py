@@ -21,6 +21,9 @@ class DipoleBlock(SpatialBlock, MultiBlock):
     def n(self):
         return self.startpoints.n
 
+    def _ndim(self):
+        return self.startpoints._ndim()
+
     @property
     def orientation_vectors(self):
         """
@@ -68,7 +71,7 @@ class DipoleBlock(SpatialBlock, MultiBlock):
         normalised_vector = vector / np.linalg.norm(vector)
 
         # calculate rotation matrices
-        rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors.values)
+        rotation_matrices = align_vectors(normalised_vector, self.normalised_orientation_vectors)
         return OrientationBlock(data=rotation_matrices)
 
     def __shape_repr__(self):

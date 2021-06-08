@@ -1,8 +1,7 @@
 import numpy as np
-import xarray as xr
 
 from .naparidepictor import NapariDepictor
-from ...utils.colors import distinct_colors
+from ...utils import distinct_colors, dim_names_to_indexes
 
 
 class ParticleDepictor(NapariDepictor):
@@ -34,7 +33,6 @@ class ParticleDepictor(NapariDepictor):
                                 )
 
         for ax, vectors in self.get_vectors().items():
-            # need to use .values cause napari complains
             self._make_vectors_layer(vectors,
                                      name=f'{self.name} - particle orientations ({ax})',
                                      edge_color=self.vector_colors[ax],
@@ -45,14 +43,26 @@ class ParticleDepictor(NapariDepictor):
     def get_positions(self):
         return self.datablock.positions.zyx * self.rescale * self.datablock.pixel_size
 
+    def get_orientations_zyx(self):
+        return self.datablock.orientations.data[:, ::-1, ::-1]
+
+    def _unit_vector(self, axis):
+        idx = dim_names_to_indexes(axis, order='zyx')[0]
+        # initialise unit vector array
+        unit_vector = np.zeros(self.datablock.ndim, dtype=float)
+        unit_vector[idx] = 1
+        return unit_vector
+
     def get_vectors(self):
         pos = self.get_positions()
-        all_vectors = self.datablock.orientations.zyx_vectors()
-        stacked = {}
-        for ax, vectors in all_vectors.items():
-            vec = xr.concat([pos, vectors], 'v').transpose('n', 'v', 'spatial').values
-            stacked[ax] = vec
-        return stacked
+        ori = self.get_orientations_zyx()
+        axes = 'zyx'[-self.datablock.ndim:]
+        all_vectors = {}
+        for ax in axes:
+            vectors = ori @ self._unit_vector(ax)
+            shifted_vectors = np.stack([pos, vectors], axis=1)
+            all_vectors[ax] = shifted_vectors
+        return all_vectors
 
     def set_rescale(self):
         pos = self.datablock.positions.data
@@ -82,7 +92,7 @@ class ParticleDepictor(NapariDepictor):
     def update(self):
         if self.layers:
             pos = self.get_positions()
-            self.points.data = pos.values  # workaround for xarray
+            self.points.data = pos
             self.points.properties = self.datablock.properties.data
 
             vectors = self.get_vectors().values()

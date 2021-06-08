@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-import xarray as xr
 from numpy.testing import assert_array_equal
 
 from peepingtom.datablocks.simpleblocks.pointblock import PointBlock
@@ -17,15 +16,15 @@ point_nd = np.arange(48).reshape(6, 8)
 
 def test_pointblock_instantiation():
     # test instantiation for 2d, 3d and nd points
-    PointBlock(data=single_point_2d, ndim=2)
-    PointBlock(data=points_2d, ndim=2)
+    PointBlock(data=single_point_2d)
+    PointBlock(data=points_2d)
     PointBlock(data=single_point_3d)
     PointBlock(data=points_3d)
 
 
 def test_pointblock_xyz():
     # test 'x', 'y' and 'z' properties
-    block = PointBlock(data=single_point_2d, ndim=2)
+    block = PointBlock(data=single_point_2d)
     assert_array_equal(block.x, [[1]])
     assert_array_equal(block.y, [[2]])
 
@@ -39,13 +38,12 @@ def test_pointblock_get_named_dimensions():
     # test _get_named_dimensions method
     block = PointBlock(data=single_point_3d)
 
-    # check output is array
     x = block._get_named_dimensions('x')
-    assert isinstance(x, xr.DataArray)
+    assert isinstance(x, np.ndarray)
 
     # try with multiple named dims
     xyz = block._get_named_dimensions('xyz')
-    assert isinstance(xyz, xr.DataArray)
+    assert isinstance(xyz, np.ndarray)
     assert xyz.shape == (1, 3)
 
 
