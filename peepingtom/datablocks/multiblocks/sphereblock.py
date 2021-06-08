@@ -6,7 +6,7 @@ from ..simpleblocks import PointBlock, PropertyBlock
 
 class SphereBlock(SpatialBlock, MultiBlock):
     """
-    Represents a spheres defined by center and a radii
+    Represents a set of spheres defined by centers and a radii
     """
     _block_types = {'centers': PointBlock, 'radii': PropertyBlock}
 
