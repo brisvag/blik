@@ -1,8 +1,9 @@
 import numpy as np
-from xarray import DataArray
 
 from ..abstractblocks import SpatialBlock, SimpleBlock
 from ...depictors import PointDepictor
+
+from ...utils import dim_names_to_indexes
 
 
 class PointBlock(SpatialBlock, SimpleBlock):
@@ -32,23 +33,23 @@ class PointBlock(SpatialBlock, SimpleBlock):
         if not data.ndim == 2:
             raise ValueError("data object should have ndim == 2")
 
-        data = DataArray(data, dims=['n', 'spatial'], coords=(range(len(data)), list(self.dims)))
         return data
 
     @property
     def n(self):
         return len(self.data)
 
-    def _get_named_dimensions(self, dim, remainder=False):
+    def _ndim(self):
+        return self.data.shape[1]
+
+    def _get_named_dimensions(self, dims):
         """
         Get data for a named dimension or multiple named dimensions of the object
         """
-        dims = [d for d in dim if d in self.data.spatial]
-        if remainder:
-            dims.extend(d.item() for d in self.spatial if d.item() not in dims)
-        if not dims:
-            raise ValueError(f'no such spatial dimension "{dim}"')
-        return self.data.sel(spatial=dims)
+        arrays = []
+        for idx in dim_names_to_indexes(dims):
+            arrays.append(self.data[:, idx])
+        return np.stack(arrays, axis=-1)
 
     @property
     def x(self):

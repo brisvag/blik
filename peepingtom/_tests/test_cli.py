@@ -6,4 +6,4 @@ runner = CliRunner()
 
 
 def test_cli():
-    runner.invoke(cli, 'test.mrc test.star -m bunch -n reg'.split())
+    runner.invoke(cli, 'test.mrc test.star -m bunch -n reg --no-show'.split())

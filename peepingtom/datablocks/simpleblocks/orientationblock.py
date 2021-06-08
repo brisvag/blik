@@ -1,5 +1,4 @@
 import numpy as np
-import xarray as xr
 
 from ..abstractblocks import SpatialBlock, SimpleBlock
 
@@ -31,43 +30,14 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
             m = data.shape[-1]
             data = data.reshape((1, m, m))
 
-        return xr.DataArray(data, dims=['n', 'spatial', 'spatial2'],
-                            coords=(range(len(data)), list(self.dims), list(self.dims)))
+        return data
 
     @property
     def n(self):
         return len(self.data)
 
-    def _unit_vector(self, axis: str):
-        """
-        Get a unit vector along a specified axis which matches the dimensionality of the VectorBlock object
-        axis : str, named axis 'x', 'y' (or 'z')
-        """
-        # check dimensionality
-        if self.ndim > 3:
-            raise NotImplementedError('Unit vector generation for objects with greater '
-                                      'than 3 spatial dimensions is not implemented')
-
-        # initialise unit vector array
-        unit_vector = xr.zeros_like(self.data.spatial, dtype=float)
-
-        # construct unit vector
-        unit_vector.loc[axis] = 1
-
-        return unit_vector
-
-    def oriented_vectors(self, axis):
-        vectors = xr.DataArray(np.dot(self.data, self._unit_vector(axis)),
-                               dims=self.data.dims[:-1],
-                               coords=[self.data.n, self.data.spatial])
-        return vectors
-
-    def zyx_vectors(self):
-        axes = [d for d in 'zyx' if d in self.dims]
-        all_vectors = {}
-        for ax in axes:
-            all_vectors[ax] = (self.oriented_vectors(ax).sel(spatial=list(axes)))
-        return all_vectors
+    def _ndim(self):
+        return self.data.shape[-1]
 
     def __shape_repr__(self):
         return f'({self.n}, {self.ndim})'

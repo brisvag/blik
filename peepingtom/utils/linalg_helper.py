@@ -35,3 +35,15 @@ def align_vectors(a: np.ndarray, b: np.ndarray):
     r[:, 2, 2] = (axis[:, 2] * axis[:, 2] * k) + cos_angle
 
     return r
+
+
+def dim_names_to_indexes(names, order='xyz'):
+    """
+    Get indexes of named dimensions
+    """
+    dims_order = list(order)
+    indexes = []
+    for dim in list(names):
+        idx = dims_order.index(dim)
+        indexes.append(idx)
+    return indexes
