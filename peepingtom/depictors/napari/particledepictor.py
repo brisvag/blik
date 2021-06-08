@@ -22,10 +22,13 @@ class ParticleDepictor(NapariDepictor):
                         self.rescale = db.shape
                         break
 
-    def get_positions(self, rescale=True):
+    def get_positions_zyx(self, rescale=True):
         if rescale:
             self.set_rescale()
         return self.datablock.positions.zyx * self.rescale * self.datablock.pixel_size
+
+    def get_orientations_zyx(self):
+        return self.datablock.orientations.data[:, ::-1, ::-1]
 
 
 class ParticlePointDepictor(ParticleDepictor):
@@ -46,7 +49,7 @@ class ParticlePointDepictor(ParticleDepictor):
         )
 
     def depict(self):
-        pos = self.get_positions()
+        pos = self.get_positions_zyx()
         self._make_points_layer(pos,
                                 name=f'{self.name} - particle positions',
                                 properties=self.datablock.properties.data,
@@ -63,9 +66,6 @@ class ParticlePointDepictor(ParticleDepictor):
                                      edge_width=self.vector_widths[ax],
                                      )
 
-    def get_orientations_zyx(self):
-        return self.datablock.orientations.data[:, ::-1, ::-1]
-
     def _unit_vector(self, axis):
         idx = dim_names_to_indexes(axis, order='zyx')[0]
         # initialise unit vector array
@@ -74,7 +74,7 @@ class ParticlePointDepictor(ParticleDepictor):
         return unit_vector
 
     def get_vectors(self):
-        pos = self.get_positions()
+        pos = self.get_positions_zyx()
         ori = self.get_orientations_zyx()
         axes = 'zyx'[-self.datablock.ndim:]
         all_vectors = {}
@@ -99,7 +99,7 @@ class ParticlePointDepictor(ParticleDepictor):
 
     def update(self):
         if self.layers:
-            pos = self.get_positions()
+            pos = self.get_positions_zyx()
             self.points.data = pos
             self.points.properties = self.datablock.properties.data
 
@@ -136,12 +136,12 @@ class ParticleMeshDepictor(ParticleDepictor):
         return vertices, faces
 
     def tile_mesh(self, vertices, faces):
-        ori = get_orientations_zyx()
+        ori = self.get_orientations_zyx()
 
         # find rotated mesh vertices for each particle
         all_vertices_rotated = (vertices @ ori)
         # then translate them to the right place and reshape to a normal list of coords
-        pos = self.get_positions()
+        pos = self.get_positions_zyx()
         all_vertices = (all_vertices_rotated + pos.reshape(-1, 1, 3)).reshape(-1, 3)
 
         # tile faces array but increment by len(vertices) every time
