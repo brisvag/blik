@@ -12,3 +12,6 @@ class SphereBlock(SpatialBlock, MultiBlock):
 
     def set_radii_from_edge_points(self, edge_points):
         self.radii.data = np.linalg.norm(edge_points - self.centers, axis=-1)
+
+    def _ndim(self):
+        return self.centers._ndim()
