@@ -11,7 +11,6 @@ from .simpleblocks import (
     OrientationBlock,
     PointBlock,
     PropertyBlock,
-    SphereBlock,
 )
 
 from .multiblocks import (
@@ -19,5 +18,6 @@ from .multiblocks import (
     MeshBlock,
     OrientedPointBlock,
     ParticleBlock,
+    SphereBlock,
     TransformBlock,
 )
