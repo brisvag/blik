@@ -12,7 +12,7 @@ import click
               help=r'a regex used to infer DataBlock names from paths [fallback: \d+]')
 @click.option('-p', '--pixel-size',
               help='manually set the pixel size (overrides the one read from file)')
-@click.option('--name', help='the name of the generated Peeper')
+@click.option('--name', help='the name of the generated DataSet')
 @click.option('-d', '--dry-run', is_flag=True,
               help='only show the list of files that would be read')
 @click.option('--strict', is_flag=True,
@@ -22,13 +22,13 @@ import click
 @click.option('--lazy', is_flag=True, default=True,
               help='read data lazily (if possible)')
 @click.option('--no-show', is_flag=True,
-              help='only create the Peeper, without showing the data in napari')
+              help='only create the DataSet, without showing the data in napari')
 def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, no_show):
     """
     Blik command line interface.
 
     Opens files in napari and lands in an interactive ipython shell
-    with blik imported as `pt` and the initialised Peeper available as `p`.
+    with blik imported as `pt` and the initialised DataSet available as `p`.
 
     PATHS: any number of files or globs [default='./*']
 
@@ -59,7 +59,7 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
         sys.exit()
 
     import blik 
-    peeper = blik.read(*paths,  # noqa: F841
+    dataset = blik.read(*paths,  # noqa: F841
                      name=name,
                      mode=mode,
                      name_regex=name_regex,
@@ -72,14 +72,14 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
     # set up ipython shell nicely
     banner = '''=== Blik ===
 initialised variables:
-    - peeper
+    - dataset
     - viewer
     '''
     sh = InteractiveShellEmbed(banner2=banner)
     sh.enable_gui('qt')
-    sh.push('peeper')
+    sh.push('dataset')
     if not no_show:
-        sh.run_cell('peeper.show()', silent=True)
-    viewer = peeper.napari_viewer  # noqa: F841
+        sh.run_cell('dataset.show()', silent=True)
+    viewer = dataset.napari_viewer  # noqa: F841
     sh.push('viewer')
     sh()

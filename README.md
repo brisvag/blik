@@ -26,8 +26,8 @@ blik /path/to.star /path/to/mrc/files/
 Blik accepts any combination of files and directory, and will try find the right files and display them in napari. `blik` will also start an ipython shell with the following setup:
 ```python
 import blik
-peeper = Peeper([your_data])
-viewer = peeper.napari_viewer
+dataset = DataSet([your_data])
+viewer = dataset.napari_viewer
 ```
 
 For more information, check out the help page with `blik -h` and [head over to the docs](https://gutsche-lab.github.io/blik).

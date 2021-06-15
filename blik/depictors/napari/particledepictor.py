@@ -67,9 +67,9 @@ class ParticleDepictor(NapariDepictor):
     def set_rescale(self):
         pos = self.datablock.positions.data
         if 0 <= pos.min().item() <= pos.max().item() <= 1:
-            peeper = self.datablock.peeper
-            if peeper:
-                same_volume = peeper.volumes[self.datablock.volume]
+            dataset = self.datablock.dataset
+            if dataset:
+                same_volume = dataset.volumes[self.datablock.volume]
                 from ...datablocks import ImageBlock
                 for db in same_volume:
                     if isinstance(db, ImageBlock):

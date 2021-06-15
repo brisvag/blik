@@ -12,7 +12,7 @@ from .tbl import read_tbl
 from .box import read_box
 from .cbox import read_cbox
 
-from ...peeper import Peeper
+from ...dataset import DataSet
 
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ def find_files(globs):
 
 
 def read(*globs,
-         name='Peeper',
+         name='DataSet',
          mode=None,
          name_regex=None,
          pixel_size=None,
@@ -92,10 +92,10 @@ def read(*globs,
          lazy=True,
          **kwargs):
     r"""
-    Read any number of paths or glob patterns and construct a Peeper accordingly.
+    Read any number of paths or glob patterns and construct a DataSet accordingly.
 
-    Peeper and Datablock construction arguments:
-        name: the name of the Peeper (default: Peeper)
+    DataSet and Datablock construction arguments:
+        name: the name of the DataSet (default: DataSet)
         mode: how to arrange DataBlocks into volumes. By default tries to guess.
             - lone: each datablock in a separate volume
             - zip_by_type: one of each datablock type per volume
@@ -157,4 +157,4 @@ def read(*globs,
             for db in dbs:
                 db.volume = dbs[0].name
 
-    return Peeper(datablocks, name=name)
+    return DataSet(datablocks, name=name)

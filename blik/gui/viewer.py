@@ -18,10 +18,10 @@ def block_signals(widget):
 class Viewer:
     """
     abstraction layer on viewer that dispatches visualisation to specific components
-    and implements widgets for Peeper functionality
+    and implements widgets for DataSet functionality
     """
-    def __init__(self, peeper):
-        self.peeper = peeper
+    def __init__(self, dataset):
+        self.dataset = dataset
 
         self.napari_viewer = None
         self.plots = None
@@ -29,17 +29,17 @@ class Viewer:
 
     def show(self, napari_viewer=None, **kwargs):
         self.ensure_ready(napari_viewer=napari_viewer)
-        for db in self.peeper:
+        for db in self.dataset:
             db.init_depictor(**kwargs)
-        if self.peeper.volumes:
-            self.show_volume(list(self.peeper.volumes.keys())[0])
-        if self.peeper.plots:
+        if self.dataset.volumes:
+            self.show_volume(list(self.dataset.volumes.keys())[0])
+        if self.dataset.plots:
             self.plots.show()
 
     @property
     def shown(self):
         if self.napari_viewer and self.volume_selector:
-            return self.peeper.volumes[self.volume_selector.currentText()]
+            return self.dataset.volumes[self.volume_selector.currentText()]
         return None
 
     def ensure_ready(self, napari_viewer=None):
@@ -65,7 +65,7 @@ class Viewer:
         self.napari_viewer.scale_bar.unit = '0.1nm'
         self.napari_viewer.scale_bar.visible = True
         # TODO: workaround until layer issues are fixed (napari #2110)
-        self.napari_viewer.window.qt_viewer.destroyed.connect(self.peeper.purge_gui)
+        self.napari_viewer.window.qt_viewer.destroyed.connect(self.dataset.purge_gui)
 
     def _init_plots(self):
         self.plots = GraphicsLayoutWidget()
@@ -83,7 +83,7 @@ class Viewer:
         self.blik_widget.setLayout(layout)
 
         self.volume_selector = QComboBox(self.blik_widget)
-        self.volume_selector.addItems(self.peeper.volumes.keys())
+        self.volume_selector.addItems(self.dataset.volumes.keys())
         self.volume_selector.currentTextChanged.connect(self.show_volume)
         layout.addWidget(self.volume_selector)
 
@@ -107,13 +107,13 @@ class Viewer:
             current_text = self.volume_selector.currentText()
             with block_signals(self.volume_selector):
                 self.volume_selector.clear()
-                self.volume_selector.addItems(self.peeper.volumes.keys())
+                self.volume_selector.addItems(self.dataset.volumes.keys())
                 self.volume_selector.setCurrentText(current_text)
         self.show()
 
     def clear_shown(self):
         for layer in self.napari_viewer.layers.copy():
-            if layer in self.peeper.napari_layers:
+            if layer in self.dataset.napari_layers:
                 self.napari_viewer.layers.remove(layer)
         self.plots.clear()
 
@@ -121,7 +121,7 @@ class Viewer:
         if volume is None:
             return
         self.volume_selector.setCurrentText(volume)
-        datablocks = self.peeper.omni + self.peeper.volumes[volume]
+        datablocks = self.dataset.omni + self.dataset.volumes[volume]
         ndim = 2
         for db in datablocks:
             ndim = max(ndim, getattr(db, 'ndim', 2))

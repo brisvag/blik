@@ -9,7 +9,7 @@ from .utils import DispatchList, listify
 from .gui import Viewer
 
 
-class Peeper:
+class DataSet:
     """
     A container for a collection of DataBlocks
     """
@@ -57,7 +57,7 @@ class Peeper:
         listified = listify(iterable)
         for item in listified:
             if not isinstance(item, DataBlock):
-                raise TypeError(f'Peeper can only hold DataBlock objects, not "{type(item).__name__}"')
+                raise TypeError(f'DataSet can only hold DataBlock objects, not "{type(item).__name__}"')
         if deduplicate:
             deduplicated = []
             while listified:
@@ -73,9 +73,9 @@ class Peeper:
         if not self.is_view():
             for db in datablocks:
                 # TODO: this is broken. Needs to be fixed, if possible.
-                # if db.peeper is not None:
-                    # raise RuntimeError('Datablocks cannot be assigned to a new Peeper.')
-                db.peeper = self
+                # if db.dataset is not None:
+                    # raise RuntimeError('Datablocks cannot be assigned to a new DataSet.')
+                db.dataset = self
 
     def _nested(self, as_list=False):
         nested = defaultdict(list)
@@ -112,7 +112,7 @@ class Peeper:
         return self._filter_types(ImageBlock)
 
     def __view__(self, *args, **kwargs):
-        return Peeper(*args, view_of=self.view_of, **kwargs)
+        return DataSet(*args, view_of=self.view_of, **kwargs)
 
     def __getitems__(self, key):
         out = []
@@ -143,7 +143,7 @@ class Peeper:
     def __getitem__(self, key):
         items = self.__getitems__(key)
         if len(items) == 1 and isinstance(key, (str, int)):
-            # to enforce getting a peeper, you can simply use a 1-tuple as key
+            # to enforce getting a dataset, you can simply use a 1-tuple as key
             return items[0]
         return self.__view__(items)
 
@@ -187,16 +187,16 @@ class Peeper:
 
     def extend(self, items):
         if self.is_view():
-            raise TypeError('Peeper view is immutable')
+            raise TypeError('DataSet view is immutable')
         self._extend(items)
 
     def remove(self, item):
         self._data.remove(item)
 
-    # TODO: adding peeper needs some more work. Name clashing and similar issues need to be solved.
+    # TODO: adding dataset needs some more work. Name clashing and similar issues need to be solved.
     # def __add__(self, other):
-        # if isinstance(other, Peeper):
-            # return Peeper(self._data + self._sanitize(other))
+        # if isinstance(other, DataSet):
+            # return DataSet(self._data + self._sanitize(other))
         # else:
             # return NotImplemented
 
