@@ -1,5 +1,5 @@
 ignore:
-  - peepingtom/_version.py
+  - blik/_version.py
 coverage:
   status:
     project:

@@ -140,4 +140,4 @@ cython_debug/
 ####################
 
 # setuptools_scm version
-peepingtom/_version.py
+blik/_version.py
