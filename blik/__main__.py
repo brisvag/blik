@@ -41,12 +41,12 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
     \b
     EXAMPLES:
     Open a .star file as particles:
-        peep particles.star
+        blik particles.star
     Open particles and images from a directory:
-        peep /dir/with/star_and_mrc_files/
+        blik /dir/with/star_and_mrc_files/
     Match files such as MyProtein_10.star and MyProtein_001.mrc,
     and name the respective DataBlocks Protein_10 and Protein_001:
-        peep /path/to/dir/MyProtein* -n 'Protein_\d+'
+        blik /path/to/dir/MyProtein* -n 'Protein_\d+'
     """  # noqa: W605
     if not paths:
         paths = ['./*']

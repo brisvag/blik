@@ -4,14 +4,14 @@
 
 From the command line:
 ```bash
-peep /path/to.star /path/to/mrc/files/
+blik /path/to.star /path/to/mrc/files/
 ```
 
 Alternatively, use Blik from within python directly (it's designed with ipython in mind):
 ```python
 import blik 
 
-dataset = blik.peep('path_to.mrc')
+dataset = blik.read('path_to.mrc')
 dataset.show()
 ```
 

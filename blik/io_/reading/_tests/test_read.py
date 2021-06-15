@@ -4,9 +4,11 @@ import mrcfile
 import starfile
 
 from blik.io_.reading.main import read
+from blik.dataset import DataSet
+from blik.datablocks import PointBlock
 
 
-def test_read(tmp_path):
+def test_read_path(tmp_path):
     # mrc file
     mrc_path1 = tmp_path / 'test1.mrc'
     mrc_path2 = tmp_path / 'test2.mrc'
@@ -33,3 +35,18 @@ def test_read(tmp_path):
 
     assert len(dataset) == 4
     assert len(dataset.volumes) == 2
+
+
+def test_read_dataset():
+    dataset = read(DataSet())
+    assert isinstance(dataset, DataSet)
+    assert len(dataset) == 0
+
+
+def test_read_datablock():
+    dataset = read(PointBlock(data=()))
+    assert isinstance(dataset, DataSet)
+    assert len(dataset) == 1
+    dataset = read([PointBlock(data=()), PointBlock(data=())])
+    assert isinstance(dataset, DataSet)
+    assert len(dataset) == 2

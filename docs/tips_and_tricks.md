@@ -17,7 +17,7 @@ particles_02.tbl
 
 Anything else ends up in its own `None_X` volume. If your data follows a different naming scheme, you can provide a [custom regex pattern](https://regex101.com/):
 ```python
-blik.peep(YOUR_DATA, name_regex='\d_\w+')
+blik.read(YOUR_DATA, name_regex='\d_\w+')
 ```
 
 ## DispatchList
