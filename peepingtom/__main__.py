@@ -3,8 +3,6 @@ import sys
 from IPython.terminal.embed import InteractiveShellEmbed
 import click
 
-import peepingtom as pt
-
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument('paths', nargs=-1)
@@ -54,11 +52,13 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
         paths = ['./*']
 
     if dry_run:
-        files = pt.io_.find_files(paths)
+        from peepingtom.io_.reading.main import find_files
+        files = find_files(paths)
         print('Files found:')
         print(*(str(file) for file in files), sep='\n')
         sys.exit()
 
+    import peepingtom as pt
     peeper = pt.read(*paths,  # noqa: F841
                      name=name,
                      mode=mode,
