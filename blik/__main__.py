@@ -28,7 +28,7 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
     Blik command line interface.
 
     Opens files in napari and lands in an interactive ipython shell
-    with blik imported as `pt` and the initialised DataSet available as `p`.
+    with blik imported and the initialised DataSet available as `dataset`.
 
     PATHS: any number of files or globs [default='./*']
 
