@@ -10,12 +10,9 @@ class PointBlock(SpatialBlock, SimpleBlock):
     """
     PointBlock objects for representing points with convenience methods
 
-    PointBlock data should be array-like objects of shape (n, m) representing n points in m dimensions
+    PointBlock data should be array-like objects of shape (n, d) representing n points in d dimensions
 
-    order of dimensions along m is:
-    2d : (x, y)
-    3d : (x. y, z)
-    nd : (..., x, y, z)
+    Spatial dimensions are ordered xyz
     """
     _depiction_modes = {'default': PointDepictor}
 
@@ -23,15 +20,12 @@ class PointBlock(SpatialBlock, SimpleBlock):
         # cast as array
         data = np.asarray(data)
 
-        # coerce single point to right dims
-        if data.ndim == 1 and data.size > 0:
-            data = data.reshape((1, len(data)))
-        if data.size == 0:
-            data = data.reshape((0, 3))
+        if data.ndim != 2:
+            raise ValueError("point data should have shape (n, d)")
 
-        # check ndim of data
-        if not data.ndim == 2:
-            raise ValueError("data object should have ndim == 2")
+        # coerce to 3 spatial dims
+        missing_dims = max(3 - data.shape[1], 0)
+        data = np.pad(data, ((0, 0), (0, missing_dims)))
 
         return data
 
@@ -39,8 +33,8 @@ class PointBlock(SpatialBlock, SimpleBlock):
     def n(self):
         return len(self.data)
 
-    def _ndim(self):
-        return self.data.shape[1]
+    def is_3D(self):
+        return np.any(self.data[-1])
 
     def _get_named_dimensions(self, dims):
         """
@@ -72,6 +66,14 @@ class PointBlock(SpatialBlock, SimpleBlock):
         return self._get_named_dimensions('zyx')
 
     @property
+    def as_zyx(self):
+        """
+        returns spatial dimns as zyx but leaves the rest untouched
+        """
+        rest = self.data[:, :-3]
+        return np.concatenate([rest, self.zyx], axis=-1)
+
+    @property
     def center_of_mass(self):
         return np.mean(self.data, axis=0)
 
@@ -95,4 +97,4 @@ class PointBlock(SpatialBlock, SimpleBlock):
         return np.linalg.norm(point - self.center_of_mass)
 
     def __shape_repr__(self):
-        return f'({self.n}, {self.ndim})'
+        return f'{self.data.shape}'

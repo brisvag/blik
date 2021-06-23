@@ -17,7 +17,7 @@ class ParticleDepictor(NapariDepictor):
             y='purple',
             x='green',
         )
-        self.rescale = 1
+        self._rescale = 1
 
     def depict(self, rescale=True):
         if rescale:
@@ -40,27 +40,34 @@ class ParticleDepictor(NapariDepictor):
                                      edge_width=self.vector_widths[ax],
                                      )
 
-    def get_positions(self):
-        return self.datablock.positions.zyx * self.rescale * self.datablock.pixel_size
+    def _pad_to_ndim(self, array, value):
+        non_spatial_dims = max(self.datablock.positions.data.shape[1] - 3, 0)
+        if array.ndim == 1:
+            return np.pad(array, (non_spatial_dims, 0), constant_values=value)
+        elif array.ndim == 2:
+            return np.pad(array, ((0, 0), (non_spatial_dims, 0)), constant_values=value)
+        raise ValueError('cannot pad array of shape')
 
-    def get_orientations_zyx(self):
-        return self.datablock.orientations.data[:, ::-1, ::-1]
+    def get_positions(self):
+        positions = self.datablock.positions.as_zyx
+        padded_pixel_size = self._pad_to_ndim(self.datablock.pixel_size, 1)
+        padded_rescale = self._pad_to_ndim(self.rescale, 1)
+        return positions * padded_rescale * padded_pixel_size
 
     def _unit_vector(self, axis):
         idx = dim_names_to_indexes(axis, order='zyx')[0]
         # initialise unit vector array
-        unit_vector = np.zeros(self.datablock.ndim, dtype=float)
+        unit_vector = np.zeros(3, dtype=float)
         unit_vector[idx] = 1
         return unit_vector
 
     def get_vectors(self):
         pos = self.get_positions()
-        ori = self.get_orientations_zyx()
-        axes = 'zyx'[-self.datablock.ndim:]
+        ori = self.datablock.orientations.as_zyx
         all_vectors = {}
-        for ax in axes:
+        for ax in 'zyx':
             vectors = ori @ self._unit_vector(ax)
-            shifted_vectors = np.stack([pos, vectors], axis=1)
+            shifted_vectors = np.stack([pos, self._pad_to_ndim(vectors, 0)], axis=1)
             all_vectors[ax] = shifted_vectors
         return all_vectors
 
@@ -80,8 +87,12 @@ class ParticleDepictor(NapariDepictor):
                 from ...datablocks import ImageBlock
                 for db in same_volume:
                     if isinstance(db, ImageBlock):
-                        self.rescale = db.shape
+                        self._rescale = db.shape
                         break
+
+    @property
+    def rescale(self):
+        return np.broadcast_to(self._rescale, (3,))
 
     @property
     def points(self):
