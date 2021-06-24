@@ -52,7 +52,7 @@ class ParticleDepictor(NapariDepictor):
         elif array.ndim == 2:
             # 2D array, pad to the left of 2nd dim
             return np.pad(array, ((0, 0), (non_spatial_dims, 0)), constant_values=value)
-        raise ValueError('cannot pad array of shape')
+        raise ValueError(f"cannot pad array of shape {array.shape}")
 
     def get_positions(self):
         positions = self.datablock.positions.as_zyx
