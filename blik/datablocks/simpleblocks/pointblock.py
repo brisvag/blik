@@ -20,6 +20,9 @@ class PointBlock(SpatialBlock, SimpleBlock):
         # cast as array
         data = np.asarray(data)
 
+        if data.size == 0:
+            data = data.reshape(0, 3)
+
         if data.ndim != 2:
             raise ValueError("point data should have shape (n, d)")
 

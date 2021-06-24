@@ -1,7 +1,6 @@
 import numpy as np
 
 from ..abstractblocks import SpatialBlock, SimpleBlock
-from ...utils import dim_names_to_indexes
 
 
 class OrientationBlock(SpatialBlock, SimpleBlock):
@@ -15,9 +14,9 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
     def _data_setter(self, data):
         data = np.array(data)
         # check for single matrix case and assert dimensionality
-        if data.ndim < 3 \
-                or data.shape[-1] != data.shape[-2] \
-                or data.shape[-1] not in (2, 3):
+        if data.ndim < 3:
+            data = data[np.newaxis]
+        if data.shape[-1] != data.shape[-2] or data.shape[-1] not in (2, 3):
             raise ValueError(f'rotation matrices should be of shape '
                              f'(n, 2, 2) or (n, 3, 3), '
                              f'not {data.shape}')
