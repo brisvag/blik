@@ -45,11 +45,6 @@ class DataSet:
     def omni(self):
         return self._nested().get('BLIK_OMNI', DispatchList())
 
-    @property
-    def ndim(self):
-        ndims = [getattr(db, 'ndim', 0) for db in self]
-        return max(ndims)
-
     def is_view(self):
         return self.view_of is not self
 
