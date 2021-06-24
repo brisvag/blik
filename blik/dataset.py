@@ -53,6 +53,10 @@ class DataSet:
     def is_view(self):
         return self.view_of is not self
 
+    def copy(self, new_name=None):
+        cp = DataSet(self, name=new_name)
+        return cp
+
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
         for item in listified:
