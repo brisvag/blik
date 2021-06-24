@@ -40,22 +40,25 @@ class ParticleDepictor(NapariDepictor):
                                      edge_width=self.vector_widths[ax],
                                      )
 
-    def _pad_to_ndim(self, array, value):
+    def _pad_to_ndim(self, array, fill_value):
         """
         pad an array containing only spatial dimensions to match the total amount of dimensions
-        value: pad with this value
+        of the particles (including non-spatial ones)
+
+        value: value used to fill the padding
         """
         non_spatial_dims = max(self.datablock.positions.data.shape[1] - 3, 0)
         if array.ndim == 1:
             # 1D array, pad to the left
-            return np.pad(array, (non_spatial_dims, 0), constant_values=value)
+            return np.pad(array, (non_spatial_dims, 0), constant_values=fill_value)
         elif array.ndim == 2:
             # 2D array, pad to the left of 2nd dim
-            return np.pad(array, ((0, 0), (non_spatial_dims, 0)), constant_values=value)
+            return np.pad(array, ((0, 0), (non_spatial_dims, 0)), constant_values=fill_value)
         raise ValueError(f"cannot pad array of shape {array.shape}")
 
     def get_positions(self):
         positions = self.datablock.positions.as_zyx
+        # padding must be done with ones to be neutral in multiplication
         padded_pixel_size = self._pad_to_ndim(self.datablock.pixel_size, 1)
         padded_rescale = self._pad_to_ndim(self.rescale, 1)
         return positions * padded_rescale * padded_pixel_size
@@ -73,6 +76,7 @@ class ParticleDepictor(NapariDepictor):
         all_vectors = {}
         for ax in 'zyx':
             vectors = ori @ self._unit_vector(ax)
+            # must pad to match positions (with eros, otherwise vectors will pierce non-spatial dims)
             shifted_vectors = np.stack([pos, self._pad_to_ndim(vectors, 0)], axis=1)
             all_vectors[ax] = shifted_vectors
         return all_vectors
