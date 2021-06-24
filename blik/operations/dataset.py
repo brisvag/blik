@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ..datablocks import ParticleBlock, ImageBlock
+from ..datablocks import ParticleBlock
 from ..dataset import DataSet
 
 
@@ -13,7 +13,7 @@ def stack_particles_series(dataset):
     all_stacked = []
     for v_name in dataset.volumes.keys():
         particles = dataset[v_name].particles
-        images = dataset[v_name].images
+        rest = [pb for pb in dataset if pb not in particles]
         positions = np.concatenate(particles.positions.data)
         # add a dim to the left and number it
         positions = np.pad(positions, ((0, 0), (1, 0)))
@@ -26,6 +26,6 @@ def stack_particles_series(dataset):
                                 properties_data=properties,
                                 volume=v_name)
         all_stacked.append(stacked)
-        all_stacked.extend(images)
+        all_stacked.extend(rest)
 
     return DataSet(all_stacked)
