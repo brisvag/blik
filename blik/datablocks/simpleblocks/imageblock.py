@@ -30,6 +30,7 @@ class ImageBlock(SpatialBlock, SimpleBlock):
     def shape(self):
         return self.data.shape
 
+    @property
     def is_3D(self):
         return self.shape[-3] > 1
 

@@ -31,6 +31,7 @@ class OrientationBlock(SpatialBlock, SimpleBlock):
     def n(self):
         return len(self.data)
 
+    @property
     def is_3D(self):
         return np.any(self.data[:, 2, :2]) \
             and np.any(self.data[:, :2, 2]) \

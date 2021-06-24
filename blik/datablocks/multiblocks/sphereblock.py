@@ -10,6 +10,7 @@ class SphereBlock(SpatialBlock, MultiBlock):
     """
     _block_types = {'centers': PointBlock, 'radii': PropertyBlock}
 
+    @property
     def is_3D(self):
         return True
 

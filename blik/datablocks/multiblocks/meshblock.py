@@ -11,6 +11,7 @@ class MeshBlock(SpatialBlock, MultiBlock):
     _block_types = {'vertices': PointBlock, 'faces': PropertyBlock}
     _depiction_modes = {'default': MeshDepictor}
 
+    @property
     def is_3D(self):
         return self.vertices.is_3D()
 

@@ -32,6 +32,7 @@ class SpatialBlock(ABC):
         self.parent._pixel_size = pixel_size
         self.update()
 
+    @property
     @abstractmethod
     def is_3D(self):
         """
