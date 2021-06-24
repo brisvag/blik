@@ -65,10 +65,17 @@ class ParticleDepictor(NapariDepictor):
         return all_vectors
 
     def set_rescale(self):
+        """
+        dig through all the datablocks sharing this volume. If any are images, use their shape
+        to rescale the normalized coords of the particles to the original ones
+        """
+        if self.datablock.volume is None:
+            # None volumes are by definition single datablocks so we can should skip them
+            return
         pos = self.datablock.positions.data
         if 0 <= pos.min().item() <= pos.max().item() <= 1:
-            dataset = self.datablock.dataset
-            if dataset:
+            datasets = self.datablock.datasets
+            for dataset in datasets:
                 same_volume = dataset.volumes[self.datablock.volume]
                 from ...datablocks import ImageBlock
                 for db in same_volume:
