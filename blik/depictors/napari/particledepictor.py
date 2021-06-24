@@ -41,10 +41,16 @@ class ParticleDepictor(NapariDepictor):
                                      )
 
     def _pad_to_ndim(self, array, value):
+        """
+        pad an array containing only spatial dimensions to match the total amount of dimensions
+        value: pad with this value
+        """
         non_spatial_dims = max(self.datablock.positions.data.shape[1] - 3, 0)
         if array.ndim == 1:
+            # 1D array, pad to the left
             return np.pad(array, (non_spatial_dims, 0), constant_values=value)
         elif array.ndim == 2:
+            # 2D array, pad to the left of 2nd dim
             return np.pad(array, ((0, 0), (non_spatial_dims, 0)), constant_values=value)
         raise ValueError('cannot pad array of shape')
 
