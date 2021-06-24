@@ -45,7 +45,7 @@ class ParticleDepictor(NapariDepictor):
         pad an array containing only spatial dimensions to match the total amount of dimensions
         of the particles (including non-spatial ones)
 
-        value: value used to fill the padding
+        fill_value: value used to fill the padding
         """
         non_spatial_dims = max(self.datablock.positions.data.shape[1] - 3, 0)
         if array.ndim == 1:
