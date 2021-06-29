@@ -57,4 +57,4 @@ class PropertyBlock(SimpleBlock):
         return self.__view__(data=data)
 
     def __shape_repr__(self):
-        return f'({len(self.data)}, {len(self.data.columns)})'
+        return f'({self.data.shape})'

@@ -9,7 +9,7 @@ class MetaMultiBlock(MetaBlock):
     for all subclasses of DataBlock
     """
     _inherited_params = ('name', 'volume', 'dataset', 'parent', 'view_of',
-                         'pixel_size', 'dims_order', 'ndim')
+                         'pixel_size', 'dims_order')
 
     def __new__(cls, name, bases, dct):
         # update _block_types based on bases:

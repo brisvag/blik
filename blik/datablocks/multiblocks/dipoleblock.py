@@ -21,8 +21,8 @@ class DipoleBlock(SpatialBlock, MultiBlock):
     def n(self):
         return self.startpoints.n
 
-    def _ndim(self):
-        return self.startpoints._ndim()
+    def is_3D(self):
+        return self.startpoints.is_3D()
 
     @property
     def orientation_vectors(self):
@@ -75,4 +75,4 @@ class DipoleBlock(SpatialBlock, MultiBlock):
         return OrientationBlock(data=rotation_matrices)
 
     def __shape_repr__(self):
-        return f'({self.n}, {self.ndim})'
+        return f'({self.n})'

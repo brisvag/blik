@@ -15,35 +15,26 @@ class SpatialBlock(ABC):
 
     @property
     def pixel_size(self):
-        pixel_size = self.parent._pixel_size
-        # calculate on get, not on set, so we can set without triggering lazy loader
+        return self.parent._pixel_size
+
+    @pixel_size.setter
+    def pixel_size(self, pixel_size):
         # cast to float first, so np.any can work
         if isinstance(pixel_size, np.ndarray):
             pixel_size = pixel_size.astype(float)
         else:
             pixel_size = float(pixel_size)
         if not np.any(pixel_size):
-            pixel_size = np.ones(self.ndim)
+            # sometimes values are set to 0 in files, and that's obviously wrong
+            pixel_size = np.ones(3)
         else:
-            pixel_size = np.broadcast_to(pixel_size, self.ndim)
-        return pixel_size
-
-    @pixel_size.setter
-    def pixel_size(self, value):
-        self.parent._pixel_size = value
+            pixel_size = np.broadcast_to(pixel_size, 3)
+        self.parent._pixel_size = pixel_size
         self.update()
 
-    @abstractmethod
-    def _ndim(self):
-        pass
-
     @property
-    def ndim(self):
+    @abstractmethod
+    def is_3D(self):
         """
-        return the number of spatial dimensions of this datablock
+        return whether the datablock contains any information in the third dimension
         """
-        if hasattr(self, '._loaded') and not self._loaded:
-            return 1
-        # view_of instead of parent, lets us have different ndim for blocks inside multiblock, if ever useful
-        return self.view_of._ndim()
-

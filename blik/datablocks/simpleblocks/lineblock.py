@@ -9,28 +9,11 @@ class LineBlock(PointBlock):
     """
     LineBlock objects represent lines with convenience methods
 
-    LineBlock line data should be array-like objects of shape (n, m) representing
-    n ordered points in m spatial dimensions
-
-    order of dimensions along m is:
-    2d : (x, y)
-    3d : (x. y, z)
-    nd : (..., x, y, z)
-
-    Polarity (direction) of lines, lines start from 0 to n along the 0th dimension
+    LineBlock data should be array-like objects of shape (n, d) representing n points in d dimensions
     """
     _depiction_modes = {'default': LineDepictor}
 
     def __init__(self, *, spline_smoothing_parameter=0, **kwargs):
-        """
-
-        Parameters
-        ----------
-        data : array-like objects of shape (n, m) representing n ordered points
-        in m spatial dimensions
-        kwargs : kwargs are passed to SimpleBlock object
-
-        """
         super().__init__(**kwargs)
 
         # initialise attributes related to spline fitting

@@ -122,10 +122,6 @@ class Viewer:
             return
         self.volume_selector.setCurrentText(volume)
         datablocks = self.dataset.omni + self.dataset.volumes[volume]
-        ndim = 2
-        for db in datablocks:
-            ndim = max(ndim, getattr(db, 'ndim', 2))
-        self.napari_viewer.dims.ndisplay = ndim
 
         layers = []
         plots = []

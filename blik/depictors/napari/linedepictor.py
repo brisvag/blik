@@ -10,7 +10,7 @@ class LineDepictor(NapariDepictor):
                    'edge_width': 1}
 
         # get points data in napari expected order
-        points_data = self.datablock.zyx
+        points_data = self.datablock.as_zyx
 
         # get smooth backbone data in napari expected order
         backbone_data = self.datablock.smooth_backbone[:, ::-1]

@@ -11,8 +11,9 @@ class MeshBlock(SpatialBlock, MultiBlock):
     _block_types = {'vertices': PointBlock, 'faces': PropertyBlock}
     _depiction_modes = {'default': MeshDepictor}
 
-    def _ndim(self):
-        return self.vertices._ndim()
+    @property
+    def is_3D(self):
+        return self.vertices.is_3D()
 
     @property
     def triangles(self):
@@ -30,3 +31,6 @@ class MeshBlock(SpatialBlock, MultiBlock):
                     n midpoints in m dimensions
         """
         return self.triangles.mean(axis=1)
+
+    def __shape_repr__(self):
+        return f'{self.vertices.n, self.faces.n}'

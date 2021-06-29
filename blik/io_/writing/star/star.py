@@ -37,7 +37,7 @@ def write_star(particleblock, file_path, data_colums=None, overwrite=False):
     data_colums: particleblock properties to include as columns
     """
     coords = particleblock.positions.data
-    dim = particleblock.ndim
+    dim = 3 if particleblock.is_3D else 2
     orientation_matrices = particleblock.orientations.data
     if data_colums is not None:
         properties = particleblock.properties.data[data_colums].to_numpy()

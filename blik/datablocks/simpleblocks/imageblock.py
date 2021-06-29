@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class ImageBlock(SpatialBlock, SimpleBlock):
     """
     Image block
+
+    data must have at least 2 dims; spatial dimensions are ordered zyx
     """
     _depiction_modes = {'default': ImageDepictor}
 
@@ -19,13 +21,18 @@ class ImageBlock(SpatialBlock, SimpleBlock):
         data = np.asarray(data)  # asarray does not copy unless needed
         if data.ndim < 2:
             raise ValueError('images must have at least 2 dimensions')
-        elif data.ndim > 3:
-            raise NotImplementedError('images with more than 3 dimensions are not yet implemented')
+        if data.ndim == 2:
+            # prepend z dim if missing
+            data = data[np.newaxis]
         return data
 
     @property
     def shape(self):
         return self.data.shape
 
-    def _ndim(self):
-        return self.data.ndim
+    @property
+    def is_3D(self):
+        return self.shape[-3] > 1
+
+    def __shape_repr__(self):
+        return f'{self.shape}'

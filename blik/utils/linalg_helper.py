@@ -45,5 +45,6 @@ def dim_names_to_indexes(names, order='xyz'):
     indexes = []
     for dim in list(names):
         idx = dims_order.index(dim)
-        indexes.append(idx)
+        # return negative indexes to account for non-spatial dims
+        indexes.append(idx - 3)
     return indexes

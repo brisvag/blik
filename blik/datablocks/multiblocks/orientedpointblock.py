@@ -9,8 +9,9 @@ class OrientedPointBlock(SpatialBlock, MultiBlock):
     def n(self):
         return self.positions.n
 
-    def _ndim(self):
-        return self.positions._ndim()
+    @property
+    def is_3D(self):
+        return self.positions.is_3D
 
     def __shape_repr__(self):
-        return f'({self.n}, {self.ndim})'
+        return f'({self.n})'
