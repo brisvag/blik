@@ -13,14 +13,14 @@ class DataBlock(ABC, metaclass=MetaBlock):
     """
     _depiction_modes = {}
 
-    def __init__(self, *, name=None, volume=None, dataset=None, multiblock=None, view_of=None, file_path=''):
+    def __init__(self, *, name=None, volume=None, datasets=set(), multiblock=None, view_of=None, file_path=''):
         self._multiblock = multiblock
         self._view_of = view_of
         if name is None:
             name = token_hex(8)
         # set even in case of view/multiblock, as fallback
         self._name = name
-        self._dataset = dataset
+        self._datasets = datasets
         self._volume = volume
         self._file_path = file_path
         self._depictors = []
@@ -41,12 +41,8 @@ class DataBlock(ABC, metaclass=MetaBlock):
         return self.view_of.multiblock
 
     @property
-    def dataset(self):
-        return self.parent._dataset
-
-    @dataset.setter
-    def dataset(self, dataset):
-        self.parent._dataset = dataset
+    def datasets(self):
+        return self.parent._datasets
 
     @property
     def name(self):
@@ -79,9 +75,10 @@ class DataBlock(ABC, metaclass=MetaBlock):
 
     def add_to_same_volume(self, datablocks):
         datablocks = listify(datablocks)
-        self.dataset.extend(datablocks)
         for db in datablocks:
             db.volume = self.volume
+        for dataset in self.datasets:
+            dataset.extend(datablocks)
 
     def __view__(self, **kwargs):
         return type(self)(view_of=self.view_of, **kwargs)

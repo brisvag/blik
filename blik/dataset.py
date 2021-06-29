@@ -53,6 +53,10 @@ class DataSet:
     def is_view(self):
         return self.view_of is not self
 
+    def copy(self, new_name=None):
+        cp = DataSet(self, name=new_name)
+        return cp
+
     def _sanitize(self, iterable, deduplicate=True):
         listified = listify(iterable)
         for item in listified:
@@ -72,10 +76,7 @@ class DataSet:
     def _hook_onto_datablocks(self, datablocks):
         if not self.is_view():
             for db in datablocks:
-                # TODO: this is broken. Needs to be fixed, if possible.
-                # if db.dataset is not None:
-                    # raise RuntimeError('Datablocks cannot be assigned to a new DataSet.')
-                db.dataset = self
+                db.datasets.add(self)
 
     def _nested(self, as_list=False):
         nested = defaultdict(list)
@@ -193,12 +194,18 @@ class DataSet:
     def remove(self, item):
         self._data.remove(item)
 
-    # TODO: adding dataset needs some more work. Name clashing and similar issues need to be solved.
-    # def __add__(self, other):
-        # if isinstance(other, DataSet):
-            # return DataSet(self._data + self._sanitize(other))
-        # else:
-            # return NotImplemented
+    def __add__(self, other):
+        if isinstance(other, (DataSet, list)):
+            return DataSet(self._data + self._sanitize(other))
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, (DataSet, list)):
+            self.extend(other)
+            return self
+        else:
+            return NotImplemented
 
     # REPRESENTATION
     def __shape_repr__(self):
