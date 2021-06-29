@@ -4,9 +4,9 @@ from math import log10, ceil
 
 import numpy as np
 
-from .datablocks import DataBlock, ParticleBlock, ImageBlock
-from .utils import DispatchList, listify
-from .gui import Viewer
+from ..datablocks import DataBlock, ParticleBlock, ImageBlock
+from ..utils import DispatchList, listify
+from ..gui import Viewer
 
 
 class DataSet:
