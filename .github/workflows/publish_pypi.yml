@@ -9,7 +9,7 @@ jobs:
   deploy:
     name: Create Release
     runs-on: ubuntu-latest
-    if: github.repository == 'gutsche-lab/peepingtom'
+    if: github.repository == 'gutsche-lab/blik'
     steps:
     - name: Checkout code
       uses: actions/checkout@master
