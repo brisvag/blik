@@ -31,7 +31,7 @@ jobs:
         python -m pip install -r requirements.txt
     - name: Run Tests
       run: |
-        xvfb-run pytest --cov=./peepingtom
+        xvfb-run pytest --cov=./blik
         codecov
     - name: Upload report to codecov
       run: |
