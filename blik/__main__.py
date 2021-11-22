@@ -1,6 +1,3 @@
-import sys
-
-from IPython.terminal.embed import InteractiveShellEmbed
 import click
 
 
@@ -23,6 +20,7 @@ import click
               help='read data lazily (if possible)')
 @click.option('--no-show', is_flag=True,
               help='only create the DataSet, without showing the data in napari')
+@click.version_option()
 def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, no_show):
     """
     Blik command line interface.
@@ -53,12 +51,16 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
 
     if dry_run:
         from blik.io_.reading.main import find_files
-        files = find_files(paths)
-        print('Files found:')
-        print(*(str(file) for file in files), sep='\n')
-        sys.exit()
+        files = [str(file) for file in find_files(paths)]
+        if files:
+            click.echo('Files found:\n' + '\n'.join(files))
+        else:
+            click.echo('No files found.')
+        click.get_current_context().exit()
 
-    import blik 
+    import blik
+    from IPython.terminal.embed import InteractiveShellEmbed
+
     dataset = blik.read(*paths,  # noqa: F841
                      name=name,
                      mode=mode,
