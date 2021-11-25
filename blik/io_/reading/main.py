@@ -90,7 +90,6 @@ def read_files(*globs,
          name_regex=None,
          pixel_size=None,
          strict=False,
-         mmap=False,
          lazy=True,
          **kwargs):
     r"""
@@ -109,7 +108,6 @@ def read_files(*globs,
     File reading arguments:
         strict: if set to true, immediately fail if a matched filename cannot be read by Blik
     Performance arguments:
-        mmap: open file in memory map mode (if possible)
         lazy: read data lazily (if possible)
     """
     # if changing the signature of this function, change the one in `__main__.cli` as well!
@@ -123,7 +121,7 @@ def read_files(*globs,
         try:
             logger.info(f'attempting to read "{file}"')
             datablocks.extend(read_file(file, name_regex=name_regex, pixel_size=pixel_size,
-                                        mmap=mmap, lazy=lazy, **kwargs))
+                                        lazy=lazy, **kwargs))
         except ParseError as e:
             logger.info(f'failed to read "{file}": {e}')
             if strict:
