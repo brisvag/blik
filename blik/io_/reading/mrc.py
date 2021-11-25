@@ -2,6 +2,7 @@ import logging
 
 import mrcfile
 import dask.array as da
+import numpy as np
 
 from ...datablocks import ImageBlock
 from ..utils import guess_name
@@ -17,13 +18,13 @@ def read_mrc(image_path, name_regex=None, lazy=True, **kwargs):
     """
     name = guess_name(image_path, name_regex)
 
-    if lazy:
-        mrc = mrcfile.mmap(image_path)
-    else:
-        mrc = mrcfile.open(image_path)
+    with mrcfile.mmap(image_path) as mrc:
+        if lazy:
+            data = da.from_array(mrc.data)
+        else:
+            data = np.asarray(mrc.data)
 
-    data = da.from_array(mrc.data)
-    pixel_size = structured_to_unstructured(mrc.voxel_size)[::-1]
+        pixel_size = structured_to_unstructured(mrc.voxel_size)[::-1]
 
     ib = ImageBlock(data=data, pixel_size=pixel_size, name=name)
     logger.debug(f'succesfully read "{image_path}", {lazy=}')

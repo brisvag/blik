@@ -2,6 +2,7 @@ import logging
 
 import emfile
 import dask.array as da
+import numpy as np
 
 from ...datablocks import ImageBlock
 from ..utils import guess_name
@@ -16,11 +17,12 @@ def read_em(image_path, name_regex=None, lazy=True, **kwargs):
     """
     name = guess_name(image_path, name_regex)
 
+    header, data = emfile.read(image_path, mmap=True)
+    
     if lazy:
-        header, data = emfile.read(image_path, mmap=True)
         data = da.from_array(data)
     else:
-        header, data = emfile.read(image_path)
+        data = np.asarray(data)
 
     pixel_size = header['OBJ']
 
