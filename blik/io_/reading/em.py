@@ -18,7 +18,7 @@ def read_em(image_path, name_regex=None, lazy=True, **kwargs):
     name = guess_name(image_path, name_regex)
 
     header, data = emfile.read(image_path, mmap=True)
-    
+
     if lazy:
         data = da.from_array(data)
     else:
