@@ -1,7 +1,14 @@
+import logging
+
 import emfile
+import dask.array as da
+import numpy as np
 
 from ...datablocks import ImageBlock
 from ..utils import guess_name
+
+
+logger = logging.getLogger(__name__)
 
 
 def read_em(image_path, name_regex=None, lazy=True, **kwargs):
@@ -10,12 +17,15 @@ def read_em(image_path, name_regex=None, lazy=True, **kwargs):
     """
     name = guess_name(image_path, name_regex)
 
-    def loader(imageblock):
-        header, data = emfile.read(image_path)
-        imageblock.data = data
-        imageblock.pixel_size = header['OBJ']
+    header, data = emfile.read(image_path, mmap=True)
 
-    ib = ImageBlock(lazy_loader=loader, name=name)
-    if not lazy:
-        ib.load()
+    if lazy:
+        data = da.from_array(data)
+    else:
+        data = np.asarray(data)
+
+    pixel_size = header['OBJ']
+
+    ib = ImageBlock(data=data, pixel_size=pixel_size, name=name)
+    logger.debug(f'succesfully read "{image_path}", {lazy=}')
     return ib

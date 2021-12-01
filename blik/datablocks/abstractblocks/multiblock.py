@@ -43,7 +43,3 @@ class MultiBlock(DataBlock, metaclass=MetaMultiBlock):
             sliced = block.__getitem__(key)
             subslices[f'{block_name}_data'] = sliced
         return self.__view__(**subslices)
-
-    @property
-    def _loaded(self):
-        return all(db._loaded for db in self.blocks)

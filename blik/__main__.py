@@ -14,14 +14,12 @@ import click
               help='only show the list of files that would be read')
 @click.option('--strict', is_flag=True,
               help='immediately fail if a matched path cannot be read')
-@click.option('--mmap', is_flag=True,
-              help='open file in memory map mode (if possible)')
 @click.option('--lazy', is_flag=True, default=True,
               help='read data lazily (if possible)')
 @click.option('--no-show', is_flag=True,
               help='only create the DataSet, without showing the data in napari')
 @click.version_option()
-def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, no_show):
+def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, lazy, no_show):
     """
     Blik command line interface.
 
@@ -67,7 +65,6 @@ def cli(paths, mode, name_regex, pixel_size, dry_run, strict, name, mmap, lazy, 
                      name_regex=name_regex,
                      pixel_size=pixel_size,
                      strict=strict,
-                     mmap=mmap,
                      lazy=lazy,
                      )
 

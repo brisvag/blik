@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import dask.array as da
 
 from ..abstractblocks import SpatialBlock, SimpleBlock
 from ...depictors import ImageDepictor
@@ -18,7 +19,7 @@ class ImageBlock(SpatialBlock, SimpleBlock):
     _depiction_modes = {'default': ImageDepictor}
 
     def _data_setter(self, data):
-        data = np.asarray(data)  # asarray does not copy unless needed
+        data = da.asarray(data)
         if data.ndim < 2:
             raise ValueError('images must have at least 2 dimensions')
         if data.ndim == 2:

@@ -122,11 +122,8 @@ class DataBlock(ABC, metaclass=MetaBlock):
 
     def __short_repr__(self):
         # needed so this works for lazy multiblocs and simpleblocks
-        shape = ''
-        if getattr(self, '_loaded', False):
-            shape = self.__shape_repr__()
         return (f'{type(self).__name__}{self.__view_repr__()}'
-                f'{self.__name_repr__()}{shape}')
+                f'{self.__name_repr__()}{self.__shape_repr__()}')
 
     def __repr__(self):
         return self.__short_repr__()
