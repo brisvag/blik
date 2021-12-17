@@ -9,11 +9,11 @@ on:
 #  schedule:
 #    - cron: '31 0 * * *'
   push:
-    branches: [ main ]
+    branches: [ master ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -91,7 +91,7 @@ jobs:
     needs: build1
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/truatpasteurdotfr/docker-c7-singularity-builder:main
+      image: ghcr.io/truatpasteurdotfr/docker-c7-singularity-builder:master
       options: --privileged
     permissions:
       contents: read
