@@ -12,6 +12,16 @@
 
 **DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
 
+## Containers [![Docker and Singularity build](https://github.com/truatpasteurdotfr/blik/actions/workflows/docker-singularity-publish.yml/badge.svg)](https://github.com/truatpasteurdotfr/blik/actions/workflows/docker-singularity-publish.yml)
+
+Docker (based on napari docker image)
+```
+docker pull ghcr.io/truatpasteurdotfr/blik:master
+```
+Singularity
+```
+singularity exec -B /run oras://ghcr.io/truatpasteurdotfr/blik:latest blick .....
+```
 ## Installation
 
 ```bash
