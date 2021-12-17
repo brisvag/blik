@@ -91,7 +91,7 @@ jobs:
     needs: build1
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/truatpasteurdotfr/docker-c7-singularity-builder:master
+      image: ghcr.io/truatpasteurdotfr/docker-c7-singularity-builder:main
       options: --privileged
     permissions:
       contents: read
