@@ -1,2 +1,22 @@
 name: blik
 display_name: blik
+contributions:
+  commands:
+    - id: blik.get_reader
+      python_name: blik._plugin.reader:get_reader
+      title: Open data with blik
+    - id: blik.blik_widget
+      python_name: blik._plugin.widget:volume_widget
+      title: Create blik widget
+  readers:
+    - command: blik.get_reader
+      filename_patterns:
+        - '*.mrc'
+        - '*.em'
+        - '*.star'
+        - '*.tbl'
+        - '*.box'
+        - '*.cbox'
+  widgets:
+    - command: blik.blik_widget
+      display_name: blik
