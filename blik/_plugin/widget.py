@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 
 
 def _get_choices(wdg):
+    """
+    generate choices for the volume dropdown based on the layers in the layerlist
+    """
     viewer = find_viewer_ancestor(wdg.native)
     if not viewer:
         return []
@@ -19,12 +22,28 @@ def _get_choices(wdg):
     return sorted(list(choices))
 
 
+def _on_init(wdg):
+    """
+    hook up widget to update choices wheneven things change in the layerlist
+    """
+    @wdg.parent_changed.connect
+    def _look_for_viewer():
+        viewer = find_viewer_ancestor(wdg.native)
+        if viewer:
+            viewer.layers.events.inserted.connect(wdg.volume.reset_choices)
+            viewer.layers.events.removed.connect(wdg.volume.reset_choices)
+
+
 @magic_factory(
     auto_call=True,
     call_button=False,
+    widget_init=_on_init,
     volume=dict(choices=_get_choices),
 )
-def volume_widget(viewer: 'napari.Viewer', volume):
+def volume_selector(viewer: 'napari.Viewer', volume):
+    """
+    Select which volume to display in napari and hide everything else.
+    """
     if viewer is None:
         return
     for layer in viewer.layers:
