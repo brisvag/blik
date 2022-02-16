@@ -34,7 +34,8 @@ jobs:
           pip install setuptools tox tox-gh-actions
       - name: Test with tox
         uses: GabrielBB/xvfb-action@v1
-        run: python -m tox
+        with:
+          run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
       - name: Coverage
