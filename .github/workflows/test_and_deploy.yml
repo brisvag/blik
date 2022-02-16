@@ -33,6 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools tox tox-gh-actions
       - name: Test with tox
+        uses: GabrielBB/xvfb-action@v1
         run: python -m tox
         env:
           PLATFORM: ${{ matrix.platform }}
