@@ -12,6 +12,8 @@ contributions:
     - command: blik.get_reader
       filename_patterns:
         - '*.mrc'
+        - '*.mrcs'
+        - '*.st'
         - '*.em'
         - '*.star'
         - '*.tbl'
