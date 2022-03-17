@@ -59,7 +59,7 @@ def read_image(image):
         dict(
             name=f'{image.name} - image',
             scale=image.pixel_size,
-            metadata={'volume': image.name},
+            metadata={'volume': image.name, 'stack': image.stack},
             interpolation='spline36',
         ),
         'image',

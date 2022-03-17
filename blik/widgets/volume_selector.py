@@ -25,6 +25,8 @@ def _get_choices(wdg):
 def _on_init(wdg):
     """
     hook up widget to update choices wheneven things change in the layerlist
+
+    also sets up a few things on the viewer
     """
     @wdg.parent_changed.connect
     def _look_for_viewer():
@@ -32,6 +34,9 @@ def _on_init(wdg):
         if viewer:
             viewer.layers.events.inserted.connect(wdg.volume.reset_choices)
             viewer.layers.events.removed.connect(wdg.volume.reset_choices)
+
+            viewer.scale_bar.unit = '0.1nm'  # pixels are 1 Angstrom
+            viewer.scale_bar.visible = True
 
 
 @magic_factory(
