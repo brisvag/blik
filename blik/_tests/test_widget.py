@@ -1,4 +1,4 @@
-from blik._plugin.widget import volume_selector
+from blik.widgets.volume_selector import volume_selector
 import napari
 
 

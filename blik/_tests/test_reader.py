@@ -1,6 +1,6 @@
 import pandas as pd
 import starfile
-from blik._plugin.reader import get_reader
+from blik.reader import get_reader
 
 
 def test_reader(tmp_path):
