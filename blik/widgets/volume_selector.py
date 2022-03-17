@@ -49,11 +49,13 @@ def volume_selector(viewer: 'napari.Viewer', volume):
     """
     Select which volume to display in napari and hide everything else.
     """
+    sel = []
     if viewer is None:
         return
     for layer in viewer.layers:
         if layer.metadata['volume'] == volume:
             layer.visible = True
-            viewer.layers.selection = {layer}
+            sel.append(layer)
         else:
             layer.visible = False
+    viewer.layers.selection = set(sel)
