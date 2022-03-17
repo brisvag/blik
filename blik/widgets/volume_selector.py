@@ -54,5 +54,6 @@ def volume_selector(viewer: 'napari.Viewer', volume):
     for layer in viewer.layers:
         if layer.metadata['volume'] == volume:
             layer.visible = True
+            viewer.layers.selection = {layer}
         else:
             layer.visible = False
