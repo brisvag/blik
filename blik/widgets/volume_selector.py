@@ -16,9 +16,12 @@ def _get_choices(wdg):
 
     choices = set()
     for lay in viewer.layers:
-        if lay.source.reader_plugin != 'blik':
+        try:
+            vol = lay.metadata['blik_volume']
+        except KeyError:
             continue
-        choices.add(lay.metadata['volume'])
+        if vol is not None:
+            choices.add(vol)
     return sorted(list(choices))
 
 
@@ -43,7 +46,7 @@ def _on_init(wdg):
     auto_call=True,
     call_button=False,
     widget_init=_on_init,
-    volume=dict(choices=_get_choices),
+    volume=dict(choices=_get_choices, nullable=True),
 )
 def volume_selector(viewer: 'napari.Viewer', volume):
     """
@@ -53,7 +56,14 @@ def volume_selector(viewer: 'napari.Viewer', volume):
     if viewer is None:
         return
     for layer in viewer.layers:
-        if layer.metadata['volume'] == volume:
+        try:
+            layer_vol = layer.metadata['blik_volume']
+        except KeyError:
+            # leave untracked layers alone, and keep them in the selection if there
+            if layer in viewer.selection:
+                sel.append(layer)
+            continue
+        if layer_vol == volume:
             layer.visible = True
             sel.append(layer)
         else:

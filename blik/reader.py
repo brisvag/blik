@@ -26,7 +26,7 @@ def read_particles(particles):
             edge_width=0,
             scale=particles.pixel_size,
             shading='spherical',
-            metadata={'volume': particles.name}
+            metadata={'blik_volume': particles.name}
         ),
         'points',
     )
@@ -44,7 +44,7 @@ def read_particles(particles):
                 edge_color=color,
                 length=10,
                 scale=particles.pixel_size,
-                metadata={'volume': particles.name}
+                metadata={'blik_volume': particles.name}
             ),
             'vectors',
         )
@@ -59,19 +59,24 @@ def read_image(image):
         dict(
             name=f'{image.name} - image',
             scale=image.pixel_size,
-            metadata={'volume': image.name, 'stack': image.stack},
+            metadata={'blik_volume': image.name, 'stack': image.stack},
             interpolation='spline36',
         ),
         'image',
     )
 
 
-def read_layers(path):
-    data_list = read(path)
+def read_layers(*paths, **kwargs):
+    data_list = read(*paths, **kwargs)
     layers = []
     for data in data_list:
         if isinstance(data, Particles):
             layers.extend(read_particles(data))
         elif isinstance(data, Image):
             layers.append(read_image(data))
-    return layers
+
+    # fix until napari#4295 is merged
+    for lay in layers:
+        if lay[1]['scale'] is None:
+            lay[1]['scale'] = [1, 1, 1]
+    return layers or None
