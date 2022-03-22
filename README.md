@@ -8,36 +8,25 @@
 
 *it means glance in Dutch*
 
-**`blik`** is a python tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
+**`blik`** is a tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
 
-**DISCLAIMER**: this package is in early development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
+**DISCLAIMER**: this package is in development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
 
 ## Installation
 
+You can either install `blik` through the [napari plugin system](https://napari.org/plugins/index.html), through pip, or get both napari and blik directly with:
+
 ```bash
-pip install blik
+pip install blik[all]
 ```
 
 ## Basic Usage
 
 From the command line:
 ```bash
-blik /path/to.star /path/to/mrc/files/
+napari /path/to.star /path/to/mrc/files/* [-w blik]
 ```
 
-`blik` accepts any combination of files and directory, and will try find the right files and display them in napari. `blik` will also start an ipython shell with the following setup:
-```python
-import blik
-dataset = DataSet([your_data])
-viewer = dataset.napari_viewer
-```
+The optional `-w blik` addition will open the main blik widget and set up a few things (such as the scale bar) on the napari viewer.
 
-For more information, check out the help page with `blik -h` and [head over to the docs](https://gutsche-lab.github.io/blik).
-
-## `napari` integration
-
-*`blik` is just `napari`*. Particles and images are exposed as simple napari layers, which can be analysed and manipulated with simple python, and most importantly [napari plugins](https://napari-hub.org/).
-
-### Property plotting
-
-Particles loaded from a star file or similar format will contain all the additional data that comes in additional columns. To plot this data and select particles based on it, check out [napari-property-plotter](https://github.com/brisvag/napari-properties-plotter).
+*`blik` is just `napari`*. Particles and images are exposed as simple napari layers, which can be analysed and manipulated with simple python, and most importantly other [napari plugins](https://napari-hub.org/).
