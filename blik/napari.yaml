@@ -8,6 +8,9 @@ contributions:
     - id: blik.volume_selector
       python_name: blik.widgets.volume_selector:volume_selector
       title: Create blik widget
+    - id: blik.file_reader
+      python_name: blik.widgets.file_reader:file_reader
+      title: Create blik widget
     - id: blik.bandpass_filter
       python_name: blik.widgets.filter:bandpass_filter
       title: Create bandpass filter widget
@@ -28,6 +31,8 @@ contributions:
   widgets:
     - command: blik.volume_selector
       display_name: volume selector
+    - command: blik.file_reader
+      display_name: file reader
     - command: blik.bandpass_filter
       display_name: bandpass filter
     - command: blik.gaussian_filter
