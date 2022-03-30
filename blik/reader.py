@@ -75,8 +75,9 @@ def read_layers(*paths, **kwargs):
         elif isinstance(data, Image):
             layers.append(read_image(data))
 
-    # fix until napari#4295 is merged
     for lay in layers:
+        lay[1]['visible'] = False  # speed up loading
         if lay[1]['scale'] is None:
+            # fix until napari#4295 is merged
             lay[1]['scale'] = [1, 1, 1]
     return layers or None
