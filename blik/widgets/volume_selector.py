@@ -46,7 +46,7 @@ def _on_init(wdg):
     auto_call=True,
     call_button=False,
     widget_init=_on_init,
-    volume=dict(choices=_get_choices, nullable=True),
+    volume=dict(widget_type='ComboBox', choices=_get_choices, nullable=True),
 )
 def volume_selector(viewer: 'napari.Viewer', volume):
     """
