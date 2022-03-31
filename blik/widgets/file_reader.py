@@ -18,6 +18,7 @@ def file_reader(
     files: List[Path],
     name_regex: List[str],
     names: List[str],
+    as_dask_array: bool = True,
 ) -> 'napari.types.LayerDataTuple':
     """
     Read files with blik.
@@ -25,4 +26,4 @@ def file_reader(
     name_regex: a regex string. Matching text will be used as name for the piece of data
     names: only load data matching this comma separated list of names
     """
-    return read_layers(*files, name_regex=name_regex or None, names=names or None)
+    return read_layers(*files, name_regex=name_regex or None, names=names or None, lazy=as_dask_array)
