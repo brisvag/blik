@@ -1,5 +1,5 @@
 from magicgui import magic_factory
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from pathlib import Path
 
 from ..reader import read_layers
@@ -15,9 +15,9 @@ if TYPE_CHECKING:
     names=dict(widget_type='ListEdit'),
 )
 def file_reader(
-    files: list[Path],
-    name_regex: list[str],
-    names: list[str],
+    files: List[Path],
+    name_regex: List[str],
+    names: List[str],
 ) -> 'napari.types.LayerDataTuple':
     """
     Read files with blik.
