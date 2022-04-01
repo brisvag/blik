@@ -8,6 +8,8 @@
 
 *it means glance in Dutch*
 
+![blik showcase](https://user-images.githubusercontent.com/23482191/161224963-ad746a06-c2e5-46fe-a13b-f356bc4ad72b.png)
+
 **`blik`** is a tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
 
 **DISCLAIMER**: this package is in development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
