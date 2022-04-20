@@ -1,0 +1,39 @@
+name: blik
+display_name: blik
+contributions:
+  commands:
+    - id: blik.get_reader
+      python_name: blik.reader:get_reader
+      title: Open data with blik
+    - id: blik.volume_selector
+      python_name: blik.widgets.volume_selector:volume_selector
+      title: Create blik widget
+    - id: blik.file_reader
+      python_name: blik.widgets.file_reader:file_reader
+      title: Create blik widget
+    - id: blik.bandpass_filter
+      python_name: blik.widgets.filter:bandpass_filter
+      title: Create bandpass filter widget
+    - id: blik.gaussian_filter
+      python_name: blik.widgets.filter:gaussian_filter
+      title: Create gaussian filter widget
+  readers:
+    - command: blik.get_reader
+      filename_patterns:
+        - '*.mrc'
+        - '*.mrcs'
+        - '*.st'
+        - '*.em'
+        - '*.star'
+        - '*.tbl'
+        - '*.box'
+        - '*.cbox'
+  widgets:
+    - command: blik.volume_selector
+      display_name: volume selector
+    - command: blik.file_reader
+      display_name: file reader
+    - command: blik.bandpass_filter
+      display_name: bandpass filter
+    - command: blik.gaussian_filter
+      display_name: gaussian filter
