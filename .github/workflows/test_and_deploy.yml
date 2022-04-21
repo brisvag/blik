@@ -48,7 +48,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'gutsche-lab/naaf' && contains(github.ref, 'tags') }}
+    if: ${{ github.repository == 'gutsche-lab/blik' && contains(github.ref, 'tags') }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
