@@ -1,4 +1,4 @@
-![logo](docs/images/logo.png)
+![logo](https://github.com/gutsche-lab/blik/raw/main/docs/images/logo.png)
 
 # `blik`
 
