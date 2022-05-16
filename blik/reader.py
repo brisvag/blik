@@ -54,8 +54,11 @@ def read_particles(particles):
 
 
 def read_image(image):
+    data = image.data
+    if data.ndim == 2:
+        data = data[np.newaxis]
     return (
-        image.data,
+        data,
         dict(
             name=f'{image.name} - image',
             scale=image.pixel_size,
