@@ -14,7 +14,9 @@ def read_particles(particles):
     layers = []
     coords = np.asarray(particles.data[Naaf.COORD_HEADERS])[:, ::-1]  # order is zyx in napari
     rot = Rotation.concatenate(particles.data[Naaf.ROT_HEADER])
-    features = particles.data.drop(columns=Naaf.ALL_HEADERS, errors='ignore')
+    features = particles.data.drop(columns=Naaf.COORD_HEADERS, errors='ignore')
+    # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
+    scale = particles.pixel_size if particles.pixel_size is not None else np.array([1, 1, 1])
 
     pts = (
         coords,
@@ -22,11 +24,13 @@ def read_particles(particles):
             name=f'{particles.name} - particle positions',
             features=features,
             face_color='teal',
-            size=10,
+            size=50 / scale,
             edge_width=0,
-            scale=particles.pixel_size,
+            scale=scale,
             shading='spherical',
-            metadata={'blik_volume': particles.name}
+            antialiasing=0,
+            metadata={'blik_volume': particles.name},
+            out_of_slice_display=True,
         ),
         'points',
     )
@@ -63,7 +67,12 @@ def read_image(image):
             name=f'{image.name} - image',
             scale=image.pixel_size,
             metadata={'blik_volume': image.name, 'stack': image.stack},
-            interpolation='spline36',
+            interpolation2d='spline36',
+            interpolation3d='linear',
+            rendering='average',
+            depiction='plane',
+            blending='translucent',
+            plane=dict(thickness=5),
         ),
         'image',
     )
@@ -72,15 +81,13 @@ def read_image(image):
 def read_layers(*paths, **kwargs):
     data_list = read(*paths, **kwargs)
     layers = []
-    for data in data_list:
-        if isinstance(data, Particles):
-            layers.extend(read_particles(data))
-        elif isinstance(data, Image):
+    # sort so we get images first, better for some visualization circumstances
+    for data in sorted(data_list, key=lambda x: not isinstance(x, Image)):
+        if isinstance(data, Image):
             layers.append(read_image(data))
+        elif isinstance(data, Particles):
+            layers.extend(read_particles(data))
 
     for lay in layers:
         lay[1]['visible'] = False  # speed up loading
-        if lay[1]['scale'] is None:
-            # fix until napari#4295 is merged
-            lay[1]['scale'] = [1, 1, 1]
     return layers or None
