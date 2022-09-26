@@ -36,23 +36,28 @@ def read_particles(particles):
     )
     layers.append(pts)
 
-    for idx, (ax, color) in enumerate(zip('zyx', 'rgb')):  # order is zyx in napari
+    vec_data = np.empty((len(coords) * 3, 2, 3))
+    vec_color = np.empty((len(coords) * 3, 3))
+    for idx, (ax, color) in enumerate(zip('xyz', 'rgb')):
         basis = np.zeros(3)
-        basis[idx] = 1
+        basis[idx] = 1  # also acts as color (rgb)
         basis_rot = rot.apply(basis)[:, ::-1]  # order is zyx in napari
-        vec_data = np.stack([coords, basis_rot], axis=1)
-        vec = (
-            vec_data,
-            dict(
-                name=f'{particles.name} - particle orientations ({ax})',
-                edge_color=color,
-                length=10,
-                scale=particles.pixel_size,
-                metadata={'blik_volume': particles.name}
-            ),
-            'vectors',
-        )
-        layers.append(vec)
+        vec_data[idx::3] = np.stack([coords, basis_rot], axis=1)
+        vec_color[idx::3] = basis
+
+    vec = (
+        vec_data,
+        dict(
+            name=f'{particles.name} - particle orientations',
+            edge_color=vec_color,
+            length=50 / scale[0],
+            scale=scale,
+            metadata={'blik_volume': particles.name},
+            out_of_slice_display=True,
+        ),
+        'vectors',
+    )
+    layers.append(vec)
 
     return layers
 
