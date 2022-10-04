@@ -5,6 +5,12 @@ contributions:
     - id: blik.get_reader
       python_name: blik.reader:get_reader
       title: Open data with blik
+    - id: blik.write_image
+      python_name: blik.writer:write_image
+      title: Save image data with blik
+    - id: blik.write_particles
+      python_name: blik.writer:write_particles
+      title: Save particles data with blik
     - id: blik.volume_selector
       python_name: blik.widgets.volume_selector:volume_selector
       title: Create blik widget
@@ -28,6 +34,13 @@ contributions:
         - '*.tbl'
         - '*.box'
         - '*.cbox'
+  writers:
+    - command: blik.write_image
+      layer_types: ["image", "labels"]
+      filename_extensions: [".mrc", ".mrcs", ".st"]
+    - command: blik.write_particles
+      layer_types: ["points+", "vectors*"]
+      filename_extensions: [".star"]
   widgets:
     - command: blik.volume_selector
       display_name: volume selector
