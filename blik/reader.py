@@ -1,7 +1,6 @@
 from uuid import uuid1
 import warnings
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 from cryotypes.image import Image
 from cryotypes.poseset import PoseSet, PoseSetDataLabels as PSDL

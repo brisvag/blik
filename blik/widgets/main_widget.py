@@ -1,7 +1,10 @@
-from magicgui import magic_factory
+import numpy as np
+from magicgui import magic_factory, magicgui
+from magicgui.widgets import Container
 from typing import TYPE_CHECKING
 from napari.utils._magicgui import find_viewer_ancestor
-from napari.layers import Points, Vectors
+from napari.layers import Points, Vectors, Image
+from napari.utils.notifications import show_info
 from cryotypes.poseset import PoseSetDataLabels as PSDL
 
 from ..utils import generate_vectors
@@ -89,7 +92,7 @@ def _on_init(wdg):
     widget_init=_on_init,
     experiment_id=dict(widget_type='ComboBox', choices=_get_choices, nullable=True),
 )
-def main_widget(viewer: 'napari.Viewer', experiment_id):
+def experiment(viewer: 'napari.Viewer', experiment_id):
     """
     Select which experiment_id to display in napari and hide everything else.
     """
@@ -110,3 +113,55 @@ def main_widget(viewer: 'napari.Viewer', experiment_id):
         else:
             layer.visible = False
     viewer.layers.selection = set(sel)
+    experiment.current_layers = set(sel)
+
+
+@magicgui(
+    labels=False,
+    call_button='Add',
+)
+def add_layer(layer: 'napari.layers.Layer'):
+    """
+    add layer to the current experiment
+    """
+    layer.metadata['experiment_id'] = add_layer._main_widget['experiment'].experiment_id.value
+
+
+@magicgui(
+    labels=False,
+    call_button='Create',
+    l_type=dict(choices=['segmentation']),
+)
+def new(l_type) -> 'napari.types.LayerDataTuple':
+    """
+    create a new layer to add to this experiment
+    """
+    if l_type == 'segmentation':
+        layers = getattr(new._main_widget['experiment'], 'current_layers', [])
+        for lay in layers:
+            if isinstance(lay, Image):
+                exp_id = lay.metadata['experiment_id']
+                return (
+                    np.zeros(lay.data.shape, dtype=np.int32),
+                    {
+                        'name': f"{exp_id} - segmentation",
+                        'scale': lay.scale,
+                        'metadata': {'experiment_id': exp_id, 'stack': lay.metadata['stack']}
+                    },
+                    'labels'
+                )
+    show_info(f'cannot create a new {l_type}')
+
+
+class MainBlikWidget(Container):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.append(experiment(labels=False))
+
+        self.append(new)
+
+        self.append(add_layer)
+
+    def append(self, item):
+        super().append(item)
+        item._main_widget = self

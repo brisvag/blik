@@ -5,7 +5,9 @@ from naaf.writing.star import write_star
 
 
 def write_image(path, data, attributes):
-    img = Image(data=data, pixel_size=attributes['scale'][0], stack=attributes['metadata']['stack'])
+    if 'experiment_id' not in attributes['metadata']:
+        raise ValueError('cannot write a layer that does not have blik metadata. Add it to an experiment!')
+    img = Image(data=data, experiment_id='', pixel_spacing=attributes['scale'][0], stack=attributes['metadata']['stack'], source='')
     write_mrc(img, str(path), overwrite=True)
     return [path]
 
@@ -17,11 +19,10 @@ def write_particles(path, layer_data):
             # vector info is actually held in particles, but this makes it
             # convenient to select everything and save
             pass
-        elif 'blik_volume' in attributes['metadata']:
+        elif 'experiment_id' in attributes['metadata']:
             dfs.append(attributes['features'])
         else:
-            # for now just ignore other points
-            pass
+            raise ValueError('cannot write a layer that does not have blik metadata. Add it to an experiment!')
 
     df = pd.concat(dfs, axis=0, ignore_index=True)
     write_star(df, path, overwrite=True)

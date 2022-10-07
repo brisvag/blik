@@ -8,11 +8,14 @@ contributions:
     - id: blik.write_image
       python_name: blik.writer:write_image
       title: Save image data with blik
+    - id: blik.write_labels
+      python_name: blik.writer:write_image
+      title: Save labels data with blik
     - id: blik.write_particles
       python_name: blik.writer:write_particles
       title: Save particles data with blik
     - id: blik.main_widget
-      python_name: blik.widgets.main_widget:main_widget
+      python_name: blik.widgets.main_widget:MainBlikWidget
       title: Create blik widget
     - id: blik.file_reader
       python_name: blik.widgets.file_reader:file_reader
@@ -36,14 +39,17 @@ contributions:
         - '*.cbox'
   writers:
     - command: blik.write_image
-      layer_types: ["image", "labels"]
+      layer_types: ["image"]
+      filename_extensions: [".mrc", ".mrcs", ".st"]
+    - command: blik.write_labels
+      layer_types: ["labels"]
       filename_extensions: [".mrc", ".mrcs", ".st"]
     - command: blik.write_particles
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
   widgets:
     - command: blik.main_widget
-      display_name: volume selector
+      display_name: main widget
     - command: blik.file_reader
       display_name: file reader
     - command: blik.bandpass_filter
