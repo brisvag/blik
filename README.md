@@ -37,7 +37,3 @@ napari -w blik -- /path/to.star /path/to/mrc/files/*
 The `-w blik` is important for proper initialization of all the layers. Keep the main widget open to ensure nothing goes wrong!
 
 *`blik` is just `napari`*. Particles and images are exposed as simple napari layers, which can be analysed and manipulated with simple python, and most importantly other [napari plugins](https://napari-hub.org/).
-
-## Widget
-
-The main widget has a few functions:

@@ -4,16 +4,20 @@
 
 From the command line:
 ```bash
-napari /path/to.star /path/to/mrc/files/* [-w blik]
+napari -w blik -- /path/to.star /path/to/mrc/files/*
 ```
 
-Specifying `-w blik` will also open the volume selector widget and set up some things, such as layer visibility and the scale bar.
+The `-w blik` is important for proper initialization of all the layers. Keep the main widget open to ensure nothing goes wrong!
 
 
 ## Widgets
-### Volume Selector
+### Main Widget
 
-In the `napari` GUI, you'll find the `volume selector`. Select which volume to visualize with the dropdown menu, and the relevant layers will be selected and made visible.
+In the `napari` GUI, you'll find the main blik widget. Select which experiment ID to visualize with the dropdown menu, and the relevant layers will be selected and made visible.
+
+Here you can also create a new segmentation (a simple napari labels layer) and automatically add it to the current experiment. This ensures that saving it will have all the correct metadata.
+
+You can add any existing layer to the currently selected experiment ID by using the `add layer` widget.
 
 
 ### File Reader
@@ -47,4 +51,6 @@ particles_02.tbl
 
 ### Filters
 
-Simple imaging filters (such as gaussian) to help with visualization.
+Simple imaging filters (such as gaussian) to help with visualization. In the future, these will be available as much faster gpu-based interpolations.
+
+
