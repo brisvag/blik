@@ -104,7 +104,7 @@ def experiment(viewer: 'napari.Viewer', experiment_id):
             layer_exp = layer.metadata['experiment_id']
         except KeyError:
             # leave untracked layers alone, and keep them in the selection if there
-            if layer in viewer.selection:
+            if layer in viewer.layers.selection:
                 sel.append(layer)
             continue
         if layer_exp == experiment_id:

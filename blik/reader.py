@@ -4,7 +4,7 @@ import numpy as np
 
 from cryotypes.image import Image
 from cryotypes.poseset import PoseSet, PoseSetDataLabels as PSDL
-from naaf import read
+from cryohub import read
 
 from .utils import generate_vectors
 

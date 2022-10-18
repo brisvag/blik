@@ -1,7 +1,7 @@
 import pandas as pd
-from naaf.writing.mrc import write_mrc
+from cryohub.writing.mrc import write_mrc
+from cryohub.writing.star import write_star
 from cryotypes.image import Image
-from naaf.writing.star import write_star
 
 
 def write_image(path, data, attributes):

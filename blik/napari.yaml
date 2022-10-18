@@ -19,13 +19,16 @@ contributions:
       title: Create blik widget
     - id: blik.file_reader
       python_name: blik.widgets.file_reader:file_reader
-      title: Create blik widget
+      title: Create reader widget
     - id: blik.bandpass_filter
       python_name: blik.widgets.filter:bandpass_filter
       title: Create bandpass filter widget
     - id: blik.gaussian_filter
       python_name: blik.widgets.filter:gaussian_filter
       title: Create gaussian filter widget
+    - id: blik.filament_picker
+      python_name: blik.widgets.filament_picker:filament_model
+      title: Create filament picker widget
   readers:
     - command: blik.get_reader
       filename_patterns:
@@ -56,3 +59,5 @@ contributions:
       display_name: bandpass filter
     - command: blik.gaussian_filter
       display_name: gaussian filter
+    - command: blik.filament_picker
+      display_name: filament picker
