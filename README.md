@@ -19,16 +19,21 @@
 You can either install `blik` through the [napari plugin system](https://napari.org/plugins/index.html), through pip, or get both napari and blik directly with:
 
 ```bash
-pip install blik[all]
+pip install "blik[all]"
 ```
+
+The `[all]` qualifier also installs `pyqt5` as the napari GUI backend, and a few additional napari plugins that you might find useful in your workflow:
+- [napari-properties-plotter](https://github.com/brisvag/napari-properties-plotter)
+- [napari-properties-viewer](https://github.com/kevinyamauchi/napari-properties-viewer)
+- [napari-label-interpolator](https://github.com/kevinyamauchi/napari-label-interpolator)
 
 ## Basic Usage
 
 From the command line:
 ```bash
-napari /path/to.star /path/to/mrc/files/* [-w blik]
+napari -w blik -- /path/to.star /path/to/mrc/files/*
 ```
 
-The optional `-w blik` addition will open the main blik widget and set up a few things (such as the scale bar) on the napari viewer.
+The `-w blik` is important for proper initialization of all the layers. Keep the main widget open to ensure nothing goes wrong!
 
 *`blik` is just `napari`*. Particles and images are exposed as simple napari layers, which can be analysed and manipulated with simple python, and most importantly other [napari plugins](https://napari-hub.org/).

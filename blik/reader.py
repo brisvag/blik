@@ -1,9 +1,12 @@
+from uuid import uuid1
+import warnings
 import numpy as np
-from scipy.spatial.transform import Rotation
 
-from naaf import read
-from naaf.data import Particles, Image
-from naaf.utils.constants import Naaf
+from cryotypes.image import Image
+from cryotypes.poseset import PoseSet, PoseSetDataLabels as PSDL
+from cryohub import read
+
+from .utils import generate_vectors
 
 
 def get_reader(path):
@@ -12,39 +15,52 @@ def get_reader(path):
 
 def read_particles(particles):
     layers = []
-    coords = np.asarray(particles.data[Naaf.COORD_HEADERS])[:, ::-1]  # order is zyx in napari
-    rot = Rotation.concatenate(particles.data[Naaf.ROT_HEADER])
-    features = particles.data.drop(columns=Naaf.ALL_HEADERS, errors='ignore')
+    for exp_id, df in particles.groupby(PSDL.EXPERIMENT_ID):
+        df = df.reset_index(drop=True)
 
-    pts = (
-        coords,
-        dict(
-            name=f'{particles.name} - particle positions',
-            features=features,
-            face_color='teal',
-            size=10,
-            edge_width=0,
-            scale=particles.pixel_size,
-            shading='spherical',
-            metadata={'blik_volume': particles.name}
-        ),
-        'points',
-    )
-    layers.append(pts)
+        ndim = 3 if PSDL.POSITION_Z in df else 2
+        coords = np.asarray(df[PSDL.POSITION[:ndim]])[:, ::-1]  # order is zyx in napari
+        shifts = np.asarray(df[PSDL.SHIFT[:ndim]])[:, ::-1]
+        coords += shifts
+        px_size = df[PSDL.PIXEL_SPACING].iloc[0]
+        if not px_size:
+            warnings.warn('unknown pixel spacing, setting to 1 Angstrom')
+            px_size = 1
+        scale = np.repeat(px_size, ndim)
 
-    for idx, (ax, color) in enumerate(zip('zyx', 'rgb')):  # order is zyx in napari
-        basis = np.zeros(3)
-        basis[idx] = 1
-        basis_rot = rot.apply(basis)[:, ::-1]  # order is zyx in napari
-        vec_data = np.stack([coords, basis_rot], axis=1)
+        # unique id so we can connect layers safely
+        p_id = uuid1()
+
+        # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
+        pts = (
+            coords,
+            dict(
+                name=f'{exp_id} - particle positions',
+                features=df,
+                face_color='teal',
+                size=50 / scale,  # TODO: this will be fixed by vispy 0.12!
+                edge_width=0,
+                scale=scale,
+                shading='spherical',
+                # antialiasing=0,
+                metadata={'experiment_id': exp_id, 'p_id': p_id},
+                out_of_slice_display=True,
+            ),
+            'points',
+        )
+        layers.append(pts)
+
+        vec_data, vec_color = generate_vectors(coords, df[PSDL.ORIENTATION])
+
         vec = (
             vec_data,
             dict(
-                name=f'{particles.name} - particle orientations ({ax})',
-                edge_color=color,
-                length=10,
-                scale=particles.pixel_size,
-                metadata={'blik_volume': particles.name}
+                name=f'{exp_id} - particle orientations',
+                edge_color=vec_color,
+                length=50 / scale[0],
+                scale=scale,
+                metadata={'experiment_id': exp_id, 'p_id': p_id},
+                out_of_slice_display=True,
             ),
             'vectors',
         )
@@ -54,16 +70,22 @@ def read_particles(particles):
 
 
 def read_image(image):
-    data = image.data
-    if data.ndim == 2:
-        data = data[np.newaxis]
+    px_size = image.pixel_spacing
+    if not px_size:
+        warnings.warn('unknown pixel spacing, setting to 1 Angstrom')
+        px_size = 1
     return (
-        data,
+        image.data,
         dict(
-            name=f'{image.name} - image',
-            scale=image.pixel_size,
-            metadata={'blik_volume': image.name, 'stack': image.stack},
+            name=f'{image.experiment_id} - image',
+            scale=[px_size] * image.data.ndim,
+            metadata={'experiment_id': image.experiment_id, 'stack': image.stack},
             interpolation='spline36',
+            # interpolation3d='linear',
+            rendering='average',
+            depiction='plane',
+            blending='translucent',
+            plane=dict(thickness=5),
         ),
         'image',
     )
@@ -72,15 +94,13 @@ def read_image(image):
 def read_layers(*paths, **kwargs):
     data_list = read(*paths, **kwargs)
     layers = []
-    for data in data_list:
-        if isinstance(data, Particles):
-            layers.extend(read_particles(data))
-        elif isinstance(data, Image):
+    # sort so we get images first, better for some visualization circumstances
+    for data in sorted(data_list, key=lambda x: not isinstance(x, Image)):
+        if isinstance(data, Image):
             layers.append(read_image(data))
+        elif isinstance(data, PoseSet):
+            layers.extend(read_particles(data))
 
     for lay in layers:
         lay[1]['visible'] = False  # speed up loading
-        if lay[1]['scale'] is None:
-            # fix until napari#4295 is merged
-            lay[1]['scale'] = [1, 1, 1]
     return layers or None
