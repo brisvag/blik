@@ -17,7 +17,7 @@ def star_file(tmp_path_factory):
         'rlnAngleRot': [0, 0],
         'rlnAngleTilt': [0, 90],
         'rlnAnglePsi': [90, 0],
-        'rlnMicrographName': ['a', 'b'],
+        'rlnMicrographName': ['a_1', 'a_2'],
         'feature': ['x', 'y'],
     })
     file_path = tmp_path_factory.mktemp("data") / "test.star"
