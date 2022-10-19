@@ -1,21 +1,22 @@
 import napari
 import numpy as np
+import mrcfile
 
-from blik.widgets.volume_selector import volume_selector
+from blik.widgets.main_widget import MainBlikWidget
 from blik.widgets.file_reader import file_reader
 from blik.widgets.filter import bandpass_filter, gaussian_filter
 
 
-def test_volume_widget(make_napari_viewer):
+def test_main_widget(make_napari_viewer):
     viewer = make_napari_viewer()
 
     with napari.layers._source.layer_source(reader_plugin='blik'):
-        viewer.add_points(metadata={'blik_volume': 'test'})
+        viewer.add_points(metadata={'experiment_id': 'test'})
 
-    wdg = volume_selector()
-    assert 'test' not in wdg.volume.choices
+    wdg = MainBlikWidget()
+    assert 'test' not in wdg[0].experiment_id.choices
     viewer.window.add_dock_widget(wdg)
-    assert 'test' in wdg.volume.choices
+    assert 'test' in wdg[0].experiment_id.choices
 
 
 def test_reader_widget(make_napari_viewer, star_file):
@@ -27,14 +28,15 @@ def test_reader_widget(make_napari_viewer, star_file):
 
     assert len(viewer.layers) == 0
     wdg()
-    assert len(viewer.layers) == 8
+    assert len(viewer.layers) == 2
 
 
 def test_gaussian_filter_widget(make_napari_viewer, mrc_file):
     viewer = make_napari_viewer()
     wdg = gaussian_filter()
     viewer.window.add_dock_widget(wdg)
-    layer = viewer.open(mrc_file)[0]
+    with mrcfile.open(mrc_file) as mrc:
+        layer = viewer.add_image(mrc.data, metadata={'experiment_id': 'test', 'stack': False})
     assert wdg.image.value == layer
     wdg()
     result = viewer.layers[-1].data
@@ -45,7 +47,8 @@ def test_bandpass_filter_widget(make_napari_viewer, mrc_file):
     viewer = make_napari_viewer()
     wdg = bandpass_filter()
     viewer.window.add_dock_widget(wdg)
-    layer = viewer.open(mrc_file)[0]
+    with mrcfile.open(mrc_file) as mrc:
+        layer = viewer.add_image(mrc.data, metadata={'experiment_id': 'test', 'stack': False})
     assert wdg.image.value == layer
     wdg()
     result = viewer.layers[-1].data
