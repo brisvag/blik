@@ -52,44 +52,35 @@ def _connect_points_to_vectors(p, v):
     p.events.features.connect(_update_vectors)
 
 
-def _on_init(wdg):
-    """
-    hook up widget to update choices wheneven things change in the layerlist
+def _look_for_viewer(wdg):
+    viewer = find_viewer_ancestor(wdg.native)
+    if viewer:
+        viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
+        _connect_layers(viewer, None)
 
-    also sets up a few things on the viewer
-    """
-    @wdg.parent_changed.connect
-    def _look_for_viewer():
-        viewer = find_viewer_ancestor(wdg.native)
-        if viewer:
-            viewer.layers.events.inserted.connect(wdg.experiment_id.reset_choices)
-            viewer.layers.events.removed.connect(wdg.experiment_id.reset_choices)
-            viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
-            _connect_layers(viewer, None)
+        viewer.scale_bar.unit = '0.1nm'  # pixels are 1 Angstrom
+        viewer.scale_bar.visible = True
 
-            viewer.scale_bar.unit = '0.1nm'  # pixels are 1 Angstrom
-            viewer.scale_bar.visible = True
 
-    def _connect_layers(viewer, e):
-        points = {}
-        vectors = {}
-        for lay in viewer.layers:
-            p_id = lay.metadata.get('p_id', None)
-            if p_id is not None:
-                if isinstance(lay, Points):
-                    points[p_id] = lay
-                elif isinstance(lay, Vectors):
-                    vectors[p_id] = lay
-        for p_id, p in points.items():
-            v = vectors.get(p_id, None)
-            if v is not None:
-                _connect_points_to_vectors(p, v)
+def _connect_layers(viewer, e):
+    points = {}
+    vectors = {}
+    for lay in viewer.layers:
+        p_id = lay.metadata.get('p_id', None)
+        if p_id is not None:
+            if isinstance(lay, Points):
+                points[p_id] = lay
+            elif isinstance(lay, Vectors):
+                vectors[p_id] = lay
+    for p_id, p in points.items():
+        v = vectors.get(p_id, None)
+        if v is not None:
+            _connect_points_to_vectors(p, v)
 
 
 @magic_factory(
     auto_call=True,
     call_button=False,
-    widget_init=_on_init,
     experiment_id=dict(widget_type='ComboBox', choices=_get_choices, nullable=True),
 )
 def experiment(viewer: 'napari.Viewer', experiment_id):
@@ -156,7 +147,9 @@ def new(l_type) -> 'napari.types.LayerDataTuple':
 class MainBlikWidget(Container):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.append(experiment(labels=False))
+        exp = experiment(labels=False)
+        self.parent_changed.connect(lambda _: _look_for_viewer(exp))
+        self.append(exp)
 
         self.append(new)
 
