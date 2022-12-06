@@ -90,6 +90,7 @@ def _connect_layers(viewer, e):
 @magic_factory(
     auto_call=True,
     call_button=False,
+    labels=False,
     experiment_id=dict(widget_type='ComboBox', choices=_get_choices, nullable=True),
 )
 def experiment(viewer: 'napari.Viewer', experiment_id):
@@ -136,8 +137,8 @@ def new(l_type) -> 'napari.types.LayerDataTuple':
     """
     create a new layer to add to this experiment
     """
+    layers = getattr(new._main_widget['experiment'], 'current_layers', [])
     if l_type == 'segmentation':
-        layers = getattr(new._main_widget['experiment'], 'current_layers', [])
         for lay in layers:
             if isinstance(lay, Image):
                 exp_id = lay.metadata['experiment_id']
@@ -164,9 +165,9 @@ class MainBlikWidget(Container):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        exp = experiment(labels=False)
-        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
 
+        exp = experiment()
+        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
         self.append(exp)
         self.append(new)
         self.append(add_layer)
