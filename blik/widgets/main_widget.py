@@ -33,6 +33,9 @@ def _get_choices(wdg):
 
 
 def _connect_points_to_vectors(p, v):
+    """
+    connect a particle points layer to a vectors layer to keep them in sync.
+    """
     def _update_vectors():
         vec_data, vec_color = generate_vectors(p.data, p.features[PSDL.ORIENTATION])
         v.data = vec_data
@@ -52,7 +55,10 @@ def _connect_points_to_vectors(p, v):
     p.events.features.connect(_update_vectors)
 
 
-def _look_for_viewer(wdg):
+def _attach_callbacks_to_viewer(wdg):
+    """
+    attach all callbacks to the napari viewer and enable scale bar
+    """
     viewer = find_viewer_ancestor(wdg.native)
     if viewer:
         viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
@@ -63,6 +69,9 @@ def _look_for_viewer(wdg):
 
 
 def _connect_layers(viewer, e):
+    """
+    connect all points and vectors layers with the necessary callbacks
+    """
     points = {}
     vectors = {}
     for lay in viewer.layers:
@@ -145,14 +154,21 @@ def new(l_type) -> 'napari.types.LayerDataTuple':
 
 
 class MainBlikWidget(Container):
+    """
+    Main widget for blik controls.
+
+    Allows to select which layers to view based on the experiment id, to add
+    existing layer to a certain experiment id, and to create new analysis layers
+    within.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         exp = experiment(labels=False)
-        self.parent_changed.connect(lambda _: _look_for_viewer(exp))
+        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
+
         self.append(exp)
-
         self.append(new)
-
         self.append(add_layer)
 
     def append(self, item):
