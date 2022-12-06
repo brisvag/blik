@@ -8,13 +8,12 @@ from blik.widgets.filter import bandpass_filter, gaussian_filter
 
 
 def test_main_widget(make_napari_viewer):
-    viewer = make_napari_viewer()
-
-    with napari.layers._source.layer_source(reader_plugin='blik'):
-        viewer.add_points(metadata={'experiment_id': 'test'})
-
     wdg = MainBlikWidget()
     assert 'test' not in wdg[0].experiment_id.choices
+
+    viewer = make_napari_viewer()
+    with napari.layers._source.layer_source(reader_plugin='blik'):
+        viewer.add_points(metadata={'experiment_id': 'test'})
     viewer.window.add_dock_widget(wdg)
     assert 'test' in wdg[0].experiment_id.choices
 
