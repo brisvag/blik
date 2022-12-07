@@ -56,5 +56,3 @@ contributions:
       display_name: bandpass filter
     - command: blik.gaussian_filter
       display_name: gaussian filter
-    - command: blik.filament_picker
-      display_name: filament picker

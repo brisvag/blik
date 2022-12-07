@@ -33,6 +33,9 @@ def _get_choices(wdg):
 
 
 def _connect_points_to_vectors(p, v):
+    """
+    connect a particle points layer to a vectors layer to keep them in sync.
+    """
     def _update_vectors():
         vec_data, vec_color = generate_vectors(p.data, p.features[PSDL.ORIENTATION])
         v.data = vec_data
@@ -52,44 +55,42 @@ def _connect_points_to_vectors(p, v):
     p.events.features.connect(_update_vectors)
 
 
-def _on_init(wdg):
+def _attach_callbacks_to_viewer(wdg):
     """
-    hook up widget to update choices wheneven things change in the layerlist
-
-    also sets up a few things on the viewer
+    attach all callbacks to the napari viewer and enable scale bar
     """
-    @wdg.parent_changed.connect
-    def _look_for_viewer():
-        viewer = find_viewer_ancestor(wdg.native)
-        if viewer:
-            viewer.layers.events.inserted.connect(wdg.experiment_id.reset_choices)
-            viewer.layers.events.removed.connect(wdg.experiment_id.reset_choices)
-            viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
-            _connect_layers(viewer, None)
+    viewer = find_viewer_ancestor(wdg.native)
+    if viewer:
+        viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
+        _connect_layers(viewer, None)
 
-            viewer.scale_bar.unit = '0.1nm'  # pixels are 1 Angstrom
-            viewer.scale_bar.visible = True
+        viewer.scale_bar.unit = '0.1nm'  # pixels are 1 Angstrom
+        viewer.scale_bar.visible = True
 
-    def _connect_layers(viewer, e):
-        points = {}
-        vectors = {}
-        for lay in viewer.layers:
-            p_id = lay.metadata.get('p_id', None)
-            if p_id is not None:
-                if isinstance(lay, Points):
-                    points[p_id] = lay
-                elif isinstance(lay, Vectors):
-                    vectors[p_id] = lay
-        for p_id, p in points.items():
-            v = vectors.get(p_id, None)
-            if v is not None:
-                _connect_points_to_vectors(p, v)
+
+def _connect_layers(viewer, e):
+    """
+    connect all points and vectors layers with the necessary callbacks
+    """
+    points = {}
+    vectors = {}
+    for lay in viewer.layers:
+        p_id = lay.metadata.get('p_id', None)
+        if p_id is not None:
+            if isinstance(lay, Points):
+                points[p_id] = lay
+            elif isinstance(lay, Vectors):
+                vectors[p_id] = lay
+    for p_id, p in points.items():
+        v = vectors.get(p_id, None)
+        if v is not None:
+            _connect_points_to_vectors(p, v)
 
 
 @magic_factory(
     auto_call=True,
     call_button=False,
-    widget_init=_on_init,
+    labels=False,
     experiment_id=dict(widget_type='ComboBox', choices=_get_choices, nullable=True),
 )
 def experiment(viewer: 'napari.Viewer', experiment_id):
@@ -136,8 +137,8 @@ def new(l_type) -> 'napari.types.LayerDataTuple':
     """
     create a new layer to add to this experiment
     """
+    layers = getattr(new._main_widget['experiment'], 'current_layers', [])
     if l_type == 'segmentation':
-        layers = getattr(new._main_widget['experiment'], 'current_layers', [])
         for lay in layers:
             if isinstance(lay, Image):
                 exp_id = lay.metadata['experiment_id']
@@ -154,12 +155,21 @@ def new(l_type) -> 'napari.types.LayerDataTuple':
 
 
 class MainBlikWidget(Container):
+    """
+    Main widget for blik controls.
+
+    Allows to select which layers to view based on the experiment id, to add
+    existing layer to a certain experiment id, and to create new analysis layers
+    within.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.append(experiment(labels=False))
 
+        exp = experiment()
+        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
+        self.append(exp)
         self.append(new)
-
         self.append(add_layer)
 
     def append(self, item):
