@@ -3,7 +3,14 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 
+def invert_xyz(arr):
+    return arr[..., ::-1]
+
+
 def generate_vectors(coords, orientations):
+    """
+    Generate basis vectors and relative colors for napari.
+    """
     mat = Rotation.concatenate(orientations).as_matrix()
     basis_vecs = einops.rearrange(mat, "batch a b -> b batch a")
     vec_data = np.empty((len(coords) * 3, 2, 3))
