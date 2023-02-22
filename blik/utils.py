@@ -1,15 +1,23 @@
+import einops
 import numpy as np
 from scipy.spatial.transform import Rotation
 
 
+def invert_xyz(arr):
+    return arr[..., ::-1]
+
+
 def generate_vectors(coords, orientations):
-    orientations = Rotation.concatenate(orientations)
+    """
+    Generate basis vectors and relative colors for napari.
+    """
+    mat = Rotation.concatenate(orientations).as_matrix()
+    basis_vecs = einops.rearrange(mat, "batch a b -> b batch a")
     vec_data = np.empty((len(coords) * 3, 2, 3))
     vec_color = np.empty((len(coords) * 3, 3))
-    for idx, (ax, color) in enumerate(zip('xyz', 'rgb')):
-        basis = np.zeros(3)
-        basis[idx] = 1  # also acts as color (rgb)
-        basis_rot = orientations.apply(basis)[:, ::-1]  # order is zyx in napari
-        vec_data[idx::3] = np.stack([coords, basis_rot], axis=1)
-        vec_color[idx::3] = basis
+    for idx, vecs in enumerate(basis_vecs):
+        color = np.zeros(3)
+        color[idx] = 1  # rgb
+        vec_data[idx::3] = np.stack([coords, vecs], axis=1)
+        vec_color[idx::3] = color
     return vec_data, vec_color

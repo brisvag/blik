@@ -1,12 +1,13 @@
-from uuid import uuid1
 import warnings
+from uuid import uuid1
+
 import numpy as np
-
-from cryotypes.image import Image
-from cryotypes.poseset import PoseSet, PoseSetDataLabels as PSDL
 from cryohub import read
+from cryotypes.image import Image
+from cryotypes.poseset import PoseSet
+from cryotypes.poseset import PoseSetDataLabels as PSDL
 
-from .utils import generate_vectors
+from .utils import generate_vectors, invert_xyz
 
 
 def get_reader(path):
@@ -19,12 +20,14 @@ def read_particles(particles):
         df = df.reset_index(drop=True)
 
         ndim = 3 if PSDL.POSITION_Z in df else 2
-        coords = np.asarray(df[PSDL.POSITION[:ndim]])[:, ::-1]  # order is zyx in napari
-        shifts = np.asarray(df[PSDL.SHIFT[:ndim]])[:, ::-1]
+        coords = invert_xyz(
+            np.asarray(df[PSDL.POSITION[:ndim]])
+        )  # order is zyx in napari
+        shifts = invert_xyz(np.asarray(df[PSDL.SHIFT[:ndim]]))
         coords += shifts
         px_size = df[PSDL.PIXEL_SPACING].iloc[0]
         if not px_size:
-            warnings.warn('unknown pixel spacing, setting to 1 Angstrom')
+            warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
             px_size = 1
         scale = np.repeat(px_size, ndim)
 
@@ -35,34 +38,34 @@ def read_particles(particles):
         pts = (
             coords,
             dict(
-                name=f'{exp_id} - particle positions',
+                name=f"{exp_id} - particle positions",
                 features=df,
-                face_color='teal',
+                face_color="teal",
                 size=50 / scale,  # TODO: this will be fixed by vispy 0.12!
                 edge_width=0,
                 scale=scale,
-                shading='spherical',
+                shading="spherical",
                 antialiasing=0,
-                metadata={'experiment_id': exp_id, 'p_id': p_id},
+                metadata={"experiment_id": exp_id, "p_id": p_id},
                 out_of_slice_display=True,
             ),
-            'points',
+            "points",
         )
         layers.append(pts)
 
-        vec_data, vec_color = generate_vectors(coords, df[PSDL.ORIENTATION])
+        vec_data, vec_color = generate_vectors(invert_xyz(coords), df[PSDL.ORIENTATION])
 
         vec = (
-            vec_data,
+            invert_xyz(vec_data),
             dict(
-                name=f'{exp_id} - particle orientations',
+                name=f"{exp_id} - particle orientations",
                 edge_color=vec_color,
                 length=50 / scale[0],
                 scale=scale,
-                metadata={'experiment_id': exp_id, 'p_id': p_id},
+                metadata={"experiment_id": exp_id, "p_id": p_id},
                 out_of_slice_display=True,
             ),
-            'vectors',
+            "vectors",
         )
         layers.append(vec)
 
@@ -72,22 +75,22 @@ def read_particles(particles):
 def read_image(image):
     px_size = image.pixel_spacing
     if not px_size:
-        warnings.warn('unknown pixel spacing, setting to 1 Angstrom')
+        warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
         px_size = 1
     return (
         image.data,
         dict(
-            name=f'{image.experiment_id} - image',
+            name=f"{image.experiment_id} - image",
             scale=[px_size] * image.data.ndim,
-            metadata={'experiment_id': image.experiment_id, 'stack': image.stack},
-            interpolation2d='spline36',
-            interpolation3d='linear',
-            rendering='average',
-            depiction='plane',
-            blending='translucent',
+            metadata={"experiment_id": image.experiment_id, "stack": image.stack},
+            interpolation2d="spline36",
+            interpolation3d="linear",
+            rendering="average",
+            depiction="plane",
+            blending="translucent",
             plane=dict(thickness=5),
         ),
-        'image',
+        "image",
     )
 
 
@@ -102,5 +105,5 @@ def read_layers(*paths, **kwargs):
             layers.extend(read_particles(data))
 
     for lay in layers:
-        lay[1]['visible'] = False  # speed up loading
+        lay[1]["visible"] = False  # speed up loading
     return layers or None
