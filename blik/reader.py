@@ -14,60 +14,78 @@ def get_reader(path):
     return read_layers
 
 
+def _construct_positions_layer(coords, features, scale, exp_id, p_id):
+    return (
+        coords,
+        dict(
+            name=f"{exp_id} - particle positions",
+            features=features,
+            face_color="teal",
+            size=50,  # TODO: this will be fixed by vispy 0.12!
+            edge_width=0,
+            scale=scale,
+            shading="spherical",
+            antialiasing=0,
+            metadata={"experiment_id": exp_id, "p_id": p_id},
+            out_of_slice_display=True,
+        ),
+        "points",
+    )
+
+
+def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
+    if coords is None:
+        vec_data = None
+        vec_color = "blue"
+    else:
+        vec_data, vec_color = generate_vectors(
+            invert_xyz(coords), features[PSDL.ORIENTATION]
+        )
+        vec_data = invert_xyz(vec_data)
+    return (
+        vec_data,
+        dict(
+            name=f"{exp_id} - particle orientations",
+            edge_color=vec_color,
+            length=50 / scale[0],
+            scale=scale,
+            metadata={"experiment_id": exp_id, "p_id": p_id},
+            out_of_slice_display=True,
+        ),
+        "vectors",
+    )
+
+
+def construct_particle_layers(coords, features, scale, exp_id, p_id=None):
+    # unique id so we can connect layers safely
+    p_id = p_id if p_id is not None else uuid1()
+
+    # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
+    pos = _construct_positions_layer(coords, features, scale, exp_id, p_id)
+    ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id)
+
+    # invert order for convenience (latest added layer is selected)
+    return [ori, pos]
+
+
 def read_particles(particles):
     layers = []
-    for exp_id, df in particles.groupby(PSDL.EXPERIMENT_ID):
-        df = df.reset_index(drop=True)
+    for exp_id, features in particles.groupby(PSDL.EXPERIMENT_ID):
+        features = features.reset_index(drop=True)
 
-        ndim = 3 if PSDL.POSITION_Z in df else 2
+        ndim = 3 if PSDL.POSITION_Z in features else 2
         coords = invert_xyz(
-            np.asarray(df[PSDL.POSITION[:ndim]])
+            np.asarray(features[PSDL.POSITION[:ndim]])
         )  # order is zyx in napari
-        shifts = invert_xyz(np.asarray(df[PSDL.SHIFT[:ndim]]))
+        shifts = invert_xyz(np.asarray(features[PSDL.SHIFT[:ndim]]))
         coords += shifts
-        px_size = df[PSDL.PIXEL_SPACING].iloc[0]
+        px_size = features[PSDL.PIXEL_SPACING].iloc[0]
         if not px_size:
             warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
             px_size = 1
         scale = np.repeat(px_size, ndim)
 
-        # unique id so we can connect layers safely
-        p_id = uuid1()
-
-        # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
-        pts = (
-            coords,
-            dict(
-                name=f"{exp_id} - particle positions",
-                features=df,
-                face_color="teal",
-                size=50 / scale,  # TODO: this will be fixed by vispy 0.12!
-                edge_width=0,
-                scale=scale,
-                shading="spherical",
-                antialiasing=0,
-                metadata={"experiment_id": exp_id, "p_id": p_id},
-                out_of_slice_display=True,
-            ),
-            "points",
-        )
-        layers.append(pts)
-
-        vec_data, vec_color = generate_vectors(invert_xyz(coords), df[PSDL.ORIENTATION])
-
-        vec = (
-            invert_xyz(vec_data),
-            dict(
-                name=f"{exp_id} - particle orientations",
-                edge_color=vec_color,
-                length=50 / scale[0],
-                scale=scale,
-                metadata={"experiment_id": exp_id, "p_id": p_id},
-                out_of_slice_display=True,
-            ),
-            "vectors",
-        )
-        layers.append(vec)
+        layers.extend(construct_particle_layers(coords, features, scale, exp_id))
 
     return layers
 
