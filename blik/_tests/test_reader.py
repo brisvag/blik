@@ -1,4 +1,4 @@
-from blik.reader import get_reader
+from blik.reader import construct_particle_layers, get_reader
 
 
 def test_reader(star_file):
@@ -7,6 +7,22 @@ def test_reader(star_file):
 
     layer_data_list = reader(star_file)
     assert len(layer_data_list) == 4
+
+    pts = layer_data_list[1]
+    assert pts[2] == "points"
+    vec = layer_data_list[0]
+    assert vec[2] == "vectors"
+
+
+def test_construct_empty_layers():
+    layer_data_list = construct_particle_layers(
+        coords=None,
+        features=None,
+        scale=[1, 1, 1],
+        exp_id="test",
+    )
+
+    assert len(layer_data_list) == 2
 
     pts = layer_data_list[1]
     assert pts[2] == "points"
