@@ -1,4 +1,5 @@
 import einops
+import napari
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -21,3 +22,10 @@ def generate_vectors(coords, orientations):
         vec_data[idx::3] = np.stack([coords, vecs], axis=1)
         vec_color[idx::3] = color
     return vec_data, vec_color
+
+
+def layer_tuples_to_layers(layer_tuples):
+    return [
+        getattr(napari.layers, ltype.capitalize())(data, **kwargs)
+        for data, kwargs, ltype in layer_tuples
+    ]

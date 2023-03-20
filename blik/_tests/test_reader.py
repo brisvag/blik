@@ -1,4 +1,4 @@
-from blik.reader import construct_particle_layers, get_reader
+from blik.reader import construct_particle_layer_tuples, get_reader
 
 
 def test_reader(star_file):
@@ -15,7 +15,7 @@ def test_reader(star_file):
 
 
 def test_construct_empty_layers():
-    layer_data_list = construct_particle_layers(
+    layer_data_list = construct_particle_layer_tuples(
         coords=None,
         features=None,
         scale=[1, 1, 1],
