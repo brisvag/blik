@@ -56,7 +56,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
     )
 
 
-def construct_particle_layers(coords, features, scale, exp_id, p_id=None):
+def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None):
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
 
@@ -85,7 +85,7 @@ def read_particles(particles):
             px_size = 1
         scale = np.repeat(px_size, ndim)
 
-        layers.extend(construct_particle_layers(coords, features, scale, exp_id))
+        layers.extend(construct_particle_layer_tuples(coords, features, scale, exp_id))
 
     return layers
 
