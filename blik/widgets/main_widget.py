@@ -81,7 +81,7 @@ def _connect_points_to_vectors(p, v):
         ),
         coerce=True,
     )
-    p.feature_defaults[defaults.columns] = defaults
+    p.feature_defaults = defaults
 
 
 def _attach_callbacks_to_viewer(wdg):
@@ -201,14 +201,14 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
                 pts = Points(
                     name=f"{exp_id} - surface points",
                     scale=lay.scale,
+                    size=10 * lay.scale[0],
                     metadata={"experiment_id": exp_id},
                     features={"surface_id": np.empty(0, int)},
-                    face_color_cycle=np.random.rand(20, 3),
+                    feature_defaults={"surface_id": 0},
+                    face_color_cycle=np.random.rand(30, 3),
+                    face_color="surface_id",
                     out_of_slice_display=True,
                 )
-                pts.feature_defaults["surface_id"] = 0
-                pts.face_color = "surface_id"
-                pts.current_size = 10 * lay.scale[0]
 
                 @pts.bind_key("n")
                 def next_surface(ev):
@@ -217,8 +217,6 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
                 @pts.bind_key("p")
                 def previous_surface(ev):
                     pts.feature_defaults["surface_id"] -= 1
-
-                pts.events.data.connect(lambda: pts.refresh_colors())
 
                 return [pts]
 
@@ -301,12 +299,16 @@ def surface(
         uniq_colors, idx = np.unique(colors, axis=0, return_index=True)
         colormap = uniq_colors[np.argsort(idx)]
         values = np.concatenate(ids) / len(colormap)
+        # special case for colormap with 1 color because blacks get autoadded at index 0
+        if colormap.shape[0] == 1:
+            values += 1
 
         surface_layer = Surface(
-            (vert, faces, values), scale=surface_points.scale, shading="smooth"
+            (vert, faces, values),
+            scale=surface_points.scale,
+            shading="smooth",
+            colormap=colormap,
         )
-        surface_layer.colormap = colormap
-        surface_layer.colormap = colormap
         return [surface_layer]
 
 
