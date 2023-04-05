@@ -157,6 +157,9 @@ def add_to_exp(layer: napari.layers.Layer):
     layer.metadata["experiment_id"] = add_to_exp._main_widget[
         "experiment"
     ].experiment_id.value
+    if isinstance(layer, (Image, Labels)):
+        if "stack" not in layer.metadata:
+            layer.metadata["stack"] = False
 
 
 @magicgui(
