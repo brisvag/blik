@@ -81,7 +81,7 @@ def _connect_points_to_vectors(p, v):
         ),
         coerce=True,
     )
-    p.feature_defaults = defaults
+    p.feature_defaults[defaults.columns] = defaults
 
 
 def _attach_callbacks_to_viewer(wdg):
