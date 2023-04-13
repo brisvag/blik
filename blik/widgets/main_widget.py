@@ -238,6 +238,7 @@ def surface(
     """
     create a new surface representation from picked surface points
     """
+    spacing /= surface_points.scale[0]
     pos = []
     ori = []
     meshes = []
@@ -245,8 +246,12 @@ def surface(
     exp_id = surface_points.metadata["experiment_id"]
     for _, surf in surface_points.features.groupby("surface_id"):
         coords = surface_points.data[surf.index]
-        z_change = np.unique(coords[:, 0], return_index=True)[1][1:]
+        # split based on z value
+        z_change = np.unique(coords[:, 0], return_index=True)[1]
+        z_change = np.sort(z_change)[1:]
+        # sort so lines can be added in between at a later point
         lines = np.split(coords, z_change)
+        lines = sorted(lines, key=lambda x: x[0, 0])
 
         try:
             surface_grid = GriddedSplineSurface(
@@ -262,6 +267,9 @@ def surface(
             ori.append(surface_grid.sample_orientations())
         if output == "surface":
             meshes.append(surface_grid.mesh())
+
+    if not colors:
+        raise RuntimeError("could not generate surfaces for some reason")
 
     colors = np.concatenate(colors)
 
