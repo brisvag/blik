@@ -93,7 +93,7 @@ def _attach_callbacks_to_viewer(wdg):
         viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
         _connect_layers(viewer, None)
 
-        viewer.scale_bar.unit = "0.1nm"  # pixels are 1 Angstrom
+        viewer.scale_bar.unit = "0.1nm"  # pixels are 1 A
         viewer.scale_bar.visible = True
 
 
@@ -229,16 +229,16 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
 @magicgui(
     labels=False,
     call_button="Generate",
-    spacing=dict(widget_type="Slider", min=1, max=50),
+    spacing_A=dict(widget_type="Slider", min=1, max=500),
     output=dict(choices=["surface", "particles"]),
 )
 def surface(
-    surface_points: napari.layers.Points, spacing=15, output="surface"
+    surface_points: napari.layers.Points, spacing_A=100, closed=False, output="surface"
 ) -> typing.List[napari.layers.Layer]:
     """
     create a new surface representation from picked surface points
     """
-    spacing /= surface_points.scale[0]
+    spacing_A /= surface_points.scale[0]
     pos = []
     ori = []
     meshes = []
@@ -255,7 +255,10 @@ def surface(
 
         try:
             surface_grid = GriddedSplineSurface(
-                points=lines, separation=spacing, order=3
+                points=lines,
+                separation=spacing_A,
+                order=3,
+                closed=closed,
             )
         except ValueError:
             continue
