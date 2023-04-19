@@ -9,7 +9,7 @@ from cryotypes.poseset import validate_poseset_dataframe
 from magicgui import magic_factory, magicgui
 from magicgui.widgets import Container
 from morphosamplers.surface_spline import GriddedSplineSurface
-from napari.layers import Image, Labels, Points, Surface, Vectors
+from napari.layers import Image, Labels, Points, Shapes, Surface, Vectors
 from napari.utils._magicgui import find_viewer_ancestor
 from napari.utils.notifications import show_info
 from scipy.spatial.transform import Rotation
@@ -201,16 +201,16 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
     elif l_type == "surface_picking":
         for lay in layers:
             if isinstance(lay, Image) and lay.metadata["experiment_id"] == exp_id:
-                pts = Points(
-                    name=f"{exp_id} - surface points",
+                pts = Shapes(
+                    name=f"{exp_id} - surface lines",
                     scale=lay.scale,
-                    size=10 * lay.scale[0],
+                    edge_width=2,
                     metadata={"experiment_id": exp_id},
                     features={"surface_id": np.empty(0, int)},
                     feature_defaults={"surface_id": 0},
-                    face_color_cycle=np.random.rand(30, 3),
-                    face_color="surface_id",
-                    out_of_slice_display=True,
+                    edge_color_cycle=np.random.rand(30, 3),
+                    edge_color="surface_id",
+                    ndim=3,
                 )
 
                 @pts.bind_key("n")
@@ -233,24 +233,21 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
     output=dict(choices=["surface", "particles"]),
 )
 def surface(
-    surface_points: napari.layers.Points, spacing_A=100, closed=False, output="surface"
+    surface_shapes: napari.layers.Shapes, spacing_A=100, closed=False, output="surface"
 ) -> typing.List[napari.layers.Layer]:
     """
     create a new surface representation from picked surface points
     """
-    spacing_A /= surface_points.scale[0]
+    spacing_A /= surface_shapes.scale[0]
     pos = []
     ori = []
     meshes = []
     colors = []
-    exp_id = surface_points.metadata["experiment_id"]
-    for _, surf in surface_points.features.groupby("surface_id"):
-        coords = surface_points.data[surf.index]
-        # split based on z value
-        z_change = np.unique(coords[:, 0], return_index=True)[1]
-        z_change = np.sort(z_change)[1:]
+    exp_id = surface_shapes.metadata["experiment_id"]
+    data_array = np.array(surface_shapes.data, dtype=object)  # helps with indexing
+    for _, surf in surface_shapes.features.groupby("surface_id"):
+        lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
-        lines = np.split(coords, z_change)
         lines = sorted(lines, key=lambda x: x[0, 0])
 
         try:
@@ -263,7 +260,7 @@ def surface(
         except ValueError:
             continue
 
-        colors.append(surface_points.face_color[surf.index])
+        colors.append(surface_shapes.edge_color[surf.index])
 
         if output == "particles":
             pos.append(surface_grid.sample())
@@ -282,7 +279,7 @@ def surface(
         poseset[PSDL.POSITION] = pos
         poseset[PSDL.ORIENTATION] = np.array(Rotation.concatenate(ori))
         poseset[PSDL.EXPERIMENT_ID] = exp_id
-        poseset[PSDL.PIXEL_SPACING] = surface_points.scale[0]
+        poseset[PSDL.PIXEL_SPACING] = surface_shapes.scale[0]
 
         poseset = validate_poseset_dataframe(poseset, coerce=True)
 
@@ -290,7 +287,7 @@ def surface(
             construct_particle_layer_tuples(
                 pos,
                 poseset,
-                surface_points.scale,
+                surface_shapes.scale,
                 exp_id,
             )
         )
@@ -319,7 +316,7 @@ def surface(
 
         surface_layer = Surface(
             (vert, faces, values),
-            scale=surface_points.scale,
+            scale=surface_shapes.scale,
             shading="smooth",
             colormap=colormap,
         )
