@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from magicgui import magic_factory
-from skimage.filters import butterworth, gaussian
+from scipy.signal.windows import gaussian
+from skimage.filters import butterworth
 
 if TYPE_CHECKING:
     import napari
@@ -25,14 +26,21 @@ def bandpass_filter(
     return low_pass, dict(name=f"filtered {image.name}", scale=image.scale), "image"
 
 
+def gaussian_kernel(size, sigma):
+    window = gaussian(size, sigma)
+    kernel = np.outer(window, window)
+    return kernel / kernel.sum()
+
+
 @magic_factory(
-    auto_call=False,
-    call_button=True,
-    sigma=dict(widget_type="FloatSlider", min=0, max=10),
+    auto_call=True,
+    sigma=dict(widget_type="FloatSlider", min=0.1, max=5, step=0.1),
+    kernel_size=dict(widget_type="Slider", min=3, max=20),
 )
 def gaussian_filter(
-    image: "napari.layers.Image", sigma: float = 1
-) -> "napari.types.LayerDataTuple":
-    channel_axis = 0 if image.metadata["stack"] else None
-    filtered = gaussian(np.asarray(image.data), sigma=sigma, channel_axis=channel_axis)
-    return filtered, dict(name=f"filtered {image.name}", scale=image.scale), "image"
+    image: "napari.layers.Image",
+    sigma: float = 1,
+    kernel_size: int = 3,
+) -> None:
+    image.interpolation2d = "custom"
+    image.custom_interpolation_kernel_2d = gaussian_kernel(kernel_size, sigma)
