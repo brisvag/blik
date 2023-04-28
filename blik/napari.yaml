@@ -14,6 +14,12 @@ contributions:
     - id: blik.write_particles
       python_name: blik.writer:write_particles
       title: Save particles data with blik
+    - id: blik.write_surface_picks
+      python_name: blik.writer:write_surface_picks
+      title: Save surface picks data with blik
+    - id: blik.write_surface
+      python_name: blik.writer:write_surface
+      title: Save surface data with blik
     - id: blik.main_widget
       python_name: blik.widgets.main_widget:MainBlikWidget
       title: Create blik widget
@@ -38,6 +44,8 @@ contributions:
         - '*.tbl'
         - '*.box'
         - '*.cbox'
+        - '*.picks'
+        - '*.surf'
   writers:
     - command: blik.write_image
       layer_types: ["image"]
@@ -48,6 +56,12 @@ contributions:
     - command: blik.write_particles
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
+    - command: blik.write_surface_picks
+      layer_types: ["shapes"]
+      filename_extensions: [".picks"]
+    - command: blik.write_surface
+      layer_types: ["surface"]
+      filename_extensions: [".surf"]
   widgets:
     - command: blik.main_widget
       display_name: main widget

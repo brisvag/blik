@@ -112,9 +112,67 @@ def read_image(image):
     )
 
 
+def read_surface_picks(path):
+    lines = []
+    with open(path, "rb") as f:
+        surf_id = np.load(f)
+        edge_color_cycle = np.load(f)
+        while True:
+            try:
+                lines.append(np.load(f))
+            except ValueError:
+                break
+        exp_id = f.read().decode()
+
+    return (
+        lines,
+        dict(
+            name=f"{exp_id} - surface lines",
+            edge_width=30,
+            metadata={"experiment_id": exp_id},
+            features={"surface_id": surf_id},
+            feature_defaults={"surface_id": surf_id.max() + 1},
+            edge_color_cycle=edge_color_cycle,
+            edge_color="surface_id",
+            shape_type="path",
+            ndim=3,
+        ),
+        "shapes",
+    )
+
+
+def read_surface(path):
+    with open(path, "rb") as f:
+        # TODO: needs to exposed in napari
+        # colormap = np.load(f)
+        data = tuple(np.load(f) for _ in range(3))
+        exp_id = f.read().decode()
+
+    return (
+        data,
+        dict(
+            name=f"{exp_id} - surface",
+            metadata={"experiment_id": exp_id},
+            shading="smooth",
+            # TODO: needs to exposed in napari
+            # colormap=colormap
+        ),
+        "surface",
+    )
+
+
 def read_layers(*paths, **kwargs):
-    data_list = read(*paths, **kwargs)
     layers = []
+    cryohub_paths = []
+    for path in paths:
+        if path.endswith(".picks"):
+            layers.append(read_surface_picks(path))
+        if path.endswith(".surf"):
+            layers.append(read_surface(path))
+        else:
+            cryohub_paths.append(path)
+
+    data_list = read(*cryohub_paths, **kwargs)
     # sort so we get images first, better for some visualization circumstances
     for data in sorted(data_list, key=lambda x: not isinstance(x, Image)):
         if isinstance(data, Image):

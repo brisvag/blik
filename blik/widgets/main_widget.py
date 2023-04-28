@@ -65,8 +65,11 @@ def _connect_points_to_vectors(p, v):
         with p.events.data.blocker(_update_features_from_points):
             p.data = invert_xyz(p.features[PSDL.POSITION].to_numpy())
 
+    p.events.data.disconnect(_update_features_from_points)
     p.events.data.connect(_update_features_from_points)
+    p.events.features.disconnect(_update_points_from_features)
     p.events.features.connect(_update_points_from_features)
+    p.events.features.disconnect(_update_vectors)
     p.events.features.connect(_update_vectors)
 
     # set defaults for features, otherwise the callbacks above will fail on new points
@@ -82,6 +85,16 @@ def _connect_points_to_vectors(p, v):
         coerce=True,
     )
     p.feature_defaults[defaults.columns] = defaults
+
+
+def _connect_picking_callbacks(surf):
+    @surf.bind_key("n", overwrite=True)
+    def next_surface(ev):
+        surf.feature_defaults["surface_id"] += 1
+
+    @surf.bind_key("p", overwrite=True)
+    def previous_surface(ev):
+        surf.feature_defaults["surface_id"] -= 1
 
 
 def _attach_callbacks_to_viewer(wdg):
@@ -104,12 +117,18 @@ def _connect_layers(viewer, e):
     points = {}
     vectors = {}
     for lay in viewer.layers:
+        if "experiment_id" not in lay.metadata:
+            continue
+
         p_id = lay.metadata.get("p_id", None)
         if p_id is not None:
             if isinstance(lay, Points):
                 points[p_id] = lay
             elif isinstance(lay, Vectors):
                 vectors[p_id] = lay
+        if isinstance(lay, Shapes):
+            _connect_picking_callbacks(lay)
+
     for p_id, p in points.items():
         v = vectors.get(p_id, None)
         if v is not None:
@@ -203,8 +222,7 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
             if isinstance(lay, Image) and lay.metadata["experiment_id"] == exp_id:
                 pts = Shapes(
                     name=f"{exp_id} - surface lines",
-                    scale=lay.scale,
-                    edge_width=2,
+                    edge_width=30,
                     metadata={"experiment_id": exp_id},
                     features={"surface_id": np.empty(0, int)},
                     feature_defaults={"surface_id": 0},
@@ -212,14 +230,6 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
                     edge_color="surface_id",
                     ndim=3,
                 )
-
-                @pts.bind_key("n")
-                def next_surface(ev):
-                    pts.feature_defaults["surface_id"] += 1
-
-                @pts.bind_key("p")
-                def previous_surface(ev):
-                    pts.feature_defaults["surface_id"] -= 1
 
                 return [pts]
 
@@ -238,7 +248,6 @@ def surface(
     """
     create a new surface representation from picked surface points
     """
-    spacing_A /= surface_shapes.scale[0]
     pos = []
     ori = []
     meshes = []
@@ -279,7 +288,7 @@ def surface(
         poseset[PSDL.POSITION] = pos
         poseset[PSDL.ORIENTATION] = np.array(Rotation.concatenate(ori))
         poseset[PSDL.EXPERIMENT_ID] = exp_id
-        poseset[PSDL.PIXEL_SPACING] = surface_shapes.scale[0]
+        poseset[PSDL.PIXEL_SPACING] = 1
 
         poseset = validate_poseset_dataframe(poseset, coerce=True)
 
@@ -287,7 +296,7 @@ def surface(
             construct_particle_layer_tuples(
                 pos,
                 poseset,
-                surface_shapes.scale,
+                1,
                 exp_id,
             )
         )
@@ -316,7 +325,8 @@ def surface(
 
         surface_layer = Surface(
             (vert, faces, values),
-            scale=surface_shapes.scale,
+            name=f"{exp_id} - surface",
+            metadata={"experiment_id": exp_id},
             shading="smooth",
             colormap=colormap,
         )
