@@ -115,6 +115,7 @@ def read_image(image):
 def read_surface_picks(path):
     lines = []
     with open(path, "rb") as f:
+        scale = np.load(f)
         surf_id = np.load(f)
         edge_color_cycle = np.load(f)
         while True:
@@ -128,8 +129,9 @@ def read_surface_picks(path):
         lines,
         dict(
             name=f"{exp_id} - surface lines",
-            edge_width=30,
+            edge_width=50 / scale[0],
             metadata={"experiment_id": exp_id},
+            scale=scale,
             features={"surface_id": surf_id},
             feature_defaults={"surface_id": surf_id.max() + 1},
             edge_color_cycle=edge_color_cycle,
@@ -143,6 +145,7 @@ def read_surface_picks(path):
 
 def read_surface(path):
     with open(path, "rb") as f:
+        scale = np.load(f)
         # TODO: needs to exposed in napari
         # colormap = np.load(f)
         data = tuple(np.load(f) for _ in range(3))
@@ -154,6 +157,7 @@ def read_surface(path):
             name=f"{exp_id} - surface",
             metadata={"experiment_id": exp_id},
             shading="smooth",
+            scale=scale,
             # TODO: needs to exposed in napari
             # colormap=colormap
         ),

@@ -222,7 +222,8 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
             if isinstance(lay, Image) and lay.metadata["experiment_id"] == exp_id:
                 pts = Shapes(
                     name=f"{exp_id} - surface lines",
-                    edge_width=30,
+                    edge_width=50 / lay.scale[0],
+                    scale=lay.scale,
                     metadata={"experiment_id": exp_id},
                     features={"surface_id": np.empty(0, int)},
                     feature_defaults={"surface_id": 0},
@@ -248,6 +249,7 @@ def surface(
     """
     create a new surface representation from picked surface points
     """
+    spacing_A /= surface_shapes.scale[0]
     pos = []
     ori = []
     meshes = []
@@ -296,8 +298,8 @@ def surface(
             construct_particle_layer_tuples(
                 pos,
                 poseset,
-                1,
-                exp_id,
+                scale=surface_shapes.scale[0],
+                exp_id=exp_id,
             )
         )
         pos_layer.face_color = colors
@@ -327,6 +329,7 @@ def surface(
             (vert, faces, values),
             name=f"{exp_id} - surface",
             metadata={"experiment_id": exp_id},
+            scale=surface_shapes.scale,
             shading="smooth",
             colormap=colormap,
         )

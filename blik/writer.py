@@ -48,9 +48,11 @@ def write_surface_picks(path, data, attributes):
         )
 
     exp_id = str(attributes["metadata"]["experiment_id"])
+    scale = attributes["scale"]
     surf_id = attributes["features"]["surface_id"]
     edge_color_cycle = attributes["edge_color_cycle"]
     with open(path, "wb") as f:
+        np.save(f, scale)
         np.save(f, surf_id)
         np.save(f, edge_color_cycle)
         for line in data:
@@ -67,9 +69,11 @@ def write_surface(path, data, attributes):
         )
 
     exp_id = str(attributes["metadata"]["experiment_id"])
+    scale = attributes["scale"]
     # TODO: needs to exposed in napari
     # colormap = attributes['colormap']['colors']
     with open(path, "wb") as f:
+        np.save(f, scale)
         # TODO: needs to exposed in napari
         # np.save(f, colormap)
         for d in data:
