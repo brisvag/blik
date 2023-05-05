@@ -1,4 +1,5 @@
 import warnings
+from pathlib import Path
 from uuid import uuid1
 
 import numpy as np
@@ -169,9 +170,10 @@ def read_layers(*paths, **kwargs):
     layers = []
     cryohub_paths = []
     for path in paths:
-        if path.endswith(".picks"):
+        path = Path(path)
+        if path.suffix == ".picks":
             layers.append(read_surface_picks(path))
-        if path.endswith(".surf"):
+        if path.suffix == ".surf":
             layers.append(read_surface(path))
         else:
             cryohub_paths.append(path)
