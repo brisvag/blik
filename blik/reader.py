@@ -58,6 +58,12 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
 
 
 def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None):
+    """
+    Constructs particle layer tuples from particle data.
+
+    Data is assumed to already by in zyx napari format, while features is
+    the normal poseset dataframe.
+    """
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
 
@@ -70,14 +76,16 @@ def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None):
 
 
 def read_particles(particles):
+    """
+    Takes a valid poseset and converts it into napari layers.
+    """
     layers = []
     for exp_id, features in particles.groupby(PSDL.EXPERIMENT_ID):
         features = features.reset_index(drop=True)
 
         ndim = 3 if PSDL.POSITION_Z in features else 2
-        coords = invert_xyz(
-            np.asarray(features[PSDL.POSITION[:ndim]])
-        )  # order is zyx in napari
+        # order is zyx in napari       ndim = 3 if PSDL.POSITION_Z in features else 2
+        coords = invert_xyz(np.asarray(features[PSDL.POSITION[:ndim]]))
         shifts = invert_xyz(np.asarray(features[PSDL.SHIFT[:ndim]]))
         coords += shifts
         px_size = features[PSDL.PIXEL_SPACING].iloc[0]

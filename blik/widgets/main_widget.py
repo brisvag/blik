@@ -259,7 +259,8 @@ def surface(
     for _, surf in surface_shapes.features.groupby("surface_id"):
         lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
-        lines = sorted(lines, key=lambda x: x[0, 0])
+        # also move to xyz world so math is the same as reader code
+        lines = [invert_xyz(line) for line in sorted(lines, key=lambda x: x[0, 0])]
 
         try:
             surface_grid = GriddedSplineSurface(
@@ -296,7 +297,7 @@ def surface(
 
         vec_layer, pos_layer = layer_tuples_to_layers(
             construct_particle_layer_tuples(
-                pos,
+                invert_xyz(pos),
                 poseset,
                 scale=surface_shapes.scale[0],
                 exp_id=exp_id,
