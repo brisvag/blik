@@ -24,7 +24,7 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id):
             face_color="teal",
             size=50,  # TODO: this will be fixed by vispy 0.12!
             edge_width=0,
-            scale=scale,
+            scale=[scale] * 3,
             shading="spherical",
             antialiasing=0,
             metadata={"experiment_id": exp_id, "p_id": p_id},
@@ -48,8 +48,8 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
         dict(
             name=f"{exp_id} - particle orientations",
             edge_color=vec_color,
-            length=50 / scale[0],
-            scale=scale,
+            length=50 / scale,
+            scale=[scale] * 3,
             metadata={"experiment_id": exp_id, "p_id": p_id},
             out_of_slice_display=True,
         ),
@@ -84,9 +84,10 @@ def read_particles(particles):
         if not px_size:
             warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
             px_size = 1
-        scale = np.repeat(px_size, ndim)
 
-        layers.extend(construct_particle_layer_tuples(coords, features, scale, exp_id))
+        layers.extend(
+            construct_particle_layer_tuples(coords, features, px_size, exp_id)
+        )
 
     return layers
 
