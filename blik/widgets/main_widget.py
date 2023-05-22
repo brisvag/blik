@@ -327,7 +327,7 @@ def surface(
             values += 1
 
         surface_layer = Surface(
-            (vert, faces, values),
+            (invert_xyz(vert), faces, values),
             name=f"{exp_id} - surface",
             metadata={"experiment_id": exp_id},
             scale=surface_shapes.scale,
