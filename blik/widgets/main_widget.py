@@ -260,7 +260,10 @@ def surface(
         lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
         # also move to xyz world so math is the same as reader code
-        lines = [invert_xyz(line) for line in sorted(lines, key=lambda x: x[0, 0])]
+        lines = [
+            invert_xyz(line).astype(float)
+            for line in sorted(lines, key=lambda x: x[0, 0])
+        ]
 
         try:
             surface_grid = GriddedSplineSurface(
