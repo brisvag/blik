@@ -32,6 +32,9 @@ contributions:
     - id: blik.gaussian_filter
       python_name: blik.widgets.filter:gaussian_filter
       title: Create gaussian filter widget
+    - id: blik.power_spectrum
+      python_name: blik.widgets.power_spectrum:power_spectrum
+      title: Create power spectrum widget
   readers:
     - command: blik.get_reader
       filename_patterns:
@@ -71,3 +74,5 @@ contributions:
       display_name: bandpass filter
     - command: blik.gaussian_filter
       display_name: gaussian filter
+    - command: blik.power_spectrum
+      display_name: power spectrum
