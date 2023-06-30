@@ -22,7 +22,7 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id):
             name=f"{exp_id} - particle positions",
             features=features,
             face_color="teal",
-            size=50,  # TODO: this will be fixed by vispy 0.12!
+            size=5,
             edge_width=0,
             scale=[scale] * 3,
             shading="spherical",
