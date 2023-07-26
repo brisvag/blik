@@ -238,13 +238,18 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
 
 
 @magicgui(
-    labels=False,
+    labels=True,
     call_button="Generate",
     spacing_A=dict(widget_type="Slider", min=1, max=500),
     output=dict(choices=["surface", "particles"]),
+    inside_points=dict(nullable=True),
 )
 def surface(
-    surface_shapes: napari.layers.Shapes, spacing_A=100, closed=False, output="surface"
+    surface_shapes: napari.layers.Shapes,
+    inside_points: napari.layers.Points,
+    spacing_A=100,
+    closed=False,
+    output="surface",
 ) -> typing.List[napari.layers.Layer]:
     """
     create a new surface representation from picked surface points
@@ -256,7 +261,7 @@ def surface(
     colors = []
     exp_id = surface_shapes.metadata["experiment_id"]
     data_array = np.array(surface_shapes.data, dtype=object)  # helps with indexing
-    for _, surf in surface_shapes.features.groupby("surface_id"):
+    for i, (_, surf) in enumerate(surface_shapes.features.groupby("surface_id")):
         lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
         # also move to xyz world so math is the same as reader code
@@ -265,12 +270,18 @@ def surface(
             for line in sorted(lines, key=lambda x: x[0, 0])
         ]
 
+        if inside_points is not None:
+            inside_pt = invert_xyz(inside_points.data[i])
+        else:
+            inside_pt = None
+
         try:
             surface_grid = GriddedSplineSurface(
                 points=lines,
                 separation=spacing_A,
                 order=3,
                 closed=closed,
+                inside_point=inside_pt,
             )
         except ValueError:
             continue

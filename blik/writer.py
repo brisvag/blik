@@ -3,6 +3,7 @@ import pandas as pd
 from cryohub.writing.mrc import write_mrc
 from cryohub.writing.star import write_star
 from cryotypes.image import Image
+from cryotypes.poseset import PoseSetDataLabels as PSDL
 from cryotypes.poseset import validate_poseset_dataframe
 
 
@@ -37,6 +38,7 @@ def write_particles(path, layer_data):
             )
 
     df = pd.concat(dfs, axis=0, ignore_index=True)
+    df[PSDL.PIXEL_SPACING] = attributes["scale"][0]
     write_star(df, path, overwrite=True)
     return [path]
 
@@ -46,6 +48,9 @@ def write_surface_picks(path, data, attributes):
         raise ValueError(
             "cannot write a layer that does not have blik metadata. Add it to an experiment!"
         )
+
+    if not str(path).endswith(".picks"):
+        path = str(path) + ".picks"
 
     exp_id = str(attributes["metadata"]["experiment_id"])
     scale = attributes["scale"]
@@ -67,6 +72,9 @@ def write_surface(path, data, attributes):
         raise ValueError(
             "cannot write a layer that does not have blik metadata. Add it to an experiment!"
         )
+
+    if not str(path).endswith(".surf"):
+        path = str(path) + ".surf"
 
     exp_id = str(attributes["metadata"]["experiment_id"])
     scale = attributes["scale"]
