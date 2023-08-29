@@ -1,8 +1,8 @@
-![logo](https://github.com/gutsche-lab/blik/raw/main/docs/images/logo.png)
+![logo](https://github.com/brisvag/blik/raw/main/docs/images/logo.png)
 
 # `blik`
 
-![Codecov branch](https://img.shields.io/codecov/c/github/gutsche-lab/blik/main?label=codecov)
+![Codecov branch](https://img.shields.io/codecov/c/github/brisvag/blik/main?label=codecov)
 ![PyPI](https://img.shields.io/pypi/v/blik)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/blik)
 

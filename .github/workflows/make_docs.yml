@@ -11,7 +11,7 @@ jobs:
   deploy:
     name: Make docs
     runs-on: ubuntu-latest
-    if: github.repository == 'gutsche-lab/blik'
+    if: github.repository == 'brisvag/blik'
     steps:
     - name: Checkout code
       uses: actions/checkout@main

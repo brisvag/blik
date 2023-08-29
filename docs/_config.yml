@@ -14,7 +14,7 @@ execute:
 
 # Information about where the book exists on the web
 repository:
-  url: https://github.com/gutsche-lab/blik # Online location of your book
+  url: https://github.com/brisvag/blik # Online location of your book
   path_to_book: docs # Optional path to your book, relative to the repository root
   branch: main # Which branch of the repository should be used when creating links (optional)
 
@@ -47,9 +47,9 @@ sphinx:
     html_show_sourcelink: False
     pygments_style: "default"
     html_theme_options:
-      base_url: "https://gutsche-lab.github.io/blik"  # Specify a base_url used to generate sitemap.xml links
-      repo_url: "https://github.com/gutsche-lab/blik"
-      repo_name: "gutsche-lab/blik"
+      base_url: "https://brisvag.github.io/blik"  # Specify a base_url used to generate sitemap.xml links
+      repo_url: "https://github.com/brisvag/blik"
+      repo_name: "brisvag/blik"
       html_minify: True
       css_minify: True
       repo_type: "github"
