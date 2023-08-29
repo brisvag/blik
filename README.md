@@ -12,7 +12,7 @@
 
 **`blik`** is a tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
 
-**DISCLAIMER**: this package is in development phase. Expect frequent bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
+**DISCLAIMER**: this package is in development phase. Expect bugs and crashes. Please, report them on the issue tracker and ask if anything is unclear!
 
 ## Installation
 
@@ -41,3 +41,8 @@ The `-w blik` is important for proper initialization of all the layers. Keep the
 ## Widget
 
 The main widget has a few functions:
+
+- `experiment`: quickly switch to a different experiment id (typically, everything related to an individual tomogram such as volume, particles and segmentations)
+- `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface picking` for segmentation or particle generation
+- `add to exp`: add a layer to the currently selected `experiment` (just a shorthand for `layer.metadata['experiment_id'] = current_exp_id`)
+- `surface`: process a previously picked `surface picking` layer to generate a surface mesh or distribute particles on it for subtomogram averaging.
