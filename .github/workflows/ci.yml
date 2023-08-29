@@ -52,7 +52,8 @@ jobs:
 
       - name: Test
         uses: aganders3/headless-gui@v1
-        run: pytest --color=yes --cov --cov-report=xml --cov-report=term-missing
+        with:
+          run: pytest --color=yes --cov --cov-report=xml --cov-report=term-missing
 
       # If something goes wrong, we can open an issue in the repo
       - name: Report --pre Failures
