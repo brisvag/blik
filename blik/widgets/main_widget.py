@@ -48,9 +48,7 @@ def _connect_points_to_vectors(p, v):
     """
 
     def _update_vectors():
-        vec_data, vec_color = generate_vectors(
-            p.data[...], p.features['orientation']
-        )
+        vec_data, vec_color = generate_vectors(p.data[...], p.features["orientation"])
         v.data = vec_data
         v.edge_color = vec_color
 
@@ -183,9 +181,8 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
     elif l_type == "particles":
         for lay in layers:
             if lay.metadata["experiment_id"] == exp_id:
-                features = validate_poseset_dataframe(pd.DataFrame(), coerce=True)
                 layers = construct_particle_layer_tuples(
-                    None, features, lay.scale, exp_id
+                    coords=None, features=None, scale=lay.scale[0], exp_id=exp_id
                 )
                 return layer_tuples_to_layers(layers)
     elif l_type == "surface_picking":
@@ -273,18 +270,12 @@ def surface(
 
     if output == "particles":
         pos = np.concatenate(pos)
-        poseset = pd.DataFrame()
-        poseset[PSDL.POSITION] = pos
-        poseset[PSDL.ORIENTATION] = np.array(Rotation.concatenate(ori))
-        poseset[PSDL.EXPERIMENT_ID] = exp_id
-        poseset[PSDL.PIXEL_SPACING] = 1
-
-        poseset = validate_poseset_dataframe(poseset, coerce=True)
+        features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
         vec_layer, pos_layer = layer_tuples_to_layers(
             construct_particle_layer_tuples(
-                invert_xyz(pos),
-                poseset,
+                coords=invert_xyz(pos),
+                features=features,
                 scale=surface_shapes.scale[0],
                 exp_id=exp_id,
             )

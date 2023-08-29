@@ -4,8 +4,10 @@ from uuid import uuid1
 
 import cryohub
 import numpy as np
+import pandas as pd
 from cryotypes.image import ImageProtocol
 from cryotypes.poseset import PoseSetProtocol
+from scipy.spatial.transform import Rotation
 
 from .utils import generate_vectors, invert_xyz
 
@@ -47,7 +49,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         dict(
             name=f"{exp_id} - particle orientations",
             edge_color=vec_color,
-            length=50 / scale,
+            length=50 / np.array(scale),
             scale=[scale] * 3,
             metadata={"experiment_id": exp_id, "p_id": p_id, "source": source},
             out_of_slice_display=True,
@@ -68,6 +70,14 @@ def construct_particle_layer_tuples(
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
 
+    if features is None:
+        features = pd.DataFrame()
+
+    if "orientation" not in features.columns:
+        features["orientation"] = (
+            [] if coords is None else Rotation.identity(len(coords))
+        )
+
     # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
     pos = _construct_positions_layer(coords, features, scale, exp_id, p_id, source)
     ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
@@ -82,7 +92,12 @@ def read_particles(particles):
     """
     # order is zyx in napari
     coords = invert_xyz(particles.position)
-    features = particles.features.copy(deep=False)
+
+    if particles.features is not None:
+        features = particles.features.copy(deep=False)
+    else:
+        features = pd.DataFrame()
+
     px_size = particles.pixel_spacing
     if not px_size:
         warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
@@ -90,7 +105,7 @@ def read_particles(particles):
 
     if particles.shift is not None:
         shifts = invert_xyz(particles.shift)
-        coords += shifts
+        coords = coords + shifts
         shift_cols = ["shift_z", "shift_y", "shift_x"]
         features[shift_cols] = shifts
     if particles.orientation is not None:
