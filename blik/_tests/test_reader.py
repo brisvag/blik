@@ -18,7 +18,7 @@ def test_construct_empty_layers():
     layer_data_list = construct_particle_layer_tuples(
         coords=None,
         features=None,
-        scale=[1, 1, 1],
+        scale=1,
         exp_id="test",
     )
 

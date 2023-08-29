@@ -1,10 +1,12 @@
 import numpy as np
-import pandas as pd
+from cryohub.utils.generic import get_columns_or_default
+from cryohub.utils.types import PoseSet
 from cryohub.writing.mrc import write_mrc
 from cryohub.writing.star import write_star
 from cryotypes.image import Image
-from cryotypes.poseset import PoseSetDataLabels as PSDL
-from cryotypes.poseset import validate_poseset_dataframe
+from scipy.spatial.transform import Rotation
+
+from .utils import invert_xyz
 
 
 def write_image(path, data, attributes):
@@ -17,29 +19,51 @@ def write_image(path, data, attributes):
         experiment_id="",
         pixel_spacing=attributes["scale"][0],
         stack=attributes["metadata"]["stack"],
-        source="",
+        source=attributes["metadata"].get("source", ""),
     )
     write_mrc(img, str(path), overwrite=True)
     return [path]
 
 
 def write_particles(path, layer_data):
-    dfs = []
+    particles = []
     for data, attributes, layer_type in layer_data:
         if layer_type == "vectors":
             # vector info is actually held in particles, but this makes it
             # convenient to select everything and save
             pass
         elif "experiment_id" in attributes["metadata"]:
-            dfs.append(validate_poseset_dataframe(attributes["features"], coerce=True))
+            data = invert_xyz(data)
+            shift_cols = ["shift_z", "shift_y", "shift_x"]
+            features = attributes["features"].drop(
+                columns=["orientation", *shift_cols], errors="ignore"
+            )
+
+            shift = get_columns_or_default(attributes["features"], shift_cols)
+            if shift is not None:
+                shift = invert_xyz(shift)
+                data = data - shift
+            ori = get_columns_or_default(attributes["features"], "orientation")
+            if ori is not None:
+                ori = Rotation.concatenate(ori.squeeze())
+
+            particles.append(
+                PoseSet(
+                    position=data,
+                    shift=shift,
+                    orientation=ori,
+                    experiment_id=attributes["metadata"]["experiment_id"],
+                    pixel_spacing=attributes["scale"][0],
+                    source=attributes["metadata"].get("source", ""),
+                    features=features,
+                )
+            )
         else:
             raise ValueError(
                 "cannot write a layer that does not have blik metadata. Add it to an experiment!"
             )
 
-    df = pd.concat(dfs, axis=0, ignore_index=True)
-    df[PSDL.PIXEL_SPACING] = attributes["scale"][0]
-    write_star(df, path, overwrite=True)
+    write_star(particles, path, overwrite=True)
     return [path]
 
 

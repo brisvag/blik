@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
-from cryotypes.poseset import PoseSetDataLabels as PSDL
-from cryotypes.poseset import validate_poseset_dataframe
 from magicgui import magic_factory, magicgui
 from magicgui.widgets import Container
 from morphosamplers.surface_spline import GriddedSplineSurface
@@ -50,41 +48,12 @@ def _connect_points_to_vectors(p, v):
     """
 
     def _update_vectors():
-        vec_data, vec_color = generate_vectors(
-            p.data[...], p.features[PSDL.ORIENTATION]
-        )
+        vec_data, vec_color = generate_vectors(p.data[...], p.features["orientation"])
         v.data = vec_data
         v.edge_color = vec_color
 
-    def _update_features_from_points():
-        with p.events.features.blocker(_update_points_from_features):
-            p.features[PSDL.POSITION] = invert_xyz(p.data)
-            p.features = validate_poseset_dataframe(p.features, coerce=True)
-
-    def _update_points_from_features():
-        with p.events.data.blocker(_update_features_from_points):
-            p.data = invert_xyz(p.features[PSDL.POSITION].to_numpy())
-
-    p.events.data.disconnect(_update_features_from_points)
-    p.events.data.connect(_update_features_from_points)
-    p.events.features.disconnect(_update_points_from_features)
-    p.events.features.connect(_update_points_from_features)
     p.events.features.disconnect(_update_vectors)
     p.events.features.connect(_update_vectors)
-
-    # set defaults for features, otherwise the callbacks above will fail on new points
-    defaults = validate_poseset_dataframe(
-        pd.DataFrame(
-            {
-                PSDL.EXPERIMENT_ID: p.metadata["experiment_id"],
-                PSDL.SOURCE: None,
-                PSDL.PIXEL_SPACING: p.scale[0],
-            },
-            index=[0],
-        ),
-        coerce=True,
-    )
-    p.feature_defaults[defaults.columns] = defaults
 
 
 def _connect_picking_callbacks(surf):
@@ -193,7 +162,7 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
     layers = getattr(new._main_widget["experiment"], "current_layers", [])
     if not layers:
         show_info("no experiment is selected")
-        return
+        return []
 
     exp_id = new._main_widget["experiment"].experiment_id.value
     if l_type == "segmentation":
@@ -212,9 +181,8 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
     elif l_type == "particles":
         for lay in layers:
             if lay.metadata["experiment_id"] == exp_id:
-                features = validate_poseset_dataframe(pd.DataFrame(), coerce=True)
                 layers = construct_particle_layer_tuples(
-                    None, features, lay.scale, exp_id
+                    coords=None, features=None, scale=lay.scale[0], exp_id=exp_id
                 )
                 return layer_tuples_to_layers(layers)
     elif l_type == "surface_picking":
@@ -235,6 +203,7 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
                 return [pts]
 
     show_info(f"cannot create a new {l_type}")
+    return []
 
 
 @magicgui(
@@ -301,24 +270,18 @@ def surface(
 
     if output == "particles":
         pos = np.concatenate(pos)
-        poseset = pd.DataFrame()
-        poseset[PSDL.POSITION] = pos
-        poseset[PSDL.ORIENTATION] = np.array(Rotation.concatenate(ori))
-        poseset[PSDL.EXPERIMENT_ID] = exp_id
-        poseset[PSDL.PIXEL_SPACING] = 1
-
-        poseset = validate_poseset_dataframe(poseset, coerce=True)
+        features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
         vec_layer, pos_layer = layer_tuples_to_layers(
             construct_particle_layer_tuples(
-                invert_xyz(pos),
-                poseset,
+                coords=invert_xyz(pos),
+                features=features,
                 scale=surface_shapes.scale[0],
                 exp_id=exp_id,
             )
         )
         pos_layer.face_color = colors
-        return vec_layer, pos_layer
+        return [vec_layer, pos_layer]
 
     if output == "surface":
         offset = 0
@@ -349,6 +312,8 @@ def surface(
             colormap=colormap,
         )
         return [surface_layer]
+
+    return []
 
 
 @magicgui(

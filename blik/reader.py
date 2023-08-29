@@ -2,11 +2,12 @@ import warnings
 from pathlib import Path
 from uuid import uuid1
 
+import cryohub
 import numpy as np
-from cryohub import read
-from cryotypes.image import Image
-from cryotypes.poseset import PoseSet
-from cryotypes.poseset import PoseSetDataLabels as PSDL
+import pandas as pd
+from cryotypes.image import ImageProtocol
+from cryotypes.poseset import PoseSetProtocol
+from scipy.spatial.transform import Rotation
 
 from .utils import generate_vectors, invert_xyz
 
@@ -15,7 +16,7 @@ def get_reader(path):
     return read_layers
 
 
-def _construct_positions_layer(coords, features, scale, exp_id, p_id):
+def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
     return (
         coords,
         dict(
@@ -27,20 +28,20 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id):
             scale=[scale] * 3,
             shading="spherical",
             antialiasing=0,
-            metadata={"experiment_id": exp_id, "p_id": p_id},
+            metadata={"experiment_id": exp_id, "p_id": p_id, "source": source},
             out_of_slice_display=True,
         ),
         "points",
     )
 
 
-def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
+def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source):
     if coords is None:
         vec_data = None
         vec_color = "blue"
     else:
         vec_data, vec_color = generate_vectors(
-            invert_xyz(coords), features[PSDL.ORIENTATION]
+            invert_xyz(coords), features["orientation"]
         )
         vec_data = invert_xyz(vec_data)
     return (
@@ -48,16 +49,18 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id):
         dict(
             name=f"{exp_id} - particle orientations",
             edge_color=vec_color,
-            length=50 / scale,
+            length=50 / np.array(scale),
             scale=[scale] * 3,
-            metadata={"experiment_id": exp_id, "p_id": p_id},
+            metadata={"experiment_id": exp_id, "p_id": p_id, "source": source},
             out_of_slice_display=True,
         ),
         "vectors",
     )
 
 
-def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None):
+def construct_particle_layer_tuples(
+    coords, features, scale, exp_id, p_id=None, source=""
+):
     """
     Constructs particle layer tuples from particle data.
 
@@ -67,9 +70,17 @@ def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None):
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
 
+    if features is None:
+        features = pd.DataFrame()
+
+    if "orientation" not in features.columns:
+        features["orientation"] = (
+            [] if coords is None else Rotation.identity(len(coords))
+        )
+
     # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
-    pos = _construct_positions_layer(coords, features, scale, exp_id, p_id)
-    ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id)
+    pos = _construct_positions_layer(coords, features, scale, exp_id, p_id, source)
+    ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
 
     # invert order for convenience (latest added layer is selected)
     return [ori, pos]
@@ -79,25 +90,30 @@ def read_particles(particles):
     """
     Takes a valid poseset and converts it into napari layers.
     """
-    layers = []
-    for exp_id, features in particles.groupby(PSDL.EXPERIMENT_ID):
-        features = features.reset_index(drop=True)
+    # order is zyx in napari
+    coords = invert_xyz(particles.position)
 
-        ndim = 3 if PSDL.POSITION_Z in features else 2
-        # order is zyx in napari       ndim = 3 if PSDL.POSITION_Z in features else 2
-        coords = invert_xyz(np.asarray(features[PSDL.POSITION[:ndim]]))
-        shifts = invert_xyz(np.asarray(features[PSDL.SHIFT[:ndim]]))
-        coords += shifts
-        px_size = features[PSDL.PIXEL_SPACING].iloc[0]
-        if not px_size:
-            warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
-            px_size = 1
+    if particles.features is not None:
+        features = particles.features.copy(deep=False)
+    else:
+        features = pd.DataFrame()
 
-        layers.extend(
-            construct_particle_layer_tuples(coords, features, px_size, exp_id)
-        )
+    px_size = particles.pixel_spacing
+    if not px_size:
+        warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
+        px_size = 1
 
-    return layers
+    if particles.shift is not None:
+        shifts = invert_xyz(particles.shift)
+        coords = coords + shifts
+        shift_cols = ["shift_z", "shift_y", "shift_x"]
+        features[shift_cols] = shifts
+    if particles.orientation is not None:
+        features["orientation"] = np.asarray(particles.orientation)
+
+    return construct_particle_layer_tuples(
+        coords, features, px_size, particles.experiment_id, particles.source
+    )
 
 
 def read_image(image):
@@ -187,12 +203,12 @@ def read_layers(*paths, **kwargs):
         else:
             cryohub_paths.append(path)
 
-    data_list = read(*cryohub_paths, **kwargs)
+    data_list = cryohub.read(*cryohub_paths, **kwargs)
     # sort so we get images first, better for some visualization circumstances
-    for data in sorted(data_list, key=lambda x: not isinstance(x, Image)):
-        if isinstance(data, Image):
+    for data in sorted(data_list, key=lambda x: not isinstance(x, ImageProtocol)):
+        if isinstance(data, ImageProtocol):
             layers.append(read_image(data))
-        elif isinstance(data, PoseSet):
+        elif isinstance(data, PoseSetProtocol):
             layers.extend(read_particles(data))
 
     for lay in layers:
