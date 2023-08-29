@@ -145,7 +145,9 @@ def add_to_exp(layer: napari.layers.Layer):
     call_button="Create",
     l_type={"choices": ["segmentation", "particles", "surface_picking"]},
 )
-def new(l_type) -> List[napari.layers.Layer]:  # noqa
+def new(
+    l_type,
+) -> List[napari.layers.Layer]:  # noqa. This must be List, not list (magicgui...)
     """create a new layer to add to this experiment."""
     layers = getattr(new._main_widget["experiment"], "current_layers", [])
     if not layers:
