@@ -19,18 +19,18 @@ def get_reader(path):
 def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
     return (
         coords,
-        dict(
-            name=f"{exp_id} - particle positions",
-            features=features,
-            face_color="teal",
-            size=5,
-            edge_width=0,
-            scale=[scale] * 3,
-            shading="spherical",
-            antialiasing=0,
-            metadata={"experiment_id": exp_id, "p_id": p_id, "source": source},
-            out_of_slice_display=True,
-        ),
+        {
+            "name": f"{exp_id} - particle positions",
+            "features": features,
+            "face_color": "teal",
+            "size": 5,
+            "edge_width": 0,
+            "scale": [scale] * 3,
+            "shading": "spherical",
+            "antialiasing": 0,
+            "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
+            "out_of_slice_display": True,
+        },
         "points",
     )
 
@@ -46,14 +46,14 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         vec_data = invert_xyz(vec_data)
     return (
         vec_data,
-        dict(
-            name=f"{exp_id} - particle orientations",
-            edge_color=vec_color,
-            length=50 / np.array(scale),
-            scale=[scale] * 3,
-            metadata={"experiment_id": exp_id, "p_id": p_id, "source": source},
-            out_of_slice_display=True,
-        ),
+        {
+            "name": f"{exp_id} - particle orientations",
+            "edge_color": vec_color,
+            "length": 50 / np.array(scale),
+            "scale": [scale] * 3,
+            "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
+            "out_of_slice_display": True,
+        },
         "vectors",
     )
 
@@ -87,9 +87,7 @@ def construct_particle_layer_tuples(
 
 
 def read_particles(particles):
-    """
-    Takes a valid poseset and converts it into napari layers.
-    """
+    """Takes a valid poseset and converts it into napari layers."""
     # order is zyx in napari
     coords = invert_xyz(particles.position)
 
@@ -123,17 +121,17 @@ def read_image(image):
         px_size = 1
     return (
         image.data,
-        dict(
-            name=f"{image.experiment_id} - image",
-            scale=[px_size] * image.data.ndim,
-            metadata={"experiment_id": image.experiment_id, "stack": image.stack},
-            interpolation2d="spline36",
-            interpolation3d="linear",
-            rendering="average",
-            depiction="plane",
-            blending="translucent",
-            plane=dict(thickness=5),
-        ),
+        {
+            "name": f"{image.experiment_id} - image",
+            "scale": [px_size] * image.data.ndim,
+            "metadata": {"experiment_id": image.experiment_id, "stack": image.stack},
+            "interpolation2d": "spline36",
+            "interpolation3d": "linear",
+            "rendering": "average",
+            "depiction": "plane",
+            "blending": "translucent",
+            "plane": {"thickness": 5},
+        },
         "image",
     )
 
@@ -153,18 +151,18 @@ def read_surface_picks(path):
 
     return (
         lines,
-        dict(
-            name=f"{exp_id} - surface lines",
-            edge_width=50 / scale[0],
-            metadata={"experiment_id": exp_id},
-            scale=scale,
-            features={"surface_id": surf_id},
-            feature_defaults={"surface_id": surf_id.max() + 1},
-            edge_color_cycle=edge_color_cycle,
-            edge_color="surface_id",
-            shape_type="path",
-            ndim=3,
-        ),
+        {
+            "name": f"{exp_id} - surface lines",
+            "edge_width": 50 / scale[0],
+            "metadata": {"experiment_id": exp_id},
+            "scale": scale,
+            "features": {"surface_id": surf_id},
+            "feature_defaults": {"surface_id": surf_id.max() + 1},
+            "edge_color_cycle": edge_color_cycle,
+            "edge_color": "surface_id",
+            "shape_type": "path",
+            "ndim": 3,
+        },
         "shapes",
     )
 
@@ -179,14 +177,14 @@ def read_surface(path):
 
     return (
         data,
-        dict(
-            name=f"{exp_id} - surface",
-            metadata={"experiment_id": exp_id},
-            shading="smooth",
-            scale=scale,
+        {
+            "name": f"{exp_id} - surface",
+            "metadata": {"experiment_id": exp_id},
+            "shading": "smooth",
+            "scale": scale,
             # TODO: needs to exposed in napari
             # colormap=colormap
-        ),
+        },
         "surface",
     )
 

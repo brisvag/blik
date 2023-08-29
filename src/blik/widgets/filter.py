@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 @magic_factory(
     auto_call=False,
     call_button=True,
-    low=dict(widget_type="FloatSlider", min=0, max=0.5),
-    high=dict(widget_type="FloatSlider", min=0, max=0.5),
+    low={"widget_type": "FloatSlider", "min": 0, "max": 0.5},
+    high={"widget_type": "FloatSlider", "min": 0, "max": 0.5},
 )
 def bandpass_filter(
     image: "napari.layers.Image", low: float = 0.1, high: float = 0.4
@@ -23,7 +23,7 @@ def bandpass_filter(
         np.asarray(image.data), low, high_pass=True, channel_axis=channel_axis
     )
     low_pass = butterworth(high_pass, high, channel_axis=channel_axis)
-    return low_pass, dict(name=f"filtered {image.name}", scale=image.scale), "image"
+    return low_pass, {"name": f"filtered {image.name}", "scale": image.scale}, "image"
 
 
 def gaussian_kernel(size, sigma):
@@ -34,8 +34,8 @@ def gaussian_kernel(size, sigma):
 
 @magic_factory(
     auto_call=True,
-    sigma=dict(widget_type="FloatSlider", min=0.1, max=5, step=0.1),
-    kernel_size=dict(widget_type="Slider", min=3, max=20),
+    sigma={"widget_type": "FloatSlider", "min": 0.1, "max": 5, "step": 0.1},
+    kernel_size={"widget_type": "Slider", "min": 3, "max": 20},
 )
 def gaussian_filter(
     image: "napari.layers.Image",

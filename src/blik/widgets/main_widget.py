@@ -16,15 +16,11 @@ from ..reader import construct_particle_layer_tuples
 from ..utils import generate_vectors, invert_xyz, layer_tuples_to_layers
 
 if TYPE_CHECKING:
-    import typing
-
     import napari
 
 
 def _get_choices(wdg, condition=None):
-    """
-    generate choices for the experiment_id dropdown based on the layers in the layerlist
-    """
+    """generate choices for the experiment_id dropdown based on the layers in the layerlist."""
     viewer = find_viewer_ancestor(wdg.native)
     if not viewer:
         return []
@@ -39,13 +35,11 @@ def _get_choices(wdg, condition=None):
             continue
         if exp is not None:
             choices.add(exp)
-    return sorted(list(choices))
+    return sorted(choices)
 
 
 def _connect_points_to_vectors(p, v):
-    """
-    connect a particle points layer to a vectors layer to keep them in sync.
-    """
+    """connect a particle points layer to a vectors layer to keep them in sync."""
 
     def _update_vectors():
         vec_data, vec_color = generate_vectors(p.data[...], p.features["orientation"])
@@ -67,9 +61,7 @@ def _connect_picking_callbacks(surf):
 
 
 def _attach_callbacks_to_viewer(wdg):
-    """
-    attach all callbacks to the napari viewer and enable scale bar
-    """
+    """attach all callbacks to the napari viewer and enable scale bar."""
     viewer = find_viewer_ancestor(wdg.native)
     if viewer:
         viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
@@ -80,9 +72,7 @@ def _attach_callbacks_to_viewer(wdg):
 
 
 def _connect_layers(viewer, e):
-    """
-    connect all points and vectors layers with the necessary callbacks
-    """
+    """connect all points and vectors layers with the necessary callbacks."""
     points = {}
     vectors = {}
     for lay in viewer.layers:
@@ -108,12 +98,14 @@ def _connect_layers(viewer, e):
     auto_call=True,
     call_button=False,
     labels=False,
-    experiment_id=dict(widget_type="ComboBox", choices=_get_choices, nullable=True),
+    experiment_id={
+        "widget_type": "ComboBox",
+        "choices": _get_choices,
+        "nullable": True,
+    },
 )
 def experiment(viewer: napari.Viewer, experiment_id):
-    """
-    Select which experiment_id to display in napari and hide everything else.
-    """
+    """Select which experiment_id to display in napari and hide everything else."""
     sel = []
     if viewer is None:
         return
@@ -139,9 +131,7 @@ def experiment(viewer: napari.Viewer, experiment_id):
     call_button="Add",
 )
 def add_to_exp(layer: napari.layers.Layer):
-    """
-    add layer to the current experiment
-    """
+    """add layer to the current experiment."""
     layer.metadata["experiment_id"] = add_to_exp._main_widget[
         "experiment"
     ].experiment_id.value
@@ -153,12 +143,10 @@ def add_to_exp(layer: napari.layers.Layer):
 @magicgui(
     labels=False,
     call_button="Create",
-    l_type=dict(choices=["segmentation", "particles", "surface_picking"]),
+    l_type={"choices": ["segmentation", "particles", "surface_picking"]},
 )
-def new(l_type) -> typing.List[napari.layers.Layer]:
-    """
-    create a new layer to add to this experiment
-    """
+def new(l_type) -> list[napari.layers.Layer]:
+    """create a new layer to add to this experiment."""
     layers = getattr(new._main_widget["experiment"], "current_layers", [])
     if not layers:
         show_info("no experiment is selected")
@@ -209,9 +197,9 @@ def new(l_type) -> typing.List[napari.layers.Layer]:
 @magicgui(
     labels=True,
     call_button="Generate",
-    spacing_A=dict(widget_type="Slider", min=1, max=500),
-    output=dict(choices=["surface", "particles"]),
-    inside_points=dict(nullable=True),
+    spacing_A={"widget_type": "Slider", "min": 1, "max": 500},
+    output={"choices": ["surface", "particles"]},
+    inside_points={"nullable": True},
 )
 def surface(
     surface_shapes: napari.layers.Shapes,
@@ -219,10 +207,8 @@ def surface(
     spacing_A=100,
     closed=False,
     output="surface",
-) -> typing.List[napari.layers.Layer]:
-    """
-    create a new surface representation from picked surface points
-    """
+) -> list[napari.layers.Layer]:
+    """create a new surface representation from picked surface points."""
     spacing_A /= surface_shapes.scale[0]
     pos = []
     ori = []
@@ -288,12 +274,12 @@ def surface(
         vert = []
         faces = []
         ids = []
-        for id, (v, f) in enumerate(meshes):
+        for surf_id, (v, f) in enumerate(meshes):
             f += offset
             offset += len(v)
             vert.append(v)
             faces.append(f)
-            ids.append(np.full(len(v), id))
+            ids.append(np.full(len(v), surf_id))
         vert = np.concatenate(vert)
         faces = np.concatenate(faces)
         uniq_colors, idx = np.unique(colors, axis=0, return_index=True)
@@ -321,9 +307,7 @@ def surface(
     call_button="Add",
 )
 def gen(layer: napari.layers.Layer):
-    """
-    add layer to the current experiment
-    """
+    """add layer to the current experiment."""
     layer.metadata["experiment_id"] = add_to_exp._main_widget[
         "experiment"
     ].experiment_id.value

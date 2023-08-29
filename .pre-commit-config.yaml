@@ -1,20 +1,38 @@
+ci:
+  autoupdate_schedule: monthly
+  autofix_commit_msg: "style(pre-commit.ci): auto fixes [...]"
+  autoupdate_commit_msg: "ci(pre-commit.ci): autoupdate"
+
+default_install_hook_types: [pre-commit, commit-msg]
+
 repos:
--   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+  # - repo: https://github.com/compilerla/conventional-pre-commit
+  #   rev: v2.1.1
+  #   hooks:
+  #     - id: conventional-pre-commit
+  #       stages: [commit-msg]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.252
     hooks:
-    - id: isort
--   repo: https://github.com/psf/black
+      - id: ruff
+        args: [--fix]
+
+  - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
-    - id: black
-      pass_filenames: true
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+      - id: black
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.12.1
     hooks:
-    - id: flake8
-      pass_filenames: true
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+      - id: validate-pyproject
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.0.1
     hooks:
-    - id: pyupgrade
-      args: ["--py38-plus", "--keep-runtime-typing"]
+      - id: mypy
+        files: "^src/"
+        # # you have to add the things you want to type check against here
+        # additional_dependencies:
+        #   - numpy
