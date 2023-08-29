@@ -14,7 +14,9 @@ def test_main_widget(make_napari_viewer):
     viewer = make_napari_viewer()
     with napari.layers._source.layer_source(reader_plugin="blik"):
         viewer.add_image(
-            np.ones((10, 10, 10)), metadata={"experiment_id": "test", "stack": False}
+            np.ones((10, 10, 10)),
+            name="test",
+            metadata={"experiment_id": "test", "stack": False},
         )
     viewer.window.add_dock_widget(wdg)
     assert "test" in wdg[0].experiment_id.choices
@@ -28,6 +30,7 @@ def test_main_widget(make_napari_viewer):
     # add new picking
     wdg[1].l_type.value = "particles"
     wdg[1]()
+    assert viewer.layers[-2].name == "test - particle orientations"
     assert viewer.layers[-1].name == "test - particle positions"
 
     # add layer manually
