@@ -20,6 +20,6 @@ def power_spectrum(
     power_spectrum = abs(fftshift(fftn(raw, axes=axes)))
     return (
         power_spectrum,
-        dict(name=f"{image.name} - power spectrum", scale=image.scale),
+        {"name": f"{image.name} - power spectrum", "scale": image.scale},
         "image",
     )

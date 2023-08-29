@@ -1,0 +1,19 @@
+{
+  "template": "https://github.com/brisvag/pyrepo-cookiecutter",
+  "commit": "512941898f8eedb7a5984f53987a1194a2160e2a",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Lorenzo Gaifas",
+      "email": "brisvag@gmail.com",
+      "github_username": "brisvag",
+      "project_name": "blik",
+      "project_slug": "blik",
+      "project_short_description": "Python tool for visualising and interacting with cryo-ET and subtomogram averaging data.",
+      "pypi_username": "brisvag",
+      "generate_docs": true,
+      "_template": "https://github.com/brisvag/pyrepo-cookiecutter"
+    }
+  },
+  "directory": null
+}

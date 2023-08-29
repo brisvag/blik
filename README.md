@@ -1,10 +1,12 @@
-![logo](https://github.com/gutsche-lab/blik/raw/main/docs/images/logo.png)
+![logo](https://github.com/brisvag/blik/raw/main/docs/images/logo.png)
 
-# `blik`
+# blik
 
-![Codecov branch](https://img.shields.io/codecov/c/github/gutsche-lab/blik/main?label=codecov)
-![PyPI](https://img.shields.io/pypi/v/blik)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/blik)
+[![License](https://img.shields.io/pypi/l/blik.svg?color=green)](https://github.com/brisvag/blik/raw/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/blik.svg?color=green)](https://pypi.org/project/blik)
+[![Python Version](https://img.shields.io/pypi/pyversions/blik.svg?color=green)](https://python.org)
+[![CI](https://github.com/brisvag/blik/actions/workflows/ci.yml/badge.svg)](https://github.com/brisvag/blik/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/brisvag/blik/branch/main/graph/badge.svg)](https://codecov.io/gh/brisvag/blik)
 
 *it means glance in Dutch*
 
