@@ -1,9 +1,11 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
+from cryohub.utils.generic import get_columns_or_default
+from cryohub.utils.types import PoseSet
 from cryohub.writing.mrc import write_mrc
 from cryohub.writing.star import write_star
 from cryotypes.image import Image
-from cryohub.utils.types import PoseSet
+from scipy.spatial.transform import Rotation
+
 from .utils import invert_xyz
 
 
@@ -31,15 +33,24 @@ def write_particles(path, layer_data):
             # convenient to select everything and save
             pass
         elif "experiment_id" in attributes["metadata"]:
-            shift_cols = ['shift_z', 'shift_y', 'shift_x']
-            shift = attributes["features"][shift_cols].to_numpy()
-            ori = Rotation.concatenate(attributes["features"]["orientation"])
-            features = attributes["features"].drop(columns=["orientation", *shift_cols])
-            breakpoint()
+            data = invert_xyz(data)
+            shift_cols = ["shift_z", "shift_y", "shift_x"]
+            features = attributes["features"].drop(
+                columns=["orientation", *shift_cols], errors="ignore"
+            )
+
+            shift = get_columns_or_default(attributes["features"], shift_cols)
+            if shift is not None:
+                shift = invert_xyz(shift)
+                data = data - shift
+            ori = get_columns_or_default(attributes["features"], "orientation")
+            if ori is not None:
+                ori = Rotation.concatenate(ori.squeeze())
+
             particles.append(
                 PoseSet(
-                    position=invert_xyz(data - shift),
-                    shift=invert_xyz(shift),
+                    position=data,
+                    shift=shift,
                     orientation=ori,
                     experiment_id=attributes["metadata"]["experiment_id"],
                     pixel_spacing=attributes["scale"][0],

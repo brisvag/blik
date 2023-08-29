@@ -2,8 +2,8 @@ import warnings
 from pathlib import Path
 from uuid import uuid1
 
-import numpy as np
 import cryohub
+import numpy as np
 from cryotypes.image import ImageProtocol
 from cryotypes.poseset import PoseSetProtocol
 
@@ -39,7 +39,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         vec_color = "blue"
     else:
         vec_data, vec_color = generate_vectors(
-            invert_xyz(coords), features['orientation']
+            invert_xyz(coords), features["orientation"]
         )
         vec_data = invert_xyz(vec_data)
     return (
@@ -56,7 +56,9 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
     )
 
 
-def construct_particle_layer_tuples(coords, features, scale, exp_id, p_id=None, source=''):
+def construct_particle_layer_tuples(
+    coords, features, scale, exp_id, p_id=None, source=""
+):
     """
     Constructs particle layer tuples from particle data.
 
@@ -80,19 +82,23 @@ def read_particles(particles):
     """
     # order is zyx in napari
     coords = invert_xyz(particles.position)
-    shifts = invert_xyz(particles.shift)
-    coords += shifts
+    features = particles.features.copy(deep=False)
     px_size = particles.pixel_spacing
     if not px_size:
         warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
         px_size = 1
 
-    features = particles.features.copy(deep=False)
-    shift_cols = ['shift_z', 'shift_y', 'shift_x']
-    features[shift_cols] = shifts
-    features['orientation'] = np.asarray(particles.orientation)
+    if particles.shift is not None:
+        shifts = invert_xyz(particles.shift)
+        coords += shifts
+        shift_cols = ["shift_z", "shift_y", "shift_x"]
+        features[shift_cols] = shifts
+    if particles.orientation is not None:
+        features["orientation"] = np.asarray(particles.orientation)
 
-    return construct_particle_layer_tuples(coords, features, px_size, particles.experiment_id, particles.source)
+    return construct_particle_layer_tuples(
+        coords, features, px_size, particles.experiment_id, particles.source
+    )
 
 
 def read_image(image):
