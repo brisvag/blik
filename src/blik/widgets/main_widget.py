@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import numpy as np
 import pandas as pd
@@ -145,7 +145,7 @@ def add_to_exp(layer: napari.layers.Layer):
     call_button="Create",
     l_type={"choices": ["segmentation", "particles", "surface_picking"]},
 )
-def new(l_type) -> list[napari.layers.Layer]:
+def new(l_type) -> List[napari.layers.Layer]:  # noqa
     """create a new layer to add to this experiment."""
     layers = getattr(new._main_widget["experiment"], "current_layers", [])
     if not layers:
