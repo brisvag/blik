@@ -46,6 +46,8 @@ def _connect_points_to_vectors(p, v):
         v.data = vec_data
         v.edge_color = vec_color
 
+    p.events.set_data.disconnect(_update_vectors)
+    p.events.set_data.connect(_update_vectors)
     p.events.features.disconnect(_update_vectors)
     p.events.features.connect(_update_vectors)
 
