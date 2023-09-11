@@ -17,12 +17,18 @@ def get_reader(path):
 
 
 def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
+    feat_defaults = (
+        pd.DataFrame(features.iloc[-1].to_dict(), index=[0])
+        if len(features)
+        else pd.DataFrame()
+    )
+    feat_defaults["orientation"] = Rotation.identity()
     return (
         coords,
         {
             "name": f"{exp_id} - particle positions",
             "features": features,
-            "feature_defaults": pd.DataFrame({"orientation": [Rotation.identity()]}),
+            "feature_defaults": feat_defaults,
             "face_color": "teal",
             "size": 5,
             "edge_width": 0,
@@ -75,7 +81,7 @@ def construct_particle_layer_tuples(
         features = pd.DataFrame()
 
     if "orientation" not in features.columns:
-        features["orientation"] = (
+        features["orientation"] = np.array(
             [] if coords is None else Rotation.identity(len(coords))
         )
 
