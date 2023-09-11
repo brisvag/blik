@@ -22,7 +22,7 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
         if len(features)
         else pd.DataFrame()
     )
-    feat_defaults["orientation"] = Rotation.identity()
+    feat_defaults["orientation"] = np.array(Rotation.identity(), dtype=object)
     return (
         coords,
         {
@@ -82,7 +82,7 @@ def construct_particle_layer_tuples(
 
     if "orientation" not in features.columns:
         features["orientation"] = np.array(
-            [] if coords is None else Rotation.identity(len(coords))
+            [] if coords is None else Rotation.identity(len(coords)), dtype=object
         )
 
     # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
@@ -114,7 +114,7 @@ def read_particles(particles):
         shift_cols = ["shift_z", "shift_y", "shift_x"]
         features[shift_cols] = shifts
     if particles.orientation is not None:
-        features["orientation"] = np.asarray(particles.orientation)
+        features["orientation"] = np.asarray(particles.orientation, dtype=object)
 
     return construct_particle_layer_tuples(
         coords, features, px_size, particles.experiment_id, particles.source
