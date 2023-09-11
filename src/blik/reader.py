@@ -22,6 +22,7 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
         {
             "name": f"{exp_id} - particle positions",
             "features": features,
+            "feature_defaults": pd.DataFrame({"orientation": [Rotation.identity()]}),
             "face_color": "teal",
             "size": 5,
             "edge_width": 0,
