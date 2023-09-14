@@ -42,6 +42,8 @@ def _connect_points_to_vectors(p, v):
     """connect a particle points layer to a vectors layer to keep them in sync."""
 
     def _update_vectors():
+        if not len(p.data):
+            return
         if np.any(pd.isnull(p.features["orientation"])):
             obj = p.features["orientation"].astype(object)
             obj[pd.isnull(obj)] = Rotation.identity()
