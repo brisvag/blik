@@ -16,7 +16,7 @@ def write_image(path, data, attributes):
         )
     img = Image(
         data=data,
-        experiment_id="",
+        experiment_id=attributes["metadata"]["experiment_id"],
         pixel_spacing=attributes["scale"][0],
         stack=attributes["metadata"]["stack"],
         source=attributes["metadata"].get("source", ""),
@@ -45,7 +45,7 @@ def write_particles(path, layer_data):
                 data = data - shift
             ori = get_columns_or_default(attributes["features"], "orientation")
             if ori is not None:
-                ori = Rotation.concatenate(ori.squeeze())
+                ori = Rotation.concatenate(ori.reshape(-1))
 
             particles.append(
                 PoseSet(
