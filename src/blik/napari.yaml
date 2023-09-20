@@ -11,9 +11,15 @@ contributions:
     - id: blik.write_labels
       python_name: blik.writer:write_image
       title: Save labels data with blik
-    - id: blik.write_particles
-      python_name: blik.writer:write_particles
-      title: Save particles data with blik
+    - id: blik.write_particles_relion_30
+      python_name: blik.writer:write_particles_relion_30
+      title: Save particles data with blik (relion 3.0)
+    - id: blik.write_particles_relion_31
+      python_name: blik.writer:write_particles_relion_31
+      title: Save particles data with blik (relion 3.1)
+    - id: blik.write_particles_relion_40
+      python_name: blik.writer:write_particles_relion_40
+      title: Save particles data with blik (relion 4.0)
     - id: blik.write_surface_picks
       python_name: blik.writer:write_surface_picks
       title: Save surface picks data with blik
@@ -41,6 +47,7 @@ contributions:
         - '*.mrc'
         - '*.mrcs'
         - '*.st'
+        - '*.map'
         - '*.hdf'
         - '*.em'
         - '*.star'
@@ -51,18 +58,31 @@ contributions:
         - '*.surf'
   writers:
     - command: blik.write_image
+      display_name: image
       layer_types: ["image"]
       filename_extensions: [".mrc", ".mrcs", ".st"]
     - command: blik.write_labels
+      display_name: segmentation
       layer_types: ["labels"]
       filename_extensions: [".mrc", ".mrcs", ".st"]
-    - command: blik.write_particles
+    - command: blik.write_particles_relion_30
+      display_name: particles (relion 3.0)
+      layer_types: ["points+", "vectors*"]
+      filename_extensions: [".star"]
+    - command: blik.write_particles_relion_31
+      display_name: particles (relion 3.1)
+      layer_types: ["points+", "vectors*"]
+      filename_extensions: [".star"]
+    - command: blik.write_particles_relion_40
+      display_name: particles (relion 4.0)
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
     - command: blik.write_surface_picks
+      display_name: surface picks
       layer_types: ["shapes"]
       filename_extensions: [".picks"]
     - command: blik.write_surface
+      display_name: surface mesh
       layer_types: ["surface"]
       filename_extensions: [".surf"]
   widgets:

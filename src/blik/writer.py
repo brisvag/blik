@@ -25,7 +25,7 @@ def write_image(path, data, attributes):
     return [path]
 
 
-def write_particles(path, layer_data):
+def _write_particles(path, layer_data, relion_version):
     particles = []
     for data, attributes, layer_type in layer_data:
         if layer_type == "vectors":
@@ -63,8 +63,20 @@ def write_particles(path, layer_data):
                 "cannot write a layer that does not have blik metadata. Add it to an experiment!"
             )
 
-    write_star(particles, path, overwrite=True)
+    write_star(particles, path, overwrite=True, version=relion_version)
     return [path]
+
+
+def write_particles_relion_30(path, layer_data):
+    return _write_particles(path, layer_data, relion_version="3.0")
+
+
+def write_particles_relion_31(path, layer_data):
+    return _write_particles(path, layer_data, relion_version="3.1")
+
+
+def write_particles_relion_40(path, layer_data):
+    return _write_particles(path, layer_data, relion_version="4.0")
 
 
 def write_surface_picks(path, data, attributes):
