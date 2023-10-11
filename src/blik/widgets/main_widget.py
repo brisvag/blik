@@ -7,7 +7,7 @@ import pandas as pd
 from magicgui import magic_factory, magicgui
 from magicgui.widgets import Container
 from morphosamplers.surface_spline import GriddedSplineSurface
-from napari.layers import Image, Labels, Points, Shapes, Surface, Vectors
+from napari.layers import Image, Labels, Points, Shapes, Vectors
 from napari.utils._magicgui import find_viewer_ancestor
 from napari.utils.notifications import show_info
 from scipy.spatial.transform import Rotation
@@ -217,7 +217,7 @@ def surface(
     spacing_A=100,
     closed=False,
     output="surface",
-) -> list[napari.layers.Layer]:
+) -> napari.types.LayerDataTuple:
     """create a new surface representation from picked surface points."""
     spacing_A /= surface_shapes.scale[0]
     pos = []
@@ -268,16 +268,14 @@ def surface(
         pos = np.concatenate(pos)
         features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
-        vec_layer, pos_layer = layer_tuples_to_layers(
-            construct_particle_layer_tuples(
-                coords=invert_xyz(pos),
-                features=features,
-                scale=surface_shapes.scale[0],
-                exp_id=exp_id,
-            )
+        vec_layer_tuple, pos_layer_tuple = construct_particle_layer_tuples(
+            coords=invert_xyz(pos),
+            features=features,
+            scale=surface_shapes.scale[0],
+            exp_id=exp_id,
+            face_color_cycle=colors,
         )
-        pos_layer.face_color = colors
-        return [vec_layer, pos_layer]
+        return [vec_layer_tuple, pos_layer_tuple]
 
     if output == "surface":
         offset = 0
@@ -299,15 +297,18 @@ def surface(
         if colormap.shape[0] == 1:
             values += 1
 
-        surface_layer = Surface(
+        surface_layer_tuple = (
             (invert_xyz(vert), faces, values),
-            name=f"{exp_id} - surface",
-            metadata={"experiment_id": exp_id},
-            scale=surface_shapes.scale,
-            shading="smooth",
-            colormap=colormap,
+            {
+                "name": f"{exp_id} - surface",
+                "metadata": {"experiment_id": exp_id},
+                "scale": surface_shapes.scale,
+                "shading": "smooth",
+                "colormap": colormap,
+            },
+            "surface",
         )
-        return [surface_layer]
+        return [surface_layer_tuple]
 
     return []
 

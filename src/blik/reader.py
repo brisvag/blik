@@ -16,7 +16,9 @@ def get_reader(path):
     return read_layers
 
 
-def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
+def _construct_positions_layer(
+    coords, features, scale, exp_id, p_id, source, **pt_kwargs
+):
     feat_defaults = (
         pd.DataFrame(features.iloc[-1].to_dict(), index=[0])
         if len(features)
@@ -30,13 +32,14 @@ def _construct_positions_layer(coords, features, scale, exp_id, p_id, source):
             "features": features,
             "feature_defaults": feat_defaults,
             "face_color": "teal",
-            "size": 5,
+            "size": 5 / scale,
             "edge_width": 0,
             "scale": [scale] * 3,
             "shading": "spherical",
             "antialiasing": 0,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
             "out_of_slice_display": True,
+            **pt_kwargs,
         },
         "points",
     )
@@ -56,7 +59,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         {
             "name": f"{exp_id} - particle orientations",
             "edge_color": vec_color,
-            "length": 50 / np.array(scale),
+            "length": 150 / np.array(scale),
             "scale": [scale] * 3,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
             "out_of_slice_display": True,
@@ -66,7 +69,13 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
 
 
 def construct_particle_layer_tuples(
-    coords, features, scale, exp_id, p_id=None, source=""
+    coords,
+    features,
+    scale,
+    exp_id,
+    p_id=None,
+    source="",
+    **pt_kwargs,
 ):
     """
     Constructs particle layer tuples from particle data.
@@ -86,7 +95,9 @@ def construct_particle_layer_tuples(
         )
 
     # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
-    pos = _construct_positions_layer(coords, features, scale, exp_id, p_id, source)
+    pos = _construct_positions_layer(
+        coords, features, scale, exp_id, p_id, source, **pt_kwargs
+    )
     ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
 
     # invert order for convenience (latest added layer is selected)
