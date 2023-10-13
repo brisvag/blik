@@ -25,7 +25,7 @@ pip install "blik[all]"
 The `[all]` qualifier also installs `pyqt5` as the napari GUI backend, and a few additional napari plugins that you might find useful in your workflow:
 - [napari-properties-plotter](https://github.com/brisvag/napari-properties-plotter)
 - [napari-properties-viewer](https://github.com/kevinyamauchi/napari-properties-viewer)
-- [napari-label-interpolator](https://github.com/kevinyamauchi/napari-label-interpolator)
+- [napari-label-interpolator](https://github.com/brisvag/napari-label-interpolator)
 
 ## Basic Usage
 
