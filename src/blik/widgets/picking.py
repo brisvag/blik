@@ -1,11 +1,16 @@
 import numpy as np
-from morphosamplers.sampler import sample_volume_around_surface
+from dask.array import compute
+from morphosamplers.helical_filament import HelicalFilament
+from morphosamplers.sampler import (
+    sample_volume_along_spline,
+    sample_volume_around_surface,
+)
 from morphosamplers.surface_spline import GriddedSplineSurface
 
 from ..utils import invert_xyz
 
 
-def generate_surface_grids_from_shapes_layer(
+def _generate_surface_grids_from_shapes_layer(
     surface_shapes, spacing_A=100, closed=False
 ):
     """create a new surface representation from picked surface points."""
@@ -43,19 +48,38 @@ def generate_surface_grids_from_shapes_layer(
     return surface_grids, colors
 
 
-def resample_surfaces(image_layer, surface_grids, thickness_A):
-    thickness_A /= image_layer.scale[0]
-
+def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
     volumes = []
     for surf in surface_grids:
         # transpose because zyx to xyz
         vol = sample_volume_around_surface(
-            image_layer.data.T,
+            compute(image_layer.data.T)[0],
             surface=surf,
-            sampling_thickness=thickness_A,
-            sampling_spacing=1,
+            sampling_thickness=thickness,
+            sampling_spacing=spacing,
             interpolation_order=3,
-            masked=False,
+            masked=masked,
         )
         volumes.append(vol.T)
     return volumes
+
+
+def _generate_filaments_from_points_layer(filament_picks):
+    """create a new filament representation from picked points."""
+    pts = invert_xyz(filament_picks.data).astype(float)
+
+    filament = HelicalFilament(
+        points=pts,
+    )
+
+    return filament
+
+
+def _resample_filament(image_layer, filament, spacing, thickness):
+    return sample_volume_along_spline(
+        compute(image_layer.data.T)[0],
+        spline=filament,
+        sampling_shape=(thickness, thickness),
+        sampling_spacing=spacing,
+        interpolation_order=3,
+    )
