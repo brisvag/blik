@@ -35,7 +35,7 @@ dependencies = [
     "cryohub>=0.6.1",
     "cryotypes>=0.2.0",
     "einops",
-    "morphosamplers>=0.0.5",
+    "morphosamplers>=0.0.6",
 ]
 
 # extras
