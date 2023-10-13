@@ -29,6 +29,12 @@ contributions:
     - id: blik.main_widget
       python_name: blik.widgets.main_widget:MainBlikWidget
       title: Create blik widget
+    - id: blik.filament_picking
+      python_name: blik.widgets.picking:FilamentWidget
+      title: Create filament picking widget
+    - id: blik.surface_picking
+      python_name: blik.widgets.picking:SurfaceWidget
+      title: Create surface picking widget
     - id: blik.file_reader
       python_name: blik.widgets.file_reader:file_reader
       title: Create reader widget
@@ -88,6 +94,10 @@ contributions:
   widgets:
     - command: blik.main_widget
       display_name: main widget
+    - command: blik.filament_picking
+      display_name: filament widget
+    - command: blik.surface_picking
+      display_name: surface widget
     - command: blik.file_reader
       display_name: file reader
     - command: blik.bandpass_filter
