@@ -34,15 +34,20 @@ From the command line:
 napari -w blik -- /path/to.star /path/to/mrc/files/*
 ```
 
-The `-w blik` is important for proper initialization of all the layers. Keep the main widget open to ensure nothing goes wrong!
+The `-w blik` is important for proper initialization of all the layers. Always open the main widget open to ensure nothing goes wrong!
 
 *`blik` is just `napari`*. Particles and images are exposed as simple napari layers, which can be analysed and manipulated with simple python, and most importantly other [napari plugins](https://napari-hub.org/).
 
-## Widget
+## Widgets
 
 The main widget has a few functions:
 
 - `experiment`: quickly switch to a different experiment id (typically, everything related to an individual tomogram such as volume, particles and segmentations)
-- `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface picking` for segmentation or particle generation
+- `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface picking` or `filament picking` for segmentation, particle generation or volume resampling.
 - `add to exp`: add a layer to the currently selected `experiment` (just a shorthand for `layer.metadata['experiment_id'] = current_exp_id`)
-- `surface`: process a previously picked `surface picking` layer to generate a surface mesh or distribute particles on it for subtomogram averaging.
+- `slice_thickness`: changes the slicing thickness in all dimensions in napari. Images will be averaged over that thickness, and all particles in the slice will be displayed.
+
+There are also widgets for picking of both surfaces and filaments.
+
+- `surface`: process a previously picked `surface picking` layer to generate a surface mesh and distribute particles on it for subtomogram averaging, or resample a tomogram along the surface.
+- `filament`: process a previously picked `filament picking` layer to generate a filament and distribute particles on it for subtomogram averaging, or resample a tomogram along the filament.
