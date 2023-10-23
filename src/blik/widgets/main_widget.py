@@ -242,7 +242,7 @@ class MainBlikWidget(Container):
         self.append(exp)
         self.append(new)
         self.append(add_to_exp)
-        self.append(slice_thickness_A)
+        # self.append(slice_thickness_A)  # only available in napari 0.5.0
 
     def append(self, item):
         super().append(item)

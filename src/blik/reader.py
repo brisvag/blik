@@ -38,7 +38,7 @@ def _construct_positions_layer(
             "shading": "spherical",
             "antialiasing": 0,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
-            "projection_mode": "all",
+            # "projection_mode": "all",  # only available in napari 0.5.0
             "out_of_slice_display": True,
             **pt_kwargs,
         },
@@ -63,7 +63,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
             "length": 150 / np.array(scale),
             "scale": [scale] * 3,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
-            "projection_mode": "all",
+            # "projection_mode": "all",  # only available in napari 0.5.0
             "out_of_slice_display": True,
         },
         "vectors",
@@ -151,7 +151,7 @@ def read_image(image):
             "depiction": "plane",
             "blending": "translucent",
             "plane": {"thickness": 5},
-            "projection_mode": "mean",
+            # "projection_mode": "mean",  # only available in napari 0.5.0
         },
         "image",
     )

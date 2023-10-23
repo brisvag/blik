@@ -45,7 +45,7 @@ The main widget has a few functions:
 - `experiment`: quickly switch to a different experiment id (typically, everything related to an individual tomogram such as volume, particles and segmentations)
 - `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface picking` or `filament picking` for segmentation, particle generation or volume resampling.
 - `add to exp`: add a layer to the currently selected `experiment` (just a shorthand for `layer.metadata['experiment_id'] = current_exp_id`)
-- `slice_thickness`: changes the slicing thickness in all dimensions in napari. Images will be averaged over that thickness, and all particles in the slice will be displayed.
+<!-- - `slice_thickness`: changes the slicing thickness in all dimensions in napari. Images will be averaged over that thickness, and all particles in the slice will be displayed. -->  <!-- only available in napari 0.5.0 -->
 
 There are also widgets for picking of both surfaces and filaments.
 
