@@ -27,6 +27,15 @@ The `[all]` qualifier also installs `pyqt5` as the napari GUI backend, and a few
 - [napari-properties-viewer](https://github.com/kevinyamauchi/napari-properties-viewer)
 - [napari-label-interpolator](https://github.com/brisvag/napari-label-interpolator)
 
+### Nightly build
+
+If you'd like the most up to date `blik` possible, you can install directly from the `main` branch on github. This also uses napari `main`, so expect some instability!
+
+```
+pip install "git+https://github.com/brisvag/blik.git@main#egg=blik[all]"
+pip install "git+https://github.com/napari/napari.git@main#egg=napari[all]"
+```
+
 ## Basic Usage
 
 From the command line:
