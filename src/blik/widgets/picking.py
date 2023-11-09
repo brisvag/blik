@@ -173,14 +173,13 @@ def surface_particles(
     pos = np.concatenate(pos)
     features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
-    vec_layer_tuple, pos_layer_tuple = construct_particle_layer_tuples(
+    return construct_particle_layer_tuples(
         coords=invert_xyz(pos),
         features=features,
         scale=surface.scale[0],
         exp_id=exp_id,
         face_color_cycle=colors,
     )
-    return [vec_layer_tuple, pos_layer_tuple]
 
 
 @magicgui(
@@ -280,13 +279,12 @@ def filament_particles(
 
     features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
-    vec_layer_tuple, pos_layer_tuple = construct_particle_layer_tuples(
+    return construct_particle_layer_tuples(
         coords=invert_xyz(pos),
         features=features,
         scale=filament.scale[0],
         exp_id=exp_id,
     )
-    return [vec_layer_tuple, pos_layer_tuple]
 
 
 @magicgui(

@@ -60,9 +60,11 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         {
             "name": f"{exp_id} - particle orientations",
             "edge_color": vec_color,
-            "length": 150 / np.array(scale),
+            "length": 100 / np.array(scale),
+            "edge_width": 10 / np.array(scale),
             "scale": [scale] * 3,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
+            "vector_style": "arrow",
             # "projection_mode": "all",  # only available in napari 0.5.0
             "out_of_slice_display": True,
         },
@@ -102,8 +104,9 @@ def construct_particle_layer_tuples(
     )
     ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
 
-    # invert order for convenience (latest added layer is selected)
-    return [ori, pos]
+    # ori should be last, or the auto-update feedback loop messes up the orientations
+    # when existing layers are updated from a new run
+    return [pos, ori]
 
 
 def read_particles(particles):
