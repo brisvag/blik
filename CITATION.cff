@@ -5,6 +5,6 @@ authors:
 - family-names: "Gaifas"
   given-names: "Lorenzo"
   orcid: "https://orcid.org/0000-0003-4875-9422"
-doi: https://zenodo.org/doi/10.5281/zenodo.10090438
+doi: 10.5281/zenodo.10090438
 repository-code: https://github.com/brisvag/blik
 license: GPLv3
