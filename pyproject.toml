@@ -43,7 +43,7 @@ dependencies = [
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 all = [
-    "napari[all]>=0.4.19",
+    "napari[all]>=0.4.19rc2",
     "napari-properties-plotter",
     "napari-properties-viewer",
     "napari-label-interpolator",
