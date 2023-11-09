@@ -52,7 +52,7 @@ test = [
     "pytest>=6.0",
     "pytest-cov",
     "pytest-qt",
-    "napari[all]>=0.4.19",
+    "napari[all]>=0.4.19rc2",
 ]
 dev = [
     "blik[test]",
