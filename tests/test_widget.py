@@ -30,8 +30,8 @@ def test_main_widget(make_napari_viewer):
     # add new picking
     wdg[1].l_type.value = "particles"
     wdg[1]()
-    assert viewer.layers[-2].name == "test - particle orientations"
-    assert viewer.layers[-1].name == "test - particle positions"
+    assert viewer.layers[-2].name == "test - particle positions"
+    assert viewer.layers[-1].name == "test - particle orientations"
 
     # add layer manually
     lay = viewer.add_points(name="test_points")
