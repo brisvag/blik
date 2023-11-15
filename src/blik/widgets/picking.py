@@ -17,13 +17,19 @@ from ..utils import invert_xyz
 
 
 def _generate_surface_grids_from_shapes_layer(
-    surface_shapes, spacing_A=100, closed=False
+    surface_shapes,
+    spacing_A=100,
+    inside_points=None,
+    closed=False,
 ):
     """create a new surface representation from picked surface points."""
     spacing_A /= surface_shapes.scale[0]
     colors = []
     surface_grids = []
     data_array = np.array(surface_shapes.data, dtype=object)  # helps with indexing
+    inside_point = (
+        invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
+    )
     for _, surf in surface_shapes.features.groupby("surface_id"):
         lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
@@ -40,6 +46,7 @@ def _generate_surface_grids_from_shapes_layer(
                     separation=spacing_A,
                     order=3,
                     closed=closed,
+                    _point=inside_point,
                 )
             )
         except ValueError:
@@ -99,7 +106,10 @@ def surface(
 ) -> napari.types.LayerDataTuple:
     """create a new surface representation from picked surface points."""
     surface_grids, colors = _generate_surface_grids_from_shapes_layer(
-        surface_shapes, spacing_A
+        surface_shapes,
+        spacing_A,
+        inside_points=inside_points,
+        closed=closed,
     )
 
     meshes = []
