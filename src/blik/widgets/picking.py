@@ -166,6 +166,7 @@ def surface(
 def surface_particles(
     surface: napari.layers.Surface,
     spacing_A=50,
+    masked=False,
 ) -> napari.types.LayerDataTuple:
     surface_grids = surface.metadata.get("surface_grids", None)
     if surface_grids is None:
@@ -175,19 +176,24 @@ def surface_particles(
     exp_id = surface.metadata["experiment_id"]
     spacing = spacing_A / surface.scale[0]
 
-    pos = []
-    ori = []
+    pos_all = []
+    ori_all = []
     for surf in surface_grids:
         if not np.isclose(surf.separation, spacing):
             surf.separation = spacing
-        pos.append(surf.sample())
-        ori.append(surf.sample_orientations())
+        pos = surf.sample()
+        ori = surf.sample_orientations()
+        if masked:
+            pos = pos[surf.mask]
+            ori = ori[surf.mask]
+        pos_all.append(pos)
+        ori_all.append(ori)
 
-    pos = np.concatenate(pos)
-    features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
+    pos_all = np.concatenate(pos_all)
+    features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori_all))})
 
     return construct_particle_layer_tuples(
-        coords=invert_xyz(pos),
+        coords=invert_xyz(pos_all),
         features=features,
         scale=surface.scale[0],
         exp_id=exp_id,
