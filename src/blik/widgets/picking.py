@@ -27,9 +27,12 @@ def _generate_surface_grids_from_shapes_layer(
     colors = []
     surface_grids = []
     data_array = np.array(surface_shapes.data, dtype=object)  # helps with indexing
-    inside_point = (
-        invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
-    )
+    if inside_points is None:
+        inside_point = None
+    else:
+        inside_point = (
+            invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
+        )
     for _, surf in surface_shapes.features.groupby("surface_id"):
         lines = data_array[surf.index]
         # sort so lines can be added in between at a later point
