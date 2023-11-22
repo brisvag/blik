@@ -13,7 +13,6 @@ from morphosamplers.surface_spline import GriddedSplineSurface
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
-from ..utils import invert_xyz
 
 
 def _generate_surface_grids_from_shapes_layer(
@@ -30,17 +29,11 @@ def _generate_surface_grids_from_shapes_layer(
     if inside_points is None:
         inside_point = None
     else:
-        inside_point = (
-            invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
-        )
+        inside_point = inside_points.data[0] if len(inside_points.data) else None
     for _, surf in surface_shapes.features.groupby("surface_id"):
         lines = data_array[surf.index]
-        # sort so lines can be added in between at a later point
-        # also move to xyz world so math is the same as reader code
-        lines = [
-            invert_xyz(line).astype(float)
-            for line in sorted(lines, key=lambda x: x[0, 0])
-        ]
+        # sort by z so lines can be added in between at a later point
+        lines = [line.astype(float) for line in sorted(lines, key=lambda x: x[0, 0])]
 
         try:
             surface_grids.append(
@@ -49,7 +42,7 @@ def _generate_surface_grids_from_shapes_layer(
                     separation=spacing_A,
                     order=3,
                     closed=closed,
-                    _point=inside_point,
+                    inside_point=inside_point,
                 )
             )
         except ValueError:
@@ -82,7 +75,7 @@ def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
 
 def _generate_filaments_from_points_layer(filament_picks):
     """create a new filament representation from picked points."""
-    return HelicalFilament(points=invert_xyz(filament_picks.data).astype(float))
+    return HelicalFilament(points=filament_picks.data.astype(float))
 
 
 def _resample_filament(image_layer, filament, spacing, thickness):
@@ -141,7 +134,7 @@ def surface(
         values += 1
 
     surface_layer_tuple = (
-        (invert_xyz(vert), faces, values),
+        (vert, faces, values),
         {
             "name": f"{exp_id} - surface",
             "metadata": {
@@ -193,7 +186,7 @@ def surface_particles(
     features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori_all))})
 
     return construct_particle_layer_tuples(
-        coords=invert_xyz(pos_all),
+        coords=pos_all,
         features=features,
         scale=surface.scale[0],
         exp_id=exp_id,
@@ -250,7 +243,7 @@ def filament(
 
     path = filament.sample(n_samples=len(points.data) * 50)
     shapes_layer_tuple = (
-        [invert_xyz(path)],
+        [path],
         {
             "name": f"{exp_id} - filament",
             "metadata": {
@@ -299,7 +292,7 @@ def filament_particles(
     features = pd.DataFrame({"orientation": np.asarray(Rotation.concatenate(ori))})
 
     return construct_particle_layer_tuples(
-        coords=invert_xyz(pos),
+        coords=pos,
         features=features,
         scale=filament.scale[0],
         exp_id=exp_id,
