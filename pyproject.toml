@@ -35,7 +35,7 @@ dependencies = [
     "cryohub>=0.6.1",
     "cryotypes>=0.2.0",
     "einops",
-    "morphosamplers>=0.0.9",
+    "morphosamplers>=0.0.10",
     "pydantic<2",  # migration will take a while for napari
 ]
 
