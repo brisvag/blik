@@ -224,7 +224,7 @@ def resample_surface(
         v.add_image(
             vol,
             name=f"{exp_id} - surface_{i} resampled",
-            metadata={"experiment_id": exp_id},
+            metadata={"experiment_id": exp_id, "stack": False},
             scale=surface.scale,
         )
 
@@ -324,7 +324,7 @@ def resample_filament(
     v.add_image(
         vol,
         name=f"{exp_id} - filament resampled",
-        metadata={"experiment_id": exp_id},
+        metadata={"experiment_id": exp_id, "stack": False},
         scale=filament.scale,
     )
 

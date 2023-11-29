@@ -18,7 +18,7 @@ def write_image(path, data, attributes):
         data=data,
         experiment_id=attributes["metadata"]["experiment_id"],
         pixel_spacing=attributes["scale"][0],
-        stack=attributes["metadata"]["stack"],
+        stack=attributes["metadata"].get("stack", False),
         source=attributes["metadata"].get("source", ""),
     )
     write_mrc(img, str(path), overwrite=True)
