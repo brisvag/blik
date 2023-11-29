@@ -90,13 +90,13 @@ def _resample_filament(image_layer, filament, spacing, thickness):
 @magicgui(
     labels=True,
     call_button="Generate",
-    spacing_A={"widget_type": "Slider", "min": 1, "max": 500},
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 1000},
     inside_points={"nullable": True},
 )
 def surface(
     surface_shapes: napari.layers.Shapes,
     inside_points: napari.layers.Points,
-    spacing_A=100,
+    spacing_A=50,
     closed=False,
 ) -> napari.types.LayerDataTuple:
     """create a new surface representation from picked surface points."""
@@ -153,7 +153,7 @@ def surface(
 @magicgui(
     labels=True,
     call_button="Generate",
-    spacing_A={"widget_type": "Slider", "min": 1, "max": 500},
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
 )
 def surface_particles(
     surface: napari.layers.Surface,
@@ -196,8 +196,8 @@ def surface_particles(
 @magicgui(
     labels=True,
     call_button="Resample",
-    spacing_A={"widget_type": "Slider", "min": 1, "max": 500},
-    thickness_A={"widget_type": "Slider", "min": 1, "max": 500},
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
+    thickness_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
 )
 def resample_surface(
     surface: napari.layers.Surface,
@@ -260,10 +260,10 @@ def filament(
 @magicgui(
     labels=True,
     call_button="Generate",
-    rise_A={"widget_type": "Slider", "min": 1, "max": 500},
-    radius_A={"widget_type": "Slider", "min": 0, "max": 500},
-    twist_deg={"widget_type": "Slider", "min": 0, "max": 360},
-    twist_offset={"widget_type": "Slider", "min": 0, "max": 360},
+    rise_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
+    radius_A={"widget_type": "FloatSlider", "min": 0, "max": 10000},
+    twist_deg={"widget_type": "FloatSlider", "min": 0, "max": 360},
+    twist_offset={"widget_type": "FloatSlider", "min": 0, "max": 360},
 )
 def filament_particles(
     filament: napari.layers.Shapes,
@@ -301,8 +301,8 @@ def filament_particles(
 @magicgui(
     labels=True,
     call_button="Resample",
-    spacing_A={"widget_type": "Slider", "min": 1, "max": 500},
-    thickness_A={"widget_type": "Slider", "min": 1, "max": 500},
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
+    thickness_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
 )
 def resample_filament(
     filament: napari.layers.Shapes,
