@@ -60,16 +60,15 @@ def _generate_surface_grids_from_shapes_layer(
 def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
     volumes = []
     for surf in surface_grids:
-        # transpose because zyx to xyz
         vol = sample_volume_around_surface(
-            compute(image_layer.data.T)[0],
+            compute(image_layer.data)[0],
             surface=surf,
             sampling_thickness=thickness,
             sampling_spacing=spacing,
             interpolation_order=3,
             masked=masked,
         )
-        volumes.append(vol.T)
+        volumes.append(vol)
     return volumes
 
 
@@ -80,7 +79,7 @@ def _generate_filaments_from_points_layer(filament_picks):
 
 def _resample_filament(image_layer, filament, spacing, thickness):
     return sample_volume_along_spline(
-        compute(image_layer.data.T)[0],
+        compute(image_layer.data)[0],
         spline=filament,
         sampling_shape=(thickness, thickness),
         sampling_spacing=spacing,
