@@ -37,6 +37,7 @@ dependencies = [
     "einops",
     "morphosamplers>=0.0.10",
     "pydantic<2",  # migration will take a while for napari
+    "packaging",
 ]
 
 # extras

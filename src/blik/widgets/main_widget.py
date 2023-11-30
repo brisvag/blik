@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from importlib.metadata import version
 from typing import List
 
 import napari
@@ -10,6 +11,7 @@ from magicgui.widgets import Container
 from napari.layers import Image, Labels, Points, Shapes, Vectors
 from napari.utils._magicgui import find_viewer_ancestor
 from napari.utils.notifications import show_info
+from packaging.version import parse as parse_version
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
@@ -242,7 +244,8 @@ class MainBlikWidget(Container):
         self.append(exp)
         self.append(new)
         self.append(add_to_exp)
-        self.append(slice_thickness_A)
+        if parse_version(version("napari")) >= parse_version("0.5.0a"):
+            self.append(slice_thickness_A)
 
     def append(self, item):
         super().append(item)

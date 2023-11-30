@@ -1,4 +1,5 @@
 import warnings
+from importlib.metadata import version
 from pathlib import Path
 from uuid import uuid1
 
@@ -7,9 +8,12 @@ import numpy as np
 import pandas as pd
 from cryotypes.image import ImageProtocol
 from cryotypes.poseset import PoseSetProtocol
+from packaging.version import parse as parse_version
 from scipy.spatial.transform import Rotation
 
 from .utils import generate_vectors, invert_xyz
+
+NAPARI_050 = parse_version(version("napari")) >= parse_version("0.5.0a")
 
 
 def get_reader(path):
@@ -38,9 +42,9 @@ def _construct_positions_layer(
             "shading": "spherical",
             "antialiasing": 0,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
-            "projection_mode": "all",
             "out_of_slice_display": True,
             **pt_kwargs,
+            **({"projection_mode": "all"} if NAPARI_050 else {}),
         },
         "points",
     )
@@ -65,8 +69,8 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
             "scale": [scale] * 3,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
             "vector_style": "arrow",
-            "projection_mode": "all",
             "out_of_slice_display": True,
+            **({"projection_mode": "all"} if NAPARI_050 else {}),
         },
         "vectors",
     )
@@ -154,7 +158,7 @@ def read_image(image):
             "depiction": "plane",
             "blending": "translucent",
             "plane": {"thickness": 5},
-            "projection_mode": "mean",
+            **({"projection_mode": "mean"} if NAPARI_050 else {}),
         },
         "image",
     )
