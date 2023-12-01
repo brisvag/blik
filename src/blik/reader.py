@@ -29,8 +29,10 @@ def _construct_positions_layer(
         else pd.DataFrame()
     )
     feat_defaults["orientation"] = np.array(Rotation.identity(), dtype=object)
+    if coords is not None:
+        coords = invert_xyz(coords)
     return (
-        invert_xyz(coords),
+        coords,
         {
             "name": f"{exp_id} - particle positions",
             "features": features,
@@ -138,9 +140,9 @@ def read_particles(particles):
         px_size = 1
 
     if particles.shift is not None:
-        coords = coords + particles.shifts
+        coords = coords + particles.shift
         shift_cols = ["shift_x", "shift_y", "shift_z"]
-        features[shift_cols] = particles.shifts
+        features[shift_cols] = particles.shift
     if particles.orientation is not None:
         features["orientation"] = np.asarray(particles.orientation, dtype=object)
 
