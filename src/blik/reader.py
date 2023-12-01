@@ -104,9 +104,22 @@ def construct_particle_layer_tuples(
 
     # divide by scale top keep constant size. TODO: remove after vispy 0.12 which fixes this
     pos = _construct_positions_layer(
-        coords, features, scale, exp_id, p_id, source, **pt_kwargs
+        coords=coords,
+        features=features,
+        scale=scale,
+        exp_id=exp_id,
+        p_id=p_id,
+        source=source,
+        **pt_kwargs,
     )
-    ori = _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
+    ori = _construct_orientations_layer(
+        coords=coords,
+        features=features,
+        scale=scale,
+        exp_id=exp_id,
+        p_id=p_id,
+        source=source,
+    )
 
     # ori should be last, or the auto-update feedback loop messes up the orientations
     # when existing layers are updated from a new run
@@ -137,7 +150,11 @@ def read_particles(particles):
         features["orientation"] = np.asarray(particles.orientation, dtype=object)
 
     return construct_particle_layer_tuples(
-        coords, features, px_size, particles.experiment_id, particles.source
+        coords=coords,
+        features=features,
+        scale=px_size,
+        exp_id=particles.experiment_id,
+        source=particles.source,
     )
 
 
