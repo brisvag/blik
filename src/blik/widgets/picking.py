@@ -13,6 +13,7 @@ from morphosamplers.surface_spline import GriddedSplineSurface
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
+from ..utils import invert_xyz
 
 
 def _generate_surface_grids_from_shapes_layer(
@@ -29,11 +30,17 @@ def _generate_surface_grids_from_shapes_layer(
     if inside_points is None:
         inside_point = None
     else:
-        inside_point = inside_points.data[0] if len(inside_points.data) else None
+        inside_point = (
+            invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
+        )
     for _, surf in surface_shapes.features.groupby("surface_id"):
         lines = data_array[surf.index]
         # sort by z so lines can be added in between at a later point
-        lines = [line.astype(float) for line in sorted(lines, key=lambda x: x[0, 0])]
+        # also invert xyz so we operate in back in xyz world and not napari inverted world
+        lines = [
+            invert_xyz(line.astype(float))
+            for line in sorted(lines, key=lambda x: x[0, 0])
+        ]
 
         try:
             surface_grids.append(
@@ -61,7 +68,7 @@ def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
     volumes = []
     for surf in surface_grids:
         vol = sample_volume_around_surface(
-            compute(image_layer.data)[0],
+            compute(image_layer.data)[0].T,  # transpose to go back to xyz world
             surface=surf,
             sampling_thickness=thickness,
             sampling_spacing=spacing,
@@ -74,12 +81,13 @@ def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
 
 def _generate_filaments_from_points_layer(filament_picks):
     """create a new filament representation from picked points."""
-    return HelicalFilament(points=filament_picks.data.astype(float))
+    # invert xyz to go back to xyz world
+    return HelicalFilament(points=invert_xyz(filament_picks.data.astype(float)))
 
 
 def _resample_filament(image_layer, filament, spacing, thickness):
     return sample_volume_along_spline(
-        compute(image_layer.data)[0],
+        compute(image_layer.data)[0].T,  # transpose to go back to xyz world
         spline=filament,
         sampling_shape=(thickness, thickness),
         sampling_spacing=spacing,
@@ -132,8 +140,9 @@ def surface(
     if colormap.shape[0] == 1:
         values += 1
 
+    # invert_xyz to go back to napari world (also invert faces order to preserve normals)
     surface_layer_tuple = (
-        (vert, faces, values),
+        (invert_xyz(vert), invert_xyz(faces), values),
         {
             "name": f"{exp_id} - surface",
             "metadata": {
@@ -240,7 +249,7 @@ def filament(
 
     exp_id = points.metadata["experiment_id"]
 
-    path = filament.sample(n_samples=len(points.data) * 50)
+    path = invert_xyz(filament.sample(n_samples=len(points.data) * 50))
     shapes_layer_tuple = (
         [path],
         {

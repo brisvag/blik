@@ -30,7 +30,7 @@ def _construct_positions_layer(
     )
     feat_defaults["orientation"] = np.array(Rotation.identity(), dtype=object)
     return (
-        coords,
+        invert_xyz(coords),
         {
             "name": f"{exp_id} - particle positions",
             "features": features,
@@ -55,10 +55,8 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
         vec_data = None
         vec_color = "blue"
     else:
-        vec_data, vec_color = generate_vectors(
-            invert_xyz(coords), features["orientation"]
-        )
-        vec_data = invert_xyz(vec_data)
+        vec_data, vec_color = generate_vectors(coords, features["orientation"])
+        vec_data = invert_xyz(vec_data)  # napari works in zyx order
     return (
         vec_data,
         {
@@ -88,8 +86,7 @@ def construct_particle_layer_tuples(
     """
     Constructs particle layer tuples from particle data.
 
-    Data is assumed to already by in zyx napari format, while features is
-    the normal poseset dataframe.
+    Data should be still in xyz format (will be flipped to zyx).
     """
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
@@ -128,8 +125,7 @@ def construct_particle_layer_tuples(
 
 def read_particles(particles):
     """Takes a valid poseset and converts it into napari layers."""
-    # order is zyx in napari
-    coords = invert_xyz(particles.position)
+    coords = particles.position
 
     if particles.features is not None:
         features = particles.features.copy(deep=False)
@@ -138,14 +134,13 @@ def read_particles(particles):
 
     px_size = particles.pixel_spacing
     if not px_size:
-        warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
+        warnings.warn("unknown pixel spacing, setting to 1 Angstrom", stacklevel=2)
         px_size = 1
 
     if particles.shift is not None:
-        shifts = invert_xyz(particles.shift)
-        coords = coords + shifts
-        shift_cols = ["shift_z", "shift_y", "shift_x"]
-        features[shift_cols] = shifts
+        coords = coords + particles.shifts
+        shift_cols = ["shift_x", "shift_y", "shift_z"]
+        features[shift_cols] = particles.shifts
     if particles.orientation is not None:
         features["orientation"] = np.asarray(particles.orientation, dtype=object)
 
@@ -161,7 +156,7 @@ def read_particles(particles):
 def read_image(image):
     px_size = image.pixel_spacing
     if not px_size:
-        warnings.warn("unknown pixel spacing, setting to 1 Angstrom")
+        warnings.warn("unknown pixel spacing, setting to 1 Angstrom", stacklevel=2)
         px_size = 1
     return (
         image.data,

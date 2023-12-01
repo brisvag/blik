@@ -15,7 +15,7 @@ from packaging.version import parse as parse_version
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
-from ..utils import generate_vectors, layer_tuples_to_layers
+from ..utils import generate_vectors, invert_xyz, layer_tuples_to_layers
 
 
 def _get_choices(wdg, condition=None):
@@ -47,8 +47,11 @@ def _connect_points_to_vectors(p, v):
             obj = p.features["orientation"].astype(object)
             obj[pd.isnull(obj)] = Rotation.identity()
             p.features["orientation"] = obj
-        vec_data, vec_color = generate_vectors(p.data[...], p.features["orientation"])
-        v.data = vec_data
+        # invert xyz and zyx back and forth because calculation happens in xyz space
+        vec_data, vec_color = generate_vectors(
+            invert_xyz(p.data), p.features["orientation"]
+        )
+        v.data = invert_xyz(vec_data)
         v.edge_color = vec_color
 
     p.events.set_data.disconnect(_update_vectors)
