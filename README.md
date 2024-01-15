@@ -60,3 +60,7 @@ There are also widgets for picking of both surfaces and filaments.
 
 - `surface`: process a previously picked `surface picking` layer to generate a surface mesh and distribute particles on it for subtomogram averaging, or resample a tomogram along the surface.
 - `filament`: process a previously picked `filament picking` layer to generate a filament and distribute particles on it for subtomogram averaging, or resample a tomogram along the filament.
+
+# References
+
+A paper preprint about `blik` is available on the bioRxiv: [](https://doi.org/10.1101/2023.12.05.570263).
