@@ -67,7 +67,7 @@ contributions:
     - command: blik.write_image
       display_name: image
       layer_types: ["image"]
-      filename_extensions: [".mrc", ".mrcs", ".st"]
+      filename_extensions: [".mrc", ".mrcs", ".st", ".rec"]
     - command: blik.write_labels
       display_name: segmentation
       layer_types: ["labels"]
