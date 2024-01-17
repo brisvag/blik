@@ -62,6 +62,7 @@ contributions:
         - '*.cbox'
         - '*.picks'
         - '*.surf'
+        - '*.rec'
   writers:
     - command: blik.write_image
       display_name: image
