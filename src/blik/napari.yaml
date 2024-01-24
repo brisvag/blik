@@ -20,6 +20,9 @@ contributions:
     - id: blik.write_particles_relion_40
       python_name: blik.writer:write_particles_relion_40
       title: Save particles data with blik (relion 4.0)
+    - id: blik.write_particles_dynamo
+      python_name: blik.writer:write_particles_dynamo
+      title: Save particles data with blik (relion 4.0)
     - id: blik.write_surface_picks
       python_name: blik.writer:write_surface_picks
       title: Save surface picks data with blik
@@ -84,6 +87,10 @@ contributions:
       display_name: particles (relion 4.0)
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
+    - command: blik.write_particles_dynamo
+      display_name: particles (dynamo tbl)
+      layer_types: ["points+", "vectors*"]
+      filename_extensions: [".tbl"]
     - command: blik.write_surface_picks
       display_name: surface picks
       layer_types: ["shapes"]
