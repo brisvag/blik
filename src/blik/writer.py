@@ -3,6 +3,7 @@ from cryohub.utils.generic import get_columns_or_default
 from cryohub.utils.types import PoseSet
 from cryohub.writing.mrc import write_mrc
 from cryohub.writing.star import write_star
+from cryohub.writing.tbl import write_tbl
 from cryotypes.image import Image
 from scipy.spatial.transform import Rotation
 
@@ -25,7 +26,7 @@ def write_image(path, data, attributes):
     return [path]
 
 
-def _write_particles(path, layer_data, relion_version):
+def _generate_particle_set(layer_data):
     particles = []
     for data, attributes, layer_type in layer_data:
         if layer_type == "vectors":
@@ -62,21 +63,31 @@ def _write_particles(path, layer_data, relion_version):
             raise ValueError(
                 "cannot write a layer that does not have blik metadata. Add it to an experiment!"
             )
+    return particles
 
+
+def _write_particles_star(path, layer_data, relion_version):
+    particles = _generate_particle_set(layer_data)
     write_star(particles, path, overwrite=True, version=relion_version)
     return [path]
 
 
 def write_particles_relion_30(path, layer_data):
-    return _write_particles(path, layer_data, relion_version="3.0")
+    return _write_particles_star(path, layer_data, relion_version="3.0")
 
 
 def write_particles_relion_31(path, layer_data):
-    return _write_particles(path, layer_data, relion_version="3.1")
+    return _write_particles_star(path, layer_data, relion_version="3.1")
 
 
 def write_particles_relion_40(path, layer_data):
-    return _write_particles(path, layer_data, relion_version="4.0")
+    return _write_particles_star(path, layer_data, relion_version="4.0")
+
+
+def write_particles_dynamo(path, layer_data):
+    particles = _generate_particle_set(layer_data)
+    write_tbl(particles, path, overwrite=True)
+    return [path]
 
 
 def write_surface_picks(path, data, attributes):
