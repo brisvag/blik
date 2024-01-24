@@ -42,6 +42,9 @@ def _generate_surface_grids_from_shapes_layer(
             for line in sorted(lines, key=lambda x: x[0, 0])
         ]
 
+        # drop duplicate points (messes up scipy's fitpack for splines)
+        lines = [pd.DataFrame(line).drop_duplicates().to_numpy() for line in lines]
+
         try:
             surface_grids.append(
                 GriddedSplineSurface(
@@ -82,7 +85,10 @@ def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
 def _generate_filaments_from_points_layer(filament_picks):
     """create a new filament representation from picked points."""
     # invert xyz to go back to xyz world
-    return HelicalFilament(points=invert_xyz(filament_picks.data.astype(float)))
+    points = invert_xyz(filament_picks.data.astype(float))
+    # drop duplicate points (messes up scipy's fitpack for splines)
+    points = pd.DataFrame(points).drop_duplicates().to_numpy()
+    return HelicalFilament(points=points)
 
 
 def _resample_filament(image_layer, filament, spacing, thickness):
