@@ -44,16 +44,16 @@ dependencies = [
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 all = [
-    "napari[all]>=0.4.19rc2",
+    "napari[all]>=0.4.19rc4",
     "napari-properties-plotter",
     "napari-properties-viewer",
-    "napari-label-interpolator",
+    "napari-label-interpolator>=0.1.1",
 ]
 test = [
     "pytest>=6.0",
     "pytest-cov",
     "pytest-qt",
-    "napari[all]>=0.4.19rc2",
+    "napari[all]>=0.4.19rc4",
 ]
 dev = [
     "blik[test]",
