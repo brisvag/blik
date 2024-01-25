@@ -205,6 +205,7 @@ def surface_particles(
         scale=surface.scale[0],
         exp_id=exp_id,
         face_color_cycle=colors,
+        name_suffix="surface picked",
     )
 
 
@@ -310,6 +311,7 @@ def filament_particles(
         features=features,
         scale=filament.scale[0],
         exp_id=exp_id,
+        name_suffix="filament picked",
     )
 
 

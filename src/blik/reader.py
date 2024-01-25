@@ -21,7 +21,7 @@ def get_reader(path):
 
 
 def _construct_positions_layer(
-    coords, features, scale, exp_id, p_id, source, **pt_kwargs
+    coords, features, scale, exp_id, p_id, source, name_suffix, **pt_kwargs
 ):
     feat_defaults = (
         pd.DataFrame(features.iloc[-1].to_dict(), index=[0])
@@ -34,7 +34,7 @@ def _construct_positions_layer(
     return (
         coords,
         {
-            "name": f"{exp_id} - particle positions",
+            "name": f"{exp_id} - {name_suffix} positions",
             "features": features,
             "feature_defaults": feat_defaults,
             "face_color": "teal",
@@ -52,7 +52,9 @@ def _construct_positions_layer(
     )
 
 
-def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source):
+def _construct_orientations_layer(
+    coords, features, scale, exp_id, p_id, source, name_suffix
+):
     if coords is None:
         vec_data = None
         vec_color = "blue"
@@ -62,7 +64,7 @@ def _construct_orientations_layer(coords, features, scale, exp_id, p_id, source)
     return (
         vec_data,
         {
-            "name": f"{exp_id} - particle orientations",
+            "name": f"{exp_id} - {name_suffix} orientations",
             "edge_color": vec_color,
             "length": 100 / np.array(scale),
             "edge_width": 10 / np.array(scale),
@@ -83,6 +85,7 @@ def construct_particle_layer_tuples(
     exp_id,
     p_id=None,
     source="",
+    name_suffix="",
     **pt_kwargs,
 ):
     """
@@ -109,6 +112,7 @@ def construct_particle_layer_tuples(
         exp_id=exp_id,
         p_id=p_id,
         source=source,
+        name_suffix=name_suffix,
         **pt_kwargs,
     )
     ori = _construct_orientations_layer(
@@ -117,6 +121,7 @@ def construct_particle_layer_tuples(
         scale=scale,
         exp_id=exp_id,
         p_id=p_id,
+        name_suffix=name_suffix,
         source=source,
     )
 
@@ -125,7 +130,7 @@ def construct_particle_layer_tuples(
     return [pos, ori]
 
 
-def read_particles(particles):
+def read_particles(particles, name_suffix="particle"):
     """Takes a valid poseset and converts it into napari layers."""
     coords = particles.position
 
@@ -152,6 +157,7 @@ def read_particles(particles):
         scale=px_size,
         exp_id=particles.experiment_id,
         source=particles.source,
+        name_suffix=name_suffix,
     )
 
 
