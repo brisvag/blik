@@ -184,7 +184,11 @@ def new(
         for lay in layers:
             if lay.metadata["experiment_id"] == exp_id:
                 layers = construct_particle_layer_tuples(
-                    coords=None, features=None, scale=lay.scale[0], exp_id=exp_id
+                    coords=None,
+                    features=None,
+                    scale=lay.scale[0],
+                    exp_id=exp_id,
+                    name_suffix="picked",
                 )
                 return layer_tuples_to_layers(layers)
     elif l_type == "surface_picking":
