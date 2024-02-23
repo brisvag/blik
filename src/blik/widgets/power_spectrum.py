@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import dask.array as da
 import numpy as np
 from magicgui import magic_factory
-from scipy.fft import fftn, fftshift
+from scipy.fft import fftn, fftshift, ifftshift
 
 if TYPE_CHECKING:
     import napari
@@ -24,7 +24,7 @@ def power_spectrum(
     axes = (1, 2) if image.metadata["stack"] else None
     raw = da.compute(image.data)[0]
     power_spectrum = np.abs(
-        fftshift(fftn(fftshift(raw, axes=axes), axes=axes), axes=axes)
+        fftshift(fftn(ifftshift(raw, axes=axes), axes=axes), axes=axes)
     )
     return (
         np.log(power_spectrum + 1),
