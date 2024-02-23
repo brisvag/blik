@@ -16,9 +16,12 @@ if TYPE_CHECKING:
     high={"widget_type": "FloatSlider", "min": 0, "max": 0.5},
 )
 def bandpass_filter(
-    image: "napari.layers.Image", low: float = 0.1, high: float = 0.4
+    image: "napari.layers.Image",
+    low: float = 0.1,
+    high: float = 0.4,
+    is_2D_data: bool = False,
 ) -> "napari.types.LayerDataTuple":
-    channel_axis = 0 if image.metadata["stack"] else None
+    channel_axis = 0 if is_2D_data else None
     high_pass = butterworth(
         np.asarray(image.data), low, high_pass=True, channel_axis=channel_axis
     )

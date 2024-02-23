@@ -15,13 +15,14 @@ if TYPE_CHECKING:
 )
 def power_spectrum(
     image: "napari.layers.Image",
+    is_2D_data: bool = False,
 ) -> "napari.types.LayerDataTuple":
     """
     Power spectrum (log scale) of the image.
 
     First centers in real space on the origin to remove shift effects.
     """
-    axes = (1, 2) if image.metadata["stack"] else None
+    axes = (-2, -1) if is_2D_data else None
     raw = da.compute(image.data)[0]
     power_spectrum = np.abs(
         fftshift(fftn(ifftshift(raw, axes=axes), axes=axes), axes=axes)
