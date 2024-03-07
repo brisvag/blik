@@ -10,10 +10,13 @@ from morphosamplers.sampler import (
     sample_volume_around_surface,
 )
 from morphosamplers.surface_spline import GriddedSplineSurface
+from morphosamplers.models import Sphere
+from morphosamplers.samplers.sphere_samplers import PoseSampler, PointSampler
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
 from ..utils import invert_xyz
+from scipy.spatial import ConvexHull
 
 
 def _generate_surface_grids_from_shapes_layer(
@@ -346,6 +349,84 @@ def resample_filament(
     )
 
 
+@magicgui(
+    labels=True,
+    call_button="Generate",
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
+)
+def sphere(
+    point_picks: napari.layers.Points,
+    spacing_A=50,
+) -> napari.types.LayerDataTuple:
+
+    points = invert_xyz(point_picks.data)
+    c = points[0]
+    n = points[1]
+    r = np.linalg.norm(n - c)
+
+    s = Sphere(center=c, radius=r)
+    ps = PointSampler(spacing=r / 10)
+    positions = ps.sample(s)
+
+    h = ConvexHull(positions)
+    tri = h.points[h.simplices]
+
+    # fix faces ordering
+    edges = tri - np.roll(tri, 1, axis=1)
+    cross = np.cross(edges[:, 0], edges[:, 1])
+    direction = np.einsum('...j,...j', cross, tri[:, 0] - (0, 0, 0))
+    faces = h.simplices.copy()
+    faces[direction < 0] = h.simplices[direction < 0][:, ::-1]
+
+    exp_id = point_picks.metadata["experiment_id"]
+
+    surface_layer_tuple = (
+        (invert_xyz(positions), invert_xyz(faces)),
+        {
+            "name": f"{exp_id} - surface",
+            "metadata": {
+                "experiment_id": exp_id,
+                "sphere": s,
+            },
+            "scale": point_picks.scale,
+            "shading": "smooth",
+        },
+        "surface",
+    )
+    return [surface_layer_tuple]
+
+
+@magicgui(
+    labels=True,
+    call_button="Generate",
+    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
+)
+def sphere_particles(
+    sphere_surf: napari.layers.Surface,
+    spacing_A=50,
+) -> napari.types.LayerDataTuple:
+    sphere = sphere_surf.metadata.get("sphere", None)
+    if sphere is None:
+        raise ValueError("This shapes layer contains no sphere object.")
+
+    exp_id = sphere_surf.metadata["experiment_id"]
+
+    spacing_A /= sphere_surf.scale[0]
+
+    ps = PoseSampler(spacing=spacing_A)
+    poses = ps.sample(sphere)
+
+    features = pd.DataFrame({"orientation": np.asarray(Rotation.from_matrix(invert_xyz(poses.orientations)))})
+
+    return construct_particle_layer_tuples(
+        coords=invert_xyz(poses.positions),
+        features=features,
+        scale=sphere_surf.scale[0],
+        exp_id=exp_id,
+        name_suffix="sphere picked",
+    )
+
+
 class FilamentWidget(Container):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -362,3 +443,11 @@ class SurfaceWidget(Container):
         self.append(surface)
         self.append(surface_particles)
         self.append(resample_surface)
+
+
+class SphereWidget(Container):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.append(sphere)
+        self.append(sphere_particles)

@@ -177,7 +177,7 @@ def read_image(image):
             "rendering": "average",
             "depiction": "plane",
             "blending": "translucent",
-            "plane": {"thickness": 5},
+            "plane": {"thickness": 5, 'position': np.array(image.data.shape) / 2},
             **({"projection_mode": "mean"} if NAPARI_050 else {}),
         },
         "image",
