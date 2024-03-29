@@ -15,7 +15,7 @@ authors:
     orcid: 'https://orcid.org/0000-0003-4875-9422'
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.10090438
+    value: https://zenodo.org/doi/10.5281/zenodo.10090438
 repository-code: 'https://github.com/brisvag/blik'
 url: 'https://brisvag.github.io/blik/'
 license: GPL-3.0

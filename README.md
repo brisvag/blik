@@ -2,11 +2,13 @@
 
 # blik
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10090438.svg)](https://zenodo.org/doi/10.5281/zenodo.10090438)
 [![License](https://img.shields.io/pypi/l/blik.svg?color=green)](https://github.com/brisvag/blik/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/blik.svg?color=green)](https://pypi.org/project/blik)
 [![Python Version](https://img.shields.io/pypi/pyversions/blik.svg?color=green)](https://python.org)
 [![CI](https://github.com/brisvag/blik/actions/workflows/ci.yml/badge.svg)](https://github.com/brisvag/blik/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/brisvag/blik/branch/main/graph/badge.svg)](https://codecov.io/gh/brisvag/blik)
+
 
 ![blik showcase](https://user-images.githubusercontent.com/23482191/161224963-ad746a06-c2e5-46fe-a13b-f356bc4ad72b.png)
 
