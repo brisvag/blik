@@ -39,7 +39,6 @@ def _construct_positions_layer(
             "feature_defaults": feat_defaults,
             "face_color": "teal",
             "size": 5 / scale,
-            "border_width": 0,
             "scale": [scale] * 3,
             "shading": "spherical",
             "antialiasing": 0,
@@ -47,6 +46,7 @@ def _construct_positions_layer(
             "out_of_slice_display": True,
             **pt_kwargs,
             **({"projection_mode": "all"} if NAPARI_050 else {}),
+            **({"border_width": 0} if NAPARI_050 else {"edge_width": 0}),
         },
         "points",
     )
