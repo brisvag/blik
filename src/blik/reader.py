@@ -39,6 +39,7 @@ def _construct_positions_layer(
             "feature_defaults": feat_defaults,
             "face_color": "teal",
             "size": 5 / scale,
+            "border_width": 0,
             "scale": [scale] * 3,
             "shading": "spherical",
             "antialiasing": 0,
