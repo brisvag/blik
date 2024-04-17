@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from importlib.metadata import version
-from typing import List
 
 import napari
 import numpy as np
@@ -159,7 +158,7 @@ def add_to_exp(layer: napari.layers.Layer):
 )
 def new(
     l_type,
-) -> List[napari.layers.Layer]:  # noqa. This must be List, not list (magicgui...)
+) -> list[napari.layers.Layer]:
     """create a new layer to add to this experiment."""
     layers = getattr(new._main_widget["experiment"], "current_layers", [])
     if not layers:
