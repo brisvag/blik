@@ -15,7 +15,17 @@ authors:
     orcid: 'https://orcid.org/0000-0003-4875-9422'
 identifiers:
   - type: doi
-    value: https://zenodo.org/doi/10.5281/zenodo.10090438
+    value: 10.5281/zenodo.10090438
+    description: blik source code repository on github
+  - type: doi
+    value: 10.1371/journal.pbio.3002447
+    description: main blik publication on Plos Biology
 repository-code: 'https://github.com/brisvag/blik'
 url: 'https://brisvag.github.io/blik/'
+keywords:
+  - cryo-et
+  - cryo-em
+  - tomography
+  - napari
+  - visualisation
 license: GPL-3.0

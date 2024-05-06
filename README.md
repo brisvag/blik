@@ -65,4 +65,4 @@ There are also widgets for picking of both surfaces and filaments.
 
 # References
 
-A paper preprint about `blik` is available on the bioRxiv: [https://doi.org/10.1101/2023.12.05.570263](https://doi.org/10.1101/2023.12.05.570263).
+If you use `blik`, please cite the repo on zenodo and the paper on Plos Biology: [https://doi.org/10.1371/journal.pbio.3002447](https://doi.org/10.1371/journal.pbio.3002447).
