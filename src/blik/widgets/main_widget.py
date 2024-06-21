@@ -246,7 +246,7 @@ class MainBlikWidget(Container):
         super().__init__(*args, **kwargs)
 
         exp = experiment()
-        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
+        self.native_parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
         self.append(exp)
         self.append(new)
         self.append(add_to_exp)
