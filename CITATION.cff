@@ -1,10 +1,31 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-title: "blik: a Python tool for visualising and interacting with cryo-ET and subtomogram averaging data."
+title: >-
+  blik: a Python tool for visualising and interacting with
+  cryo-ET and subtomogram averaging data.
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
 authors:
-- family-names: "Gaifas"
-  given-names: "Lorenzo"
-  orcid: "https://orcid.org/0000-0003-4875-9422"
-doi: 10.5281/zenodo.10090438
-repository-code: https://github.com/brisvag/blik
-license: GPLv3
+  - given-names: Lorenzo
+    family-names: Gaifas
+    orcid: 'https://orcid.org/0000-0003-4875-9422'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.10090438
+    description: blik source code repository on github
+  - type: doi
+    value: 10.1371/journal.pbio.3002447
+    description: main blik publication on Plos Biology
+repository-code: 'https://github.com/brisvag/blik'
+url: 'https://brisvag.github.io/blik/'
+keywords:
+  - cryo-et
+  - cryo-em
+  - tomography
+  - napari
+  - visualisation
+license: GPL-3.0
