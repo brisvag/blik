@@ -8,13 +8,9 @@ import numpy as np
 import pandas as pd
 from cryotypes.image import ImageProtocol
 from cryotypes.poseset import PoseSetProtocol
-from packaging.version import parse as parse_version
 from scipy.spatial.transform import Rotation
 
 from .utils import generate_vectors, invert_xyz
-
-NAPARI_050 = parse_version(version("napari")) >= parse_version("0.5.0a")
-
 
 def get_reader(path):
     return read_layers
@@ -42,11 +38,13 @@ def _construct_positions_layer(
             "scale": [scale] * 3,
             "shading": "spherical",
             "antialiasing": 0,
+            "border_width": 0,
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
             "out_of_slice_display": True,
+            "projection_mode": "all",
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
             **pt_kwargs,
-            **({"projection_mode": "all"} if NAPARI_050 else {}),
-            **({"border_width": 0} if NAPARI_050 else {"edge_width": 0}),
         },
         "points",
     )
@@ -72,7 +70,9 @@ def _construct_orientations_layer(
             "metadata": {"experiment_id": exp_id, "p_id": p_id, "source": source},
             "vector_style": "arrow",
             "out_of_slice_display": True,
-            **({"projection_mode": "all"} if NAPARI_050 else {}),
+            "projection_mode": "all",
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
         },
         "vectors",
     )
@@ -178,7 +178,9 @@ def read_image(image):
             "depiction": "plane",
             "blending": "translucent",
             "plane": {"thickness": 5},
-            **({"projection_mode": "mean"} if NAPARI_050 else {}),
+            "projection_mode": "mean",
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
         },
         "image",
     )
@@ -210,6 +212,8 @@ def read_surface_picks(path):
             "edge_color": "surface_id",
             "shape_type": "path",
             "ndim": 3,
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
         },
         "shapes",
     )
@@ -232,6 +236,8 @@ def read_surface(path):
             "scale": scale,
             # TODO: needs to exposed in napari
             # colormap=colormap
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
         },
         "surface",
     )

@@ -76,8 +76,10 @@ def _attach_callbacks_to_viewer(wdg):
         viewer.layers.events.inserted.connect(lambda e: _connect_layers(viewer, e))
         _connect_layers(viewer, None)
 
-        viewer.scale_bar.unit = "0.1nm"  # pixels are 1 A
+        # pixels are 1 A. We put 0.1nm cause it's more readable with multiples
+        viewer.scale_bar.unit = "0.1nm"
         viewer.scale_bar.visible = True
+        # viewer.dims.axis_labels = ['z', 'y', 'x']
 
 
 def _connect_layers(viewer, e):
@@ -173,6 +175,8 @@ def new(
                     np.zeros(lay.data.shape, dtype=np.int32),
                     name=f"{exp_id} - segmentation",
                     scale=lay.scale,
+                    # axis_labels=('z', 'y', 'x'),
+                    units='angstrom',
                     metadata={
                         "experiment_id": exp_id,
                         "stack": lay.metadata["stack"],
@@ -203,6 +207,8 @@ def new(
                     edge_color_cycle=np.random.rand(30, 3),
                     edge_color="surface_id",
                     ndim=3,
+                    # axis_labels=('z', 'y', 'x'),
+                    units='angstrom',
                 )
 
                 return [pts]
@@ -216,6 +222,8 @@ def new(
                     metadata={"experiment_id": exp_id},
                     face_color_cycle=np.random.rand(30, 3),
                     ndim=3,
+                    # axis_labels=('z', 'y', 'x'),
+                    units='angstrom',
                 )
 
                 return [pts]
@@ -246,7 +254,7 @@ class MainBlikWidget(Container):
         super().__init__(*args, **kwargs)
 
         exp = experiment()
-        self.parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
+        self.native_parent_changed.connect(lambda _: _attach_callbacks_to_viewer(exp))
         self.append(exp)
         self.append(new)
         self.append(add_to_exp)

@@ -28,3 +28,9 @@ def test_construct_empty_layers():
     assert pts[2] == "points"
     vec = layer_data_list[1]
     assert vec[2] == "vectors"
+
+
+def test_napari_read(star_file, mrc_file, make_napari_viewer):
+    v = make_napari_viewer()
+    v.open(star_file, plugin='blik')
+    v.open(mrc_file, plugin='blik')
