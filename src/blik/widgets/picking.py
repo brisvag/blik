@@ -10,6 +10,7 @@ from morphosamplers.sampler import (
     sample_volume_around_surface,
 )
 from morphosamplers.surface_spline import GriddedSplineSurface
+from morphosamplers.preprocess import get_label_paths_3d
 from scipy.spatial.transform import Rotation
 
 from ..reader import construct_particle_layer_tuples
@@ -67,6 +68,44 @@ def _generate_surface_grids_from_shapes_layer(
     return surface_grids, colors
 
 
+def _generate_surface_grids_from_labels_layer(
+    surface_label,
+    spacing_A=100,
+    inside_points=None,
+    closed=False,
+):
+    """create a new surface representation from a segmentation."""
+    spacing_A /= surface_label.scale[0]
+    surface_grids = []
+    if inside_points is None:
+        inside_point = None
+    else:
+        inside_point = (
+            invert_xyz(inside_points.data[0]) if len(inside_points.data) else None
+        )
+
+    # doing this "custom" because we need to flip xyz
+    surfaces_lines = get_label_paths_3d(compute(surface_label.data)[0], axis=0, slicing_step=10, sampling_step=10)
+
+    for lines in surfaces_lines:
+        lines = [invert_xyz(line.astype(float)) for line in lines]
+
+        try:
+            surface_grids.append(
+                GriddedSplineSurface(
+                    points=lines,
+                    separation=spacing_A,
+                    order=3,
+                    closed=closed,
+                    inside_point=inside_point,
+                )
+            )
+        except ValueError:
+            continue
+
+    return surface_grids, np.random.rand(len(surface_grids), 3)
+
+
 def _resample_surfaces(image_layer, surface_grids, spacing, thickness, masked):
     volumes = []
     for surf in surface_grids:
@@ -108,21 +147,29 @@ def _resample_filament(image_layer, filament, spacing, thickness):
     inside_points={"nullable": True},
 )
 def surface(
-    surface_shapes: napari.layers.Shapes,
+    surface_input: napari.layers.Layer,
     inside_points: napari.layers.Points,
     spacing_A=50,
     closed=False,
 ) -> napari.types.LayerDataTuple:
     """create a new surface representation from picked surface points."""
-    surface_grids, colors = _generate_surface_grids_from_shapes_layer(
-        surface_shapes,
-        spacing_A,
-        inside_points=inside_points,
-        closed=closed,
-    )
+    if isinstance(surface_input, napari.layers.Shapes):
+        surface_grids, colors = _generate_surface_grids_from_shapes_layer(
+            surface_input,
+            spacing_A,
+            inside_points=inside_points,
+            closed=closed,
+        )
+    else:
+        surface_grids, colors = _generate_surface_grids_from_labels_layer(
+            surface_input,
+            spacing_A,
+            inside_points=inside_points,
+            closed=closed,
+        )
 
     meshes = []
-    exp_id = surface_shapes.metadata["experiment_id"]
+    exp_id = surface_input.metadata["experiment_id"]
 
     for surf in surface_grids:
         meshes.append(surf.mesh())
@@ -156,7 +203,7 @@ def surface(
                 "surface_grids": surface_grids,
                 "surface_colors": colors,
             },
-            "scale": surface_shapes.scale,
+            "scale": surface_input.scale,
             "shading": "smooth",
             "colormap": colormap,
         },

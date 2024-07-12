@@ -13,7 +13,7 @@ from napari.utils.notifications import show_info
 from packaging.version import parse as parse_version
 from scipy.spatial.transform import Rotation
 
-from ..reader import construct_particle_layer_tuples
+from ..reader import construct_particle_layer_tuples, construct_segmentation_layer_tuple
 from ..utils import generate_vectors, invert_xyz, layer_tuples_to_layers
 
 
@@ -171,18 +171,13 @@ def new(
     if l_type == "segmentation":
         for lay in layers:
             if isinstance(lay, Image) and lay.metadata["experiment_id"] == exp_id:
-                labels = Labels(
-                    np.zeros(lay.data.shape, dtype=np.int32),
-                    name=f"{exp_id} - segmentation",
-                    scale=lay.scale,
-                    # axis_labels=('z', 'y', 'x'),
-                    units='angstrom',
-                    metadata={
-                        "experiment_id": exp_id,
-                        "stack": lay.metadata["stack"],
-                    },
+                layer = construct_segmentation_layer_tuple(
+                    data=np.zeros(lay.data.shape, dtype=np.int32),
+                    scale=lay.scale[0],
+                    exp_id=exp_id,
+                    stack=lay.metadata["stack"],
                 )
-                return [labels]
+                return layer_tuples_to_layers([layer])
     elif l_type == "particles":
         for lay in layers:
             if lay.metadata["experiment_id"] == exp_id:
@@ -208,7 +203,7 @@ def new(
                     edge_color="surface_id",
                     ndim=3,
                     # axis_labels=('z', 'y', 'x'),
-                    units='angstrom',
+                    units="angstrom",
                 )
 
                 return [pts]
@@ -223,7 +218,7 @@ def new(
                     face_color_cycle=np.random.rand(30, 3),
                     ndim=3,
                     # axis_labels=('z', 'y', 'x'),
-                    units='angstrom',
+                    units="angstrom",
                 )
 
                 return [pts]
