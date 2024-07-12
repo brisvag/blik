@@ -1,57 +1,76 @@
 name: blik
 display_name: blik
+
 contributions:
   commands:
-    - id: blik.get_reader
+    # readers
+    - id: blik.read_files
       python_name: blik.reader:get_reader
-      title: Open data with blik
+      title: "Open files with blik"
+    # writers
     - id: blik.write_image
       python_name: blik.writer:write_image
-      title: Save image data with blik
+      title: "Save image data with blik"
     - id: blik.write_labels
       python_name: blik.writer:write_image
-      title: Save labels data with blik
+      title: "Save labels data with blik"
     - id: blik.write_particles_relion_30
       python_name: blik.writer:write_particles_relion_30
-      title: Save particles data with blik (relion 3.0)
+      title: "Save particles data with blik (relion 3.0)"
     - id: blik.write_particles_relion_31
       python_name: blik.writer:write_particles_relion_31
-      title: Save particles data with blik (relion 3.1)
+      title: "Save particles data with blik (relion 3.1)"
     - id: blik.write_particles_relion_40
       python_name: blik.writer:write_particles_relion_40
-      title: Save particles data with blik (relion 4.0)
+      title: "Save particles data with blik (relion 4.0)"
     - id: blik.write_particles_dynamo
       python_name: blik.writer:write_particles_dynamo
-      title: Save particles data with blik (relion 4.0)
+      title: "Save particles data with blik (relion 4.0)"
     - id: blik.write_surface_picks
       python_name: blik.writer:write_surface_picks
-      title: Save surface picks data with blik
+      title: "Save surface picks data with blik"
     - id: blik.write_surface
       python_name: blik.writer:write_surface
-      title: Save surface data with blik
+      title: "Save surface data with blik"
+    # widgets
     - id: blik.main_widget
       python_name: blik.widgets.main_widget:MainBlikWidget
-      title: Create blik widget
+      title: "Open blik main widget"
     - id: blik.filament_picking
       python_name: blik.widgets.picking:FilamentWidget
-      title: Create filament picking widget
+      title: "Open blik filament picking widget"
     - id: blik.surface_picking
       python_name: blik.widgets.picking:SurfaceWidget
-      title: Create surface picking widget
-    - id: blik.file_reader
+      title: "Open blik surface picking widget"
+    - id: blik.file_reader_widget
       python_name: blik.widgets.file_reader:file_reader
-      title: Create reader widget
+      title: "Open blik file reader widget"
     - id: blik.bandpass_filter
       python_name: blik.widgets.filter:bandpass_filter
-      title: Create bandpass filter widget
+      title: "Open blik bandpass filter widget"
     - id: blik.gaussian_filter
       python_name: blik.widgets.filter:gaussian_filter
-      title: Create gaussian filter widget
+      title: "Open blik gaussian filter widget"
     - id: blik.power_spectrum
       python_name: blik.widgets.power_spectrum:power_spectrum
-      title: Create power spectrum widget
+      title: "Open blik power spectrum widget"
+
+  menus:
+    napari/file/io_utilities:
+      - command: blik.file_reader_widget
+    napari/layers/measure:
+      - command: blik.power_spectrum
+    napari/layers/annotate:
+      - command: blik.main_widget
+      - command: blik.filament_picking
+      - command: blik.surface_picking
+      - command: blik.filament_picking
+    napari/layers/filter:
+      - command: blik.bandpass_filter
+      - command: blik.gaussian_filter
+
   readers:
-    - command: blik.get_reader
+    - command: blik.read_files
       filename_patterns:
         - '*.mrc'
         - '*.mrcs'
@@ -66,51 +85,53 @@ contributions:
         - '*.picks'
         - '*.surf'
         - '*.rec'
+
   writers:
     - command: blik.write_image
-      display_name: image
+      display_name: "image"
       layer_types: ["image"]
       filename_extensions: [".mrc", ".mrcs", ".st", ".rec"]
     - command: blik.write_labels
-      display_name: segmentation
+      display_name: "segmentation"
       layer_types: ["labels"]
       filename_extensions: [".mrc", ".mrcs", ".st"]
     - command: blik.write_particles_relion_30
-      display_name: particles (relion 3.0)
+      display_name: "particles (relion 3.0)"
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
     - command: blik.write_particles_relion_31
-      display_name: particles (relion 3.1)
+      display_name: "particles (relion 3.1)"
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
     - command: blik.write_particles_relion_40
-      display_name: particles (relion 4.0)
+      display_name: "particles (relion 4.0)"
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".star"]
     - command: blik.write_particles_dynamo
-      display_name: particles (dynamo tbl)
+      display_name: "particles (dynamo tbl)"
       layer_types: ["points+", "vectors*"]
       filename_extensions: [".tbl"]
     - command: blik.write_surface_picks
-      display_name: surface picks
+      display_name: "surface picks"
       layer_types: ["shapes"]
       filename_extensions: [".picks"]
     - command: blik.write_surface
-      display_name: surface mesh
+      display_name: "surface mesh"
       layer_types: ["surface"]
       filename_extensions: [".surf"]
+
   widgets:
     - command: blik.main_widget
-      display_name: main widget
+      display_name: "Blik main widget"
     - command: blik.filament_picking
-      display_name: filament widget
+      display_name: "Filament picking"
     - command: blik.surface_picking
-      display_name: surface widget
-    - command: blik.file_reader
-      display_name: file reader
+      display_name: "Surface picking"
+    - command: blik.file_reader_widget
+      display_name: "File reader"
     - command: blik.bandpass_filter
-      display_name: bandpass filter
+      display_name: "Bandpass filter"
     - command: blik.gaussian_filter
-      display_name: gaussian filter
+      display_name: "Gaussian filter"
     - command: blik.power_spectrum
-      display_name: power spectrum
+      display_name: "Power spectrum"
