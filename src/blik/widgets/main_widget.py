@@ -79,7 +79,7 @@ def _attach_callbacks_to_viewer(wdg):
         # pixels are 1 A. We put 0.1nm cause it's more readable with multiples
         viewer.scale_bar.unit = "0.1nm"
         viewer.scale_bar.visible = True
-        viewer.dims.axis_labels = ['z', 'y', 'x']
+        # viewer.dims.axis_labels = ['z', 'y', 'x']
 
 
 def _connect_layers(viewer, e):
@@ -175,7 +175,7 @@ def new(
                     np.zeros(lay.data.shape, dtype=np.int32),
                     name=f"{exp_id} - segmentation",
                     scale=lay.scale,
-                    axis_labels=('z', 'y', 'x'),
+                    # axis_labels=('z', 'y', 'x'),
                     units='angstrom',
                     metadata={
                         "experiment_id": exp_id,
@@ -207,7 +207,7 @@ def new(
                     edge_color_cycle=np.random.rand(30, 3),
                     edge_color="surface_id",
                     ndim=3,
-                    axis_labels=('z', 'y', 'x'),
+                    # axis_labels=('z', 'y', 'x'),
                     units='angstrom',
                 )
 
@@ -222,7 +222,7 @@ def new(
                     metadata={"experiment_id": exp_id},
                     face_color_cycle=np.random.rand(30, 3),
                     ndim=3,
-                    axis_labels=('z', 'y', 'x'),
+                    # axis_labels=('z', 'y', 'x'),
                     units='angstrom',
                 )
 
