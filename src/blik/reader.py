@@ -91,7 +91,7 @@ def construct_particle_layer_tuples(
     """
     Constructs particle layer tuples from particle data.
 
-    Data should be still in xyz format (will be flipped to zyx).
+    Coords should be still in xyz order (will be flipped to zyx in output).
     """
     # unique id so we can connect layers safely
     p_id = p_id if p_id is not None else uuid1()
@@ -141,7 +141,7 @@ def read_particles(particles, name_suffix="particle"):
 
     px_size = particles.pixel_spacing
     if not px_size:
-        warnings.warn("unknown pixel spacing, setting to 1 Angstrom", stacklevel=2)
+        warnings.warn(f"unknown pixel spacing for particles '{particles.experiment_id}'; setting to 1 Angstrom.", stacklevel=2)
         px_size = 1
 
     if particles.shift is not None:
@@ -162,27 +162,38 @@ def read_particles(particles, name_suffix="particle"):
 
 
 def read_image(image):
-    px_size = image.pixel_spacing
-    if not px_size:
-        warnings.warn("unknown pixel spacing, setting to 1 Angstrom", stacklevel=2)
-        px_size = 1
     return (
         image.data,
         {
             "name": f"{image.experiment_id} - image",
-            "scale": [px_size] * image.data.ndim,
-            "metadata": {"experiment_id": image.experiment_id, "stack": image.stack},
+            "scale": [image.pixel_spacing] * 3,
+            "metadata": {"experiment_id": image.experiment_id, "stack": image.stack, "source": image.source},
             "interpolation2d": "spline36",
             "interpolation3d": "linear",
-            "rendering": "average",
-            "depiction": "plane",
             "blending": "translucent",
-            "plane": {"thickness": 5},
             "projection_mode": "mean",
+            "depiction": "plane",
+            "plane": {"thickness": 5, "position": np.array(image.data.shape) / 2},
+            "rendering": "average",
             # "axis_labels": ('z', 'y', 'x'),
             "units": 'angstrom',
         },
         "image",
+    )
+
+
+def read_segmentation(image):
+    return (
+        image.data,
+        {
+            "name": f"{image.experiment_id} - segmentation",
+            "scale": [image.pixel_spacing] * 3,
+            "metadata": {"experiment_id": image.experiment_id, "stack": image.stack, "source": image.source},
+            "blending": "translucent",
+            # "axis_labels": ('z', 'y', 'x'),
+            "units": 'angstrom',
+        },
+        "labels",
     )
 
 
@@ -255,13 +266,19 @@ def read_layers(*paths, **kwargs):
         else:
             cryohub_paths.append(path)
 
-    data_list = cryohub.read(*cryohub_paths, **kwargs)
+    obj_list = cryohub.read(*cryohub_paths, **kwargs)
     # sort so we get images first, better for some visualization circumstances
-    for data in sorted(data_list, key=lambda x: not isinstance(x, ImageProtocol)):
-        if isinstance(data, ImageProtocol):
-            layers.append(read_image(data))
-        elif isinstance(data, PoseSetProtocol):
-            layers.extend(read_particles(data))
+    for obj in sorted(obj_list, key=lambda x: not isinstance(x, ImageProtocol)):
+        if not obj.pixel_spacing:
+            warnings.warn(f"unknown pixel spacing for {obj.__class__.__name__} '{obj.experiment_id}'; setting to 1 Angstrom.", stacklevel=2)
+            obj.pixel_spacing = 1
+        if isinstance(obj, ImageProtocol):
+            if np.issubdtype(obj.data.dtype, np.integer) and np.iinfo(obj.data.dtype).bits == 8:
+                layers.append(read_segmentation(obj))
+            else:
+                layers.append(read_image(obj))
+        elif isinstance(obj, PoseSetProtocol):
+            layers.extend(read_particles(obj))
 
     for lay in layers:
         lay[1]["visible"] = False  # speed up loading
