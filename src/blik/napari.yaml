@@ -39,6 +39,9 @@ contributions:
     - id: blik.filament_picking
       python_name: blik.widgets.picking:FilamentWidget
       title: "Open blik filament picking widget"
+    - id: blik.sphere_picking
+      python_name: blik.widgets.picking:SphereWidget
+      title: "Open sphere picking widget"
     - id: blik.surface_picking
       python_name: blik.widgets.picking:SurfaceWidget
       title: "Open blik surface picking widget"
@@ -124,9 +127,11 @@ contributions:
     - command: blik.main_widget
       display_name: "Blik main widget"
     - command: blik.filament_picking
-      display_name: "Filament picking"
+      display_name: "Filament widget"
+    - command: blik.sphere_picking
+      display_name: "Sphere widget"
     - command: blik.surface_picking
-      display_name: "Surface picking"
+      display_name: surface widget
     - command: blik.file_reader_widget
       display_name: "File reader"
     - command: blik.bandpass_filter
