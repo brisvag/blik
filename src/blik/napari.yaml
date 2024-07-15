@@ -66,8 +66,8 @@ contributions:
     napari/layers/annotate:
       - command: blik.main_widget
       - command: blik.filament_picking
+      - command: blik.sphere_picking
       - command: blik.surface_picking
-      - command: blik.filament_picking
     napari/layers/filter:
       - command: blik.bandpass_filter
       - command: blik.gaussian_filter
