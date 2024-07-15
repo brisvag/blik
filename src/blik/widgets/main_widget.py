@@ -221,7 +221,10 @@ def new(
                     size=20 / lay.scale[0],
                     scale=lay.scale,
                     metadata={"experiment_id": exp_id},
+                    face_color_cycle=np.random.rand(30, 3),
                     ndim=3,
+                    # axis_labels=('z', 'y', 'x'),
+                    units="angstrom",
                 )
 
                 return [pts]

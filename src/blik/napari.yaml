@@ -127,11 +127,11 @@ contributions:
     - command: blik.main_widget
       display_name: "Blik main widget"
     - command: blik.filament_picking
-      display_name: "Filament widget"
+      display_name: "Filament picking"
     - command: blik.sphere_picking
-      display_name: "Sphere widget"
+      display_name: "Sphere picking"
     - command: blik.surface_picking
-      display_name: surface widget
+      display_name: "Surface picking"
     - command: blik.file_reader_widget
       display_name: "File reader"
     - command: blik.bandpass_filter
