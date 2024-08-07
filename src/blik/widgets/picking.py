@@ -401,43 +401,52 @@ def resample_filament(
 @magicgui(
     labels=True,
     call_button="Generate",
-    spacing_A={"widget_type": "FloatSlider", "min": 0.01, "max": 10000},
 )
 def sphere(
     point_picks: napari.layers.Points,
-    spacing_A=50,
 ) -> napari.types.LayerDataTuple:
     points = invert_xyz(point_picks.data)
-    c = points[0]
-    n = points[1]
-    r = np.linalg.norm(n - c)
+    vert_all = []
+    faces_all = []
+    spheres_all = []
 
-    s = Sphere(center=c, radius=r)
-    ps = PointSampler(spacing=r / 10)
-    positions = ps.sample(s)
+    exp_id = ""
+    faces_offset = 0
+    for i, (c, n) in enumerate(zip(points[::2], points[1::2])):
+        r = np.linalg.norm(n - c)
 
-    h = ConvexHull(positions)
-    tri = h.points[h.simplices]
+        s = Sphere(center=c, radius=r)
+        ps = PointSampler(spacing=r / 10)
+        positions = ps.sample(s)
 
-    # fix faces ordering
-    edges = tri - np.roll(tri, 1, axis=1)
-    cross = np.cross(edges[:, 0], edges[:, 1])
-    direction = np.einsum("...j,...j", cross, tri[:, 0] - (0, 0, 0))
-    faces = h.simplices.copy()
-    faces[direction < 0] = h.simplices[direction < 0][:, ::-1]
+        h = ConvexHull(positions)
+        tri = h.points[h.simplices]
 
-    exp_id = point_picks.metadata["experiment_id"]
+        # fix faces ordering
+        edges = tri - np.roll(tri, 1, axis=1)
+        cross = np.cross(edges[:, 0], edges[:, 1])
+        direction = np.einsum("...j,...j", cross, tri[:, 0] - (0, 0, 0))
+        faces = h.simplices.copy()
+        faces[direction < 0] = h.simplices[direction < 0][:, ::-1]
+        faces += i * faces_offset
+        faces_offset += len(positions)
+
+        exp_id = point_picks.metadata["experiment_id"]
+        vert_all.append(positions)
+        faces_all.append(faces)
+        spheres_all.append(s)
 
     surface_layer_tuple = (
-        (invert_xyz(positions), invert_xyz(faces)),
+        (invert_xyz(np.concatenate(vert_all)), np.concatenate(faces_all)),
         {
             "name": f"{exp_id} - surface",
             "metadata": {
                 "experiment_id": exp_id,
-                "sphere": s,
+                "spheres": spheres_all,
             },
             "scale": point_picks.scale,
-            "shading": "smooth",
+            # smooth shading is bugged cause of some ordering issue
+            "shading": "flat",
         },
         "surface",
     )
@@ -453,31 +462,32 @@ def sphere_particles(
     sphere_surf: napari.layers.Surface,
     spacing_A=50,
 ) -> napari.types.LayerDataTuple:
-    sphere = sphere_surf.metadata.get("sphere", None)
-    if sphere is None:
-        raise ValueError("This shapes layer contains no sphere object.")
+    spheres = sphere_surf.metadata.get("spheres", None)
+    if spheres is None:
+        raise ValueError("This surface layer contains no sphere objects.")
 
     exp_id = sphere_surf.metadata["experiment_id"]
 
     spacing_A /= sphere_surf.scale[0]
 
-    ps = PoseSampler(spacing=spacing_A)
-    poses = ps.sample(sphere)
+    pos = []
+    ori = []
+    for s in spheres:
+        ps = PoseSampler(spacing=spacing_A)
+        poses = ps.sample(s)
 
-    features = pd.DataFrame(
-        {
-            "orientation": np.asarray(
-                Rotation.from_matrix(invert_xyz(poses.orientations))
-            )
-        }
-    )
+        features = pd.DataFrame(
+            {"orientation": np.asarray(Rotation.from_matrix(poses.orientations))}
+        )
+        pos.append(poses.positions)
+        ori.append(features)
 
     return construct_particle_layer_tuples(
-        coords=invert_xyz(poses.positions),
-        features=features,
+        coords=np.concatenate(pos),
+        features=pd.concat(ori, axis=0),
         scale=sphere_surf.scale[0],
         exp_id=exp_id,
-        name_suffix="sphere picked",
+        name_suffix="spheres picked",
     )
 
 

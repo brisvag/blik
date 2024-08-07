@@ -159,8 +159,8 @@ def add_to_exp(layer: napari.layers.Layer):
             "segmentation",
             "particles",
             "surface_picking",
-            "filament_picking",
             "sphere_picking",
+            "filament_picking",
         ]
     },
 )
