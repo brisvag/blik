@@ -180,6 +180,14 @@ name: surface_particles
 Particles uniformly distributed on the generated surface.
 ```
 
+### Surface from a segmentation
+
+TODO!
+
+### Sphere picking
+
+TODO!
+
 ### Filament picking
 
 Another geometrical picking model implemented in blik is the `filament picker`. The procedure is similar to that for surfaces. To start defining a new filament, we need to create a new `filament picking` in the main widget. This will open a new `Points` layer called `filament picks`.

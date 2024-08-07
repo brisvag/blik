@@ -3,6 +3,7 @@
 # blik
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10090438.svg)](https://zenodo.org/doi/10.5281/zenodo.10090438)
+[![Paper DOI](https://zenodo.org/badge/DOI/10.1371/journal.pbio.3002447.svg)](https://doi.org/10.1371/journal.pbio.3002447)
 [![License](https://img.shields.io/pypi/l/blik.svg?color=green)](https://github.com/brisvag/blik/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/blik.svg?color=green)](https://pypi.org/project/blik)
 [![Python Version](https://img.shields.io/pypi/pyversions/blik.svg?color=green)](https://python.org)
@@ -54,13 +55,14 @@ The `-w blik` is important for proper initialization of all the layers. Always o
 The main widget has a few functions:
 
 - `experiment`: quickly switch to a different experiment id (typically, everything related to an individual tomogram such as volume, particles and segmentations)
-- `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface picking` or `filament picking` for segmentation, particle generation or volume resampling.
+- `new`: generate a new `segmentation`, a new manually-picked set of `particles`, or a new `surface`, `sphere`, or `filament picking` for segmentation, particle generation or volume resampling.
 - `add to exp`: add a layer to the currently selected `experiment` (just a shorthand for `layer.metadata['experiment_id'] = current_exp_id`)
 - `slice_thickness`: changes the slicing thickness in all dimensions in napari. Images will be averaged over that thickness, and all particles in the slice will be displayed.
 
-There are also widgets for picking of both surfaces and filaments.
+There are also widgets for picking surfaces, spheres and filaments:
 
 - `surface`: process a previously picked `surface picking` layer to generate a surface mesh and distribute particles on it for subtomogram averaging, or resample a tomogram along the surface.
+- `sphere`: process a previously picked `sphere picking` layer to generate a sphere mesh and distribute particles on it for subtomogram averaging.
 - `filament`: process a previously picked `filament picking` layer to generate a filament and distribute particles on it for subtomogram averaging, or resample a tomogram along the filament.
 
 # References
