@@ -7,6 +7,10 @@ contributions:
     - id: blik.read_files
       python_name: blik.reader:get_reader
       title: "Open files with blik"
+    # samples
+    - id: blik.sample_hiv_dataset
+      python_name: blik.remote_data:load_hiv_dataset
+      title: "Open sample HIV VLPs dataset"
     # writers
     - id: blik.write_image
       python_name: blik.writer:write_image
@@ -140,3 +144,8 @@ contributions:
       display_name: "Gaussian filter"
     - command: blik.power_spectrum
       display_name: "Power spectrum"
+
+  sample_data:
+    - command: blik.sample_hiv_dataset
+      key: blik_hiv_dataset
+      display_name: "Tomogram and particles of HIV VLPs"
