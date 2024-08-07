@@ -155,7 +155,13 @@ def add_to_exp(layer: napari.layers.Layer):
     labels=False,
     call_button="Create",
     l_type={
-        "choices": ["segmentation", "particles", "surface_picking", "filament_picking"]
+        "choices": [
+            "segmentation",
+            "particles",
+            "surface_picking",
+            "sphere_picking",
+            "filament_picking",
+        ]
     },
 )
 def new(
@@ -216,6 +222,20 @@ def new(
                     scale=lay.scale,
                     metadata={"experiment_id": exp_id},
                     face_color_cycle=np.random.rand(30, 3),
+                    ndim=3,
+                    # axis_labels=('z', 'y', 'x'),
+                    units="angstrom",
+                )
+
+                return [pts]
+    elif l_type == "sphere_picking":
+        for lay in layers:
+            if isinstance(lay, Image) and lay.metadata["experiment_id"] == exp_id:
+                pts = Points(
+                    name=f"{exp_id} - sphere picks",
+                    size=20 / lay.scale[0],
+                    scale=lay.scale,
+                    metadata={"experiment_id": exp_id},
                     ndim=3,
                     # axis_labels=('z', 'y', 'x'),
                     units="angstrom",
