@@ -49,6 +49,9 @@ contributions:
     - id: blik.filament_picking
       python_name: blik.widgets.picking:FilamentWidget
       title: "Open blik filament picking widget"
+    - id: blik.rotate_particles
+      python_name: blik.widgets.picking:rotate_particles
+      title: "Open blik rotate particles widget"
     - id: blik.file_reader_widget
       python_name: blik.widgets.file_reader:file_reader
       title: "Open blik file reader widget"
@@ -72,6 +75,7 @@ contributions:
       - command: blik.surface_picking
       - command: blik.sphere_picking
       - command: blik.filament_picking
+      - command: blik.rotate_particles
     napari/layers/filter:
       - command: blik.bandpass_filter
       - command: blik.gaussian_filter
@@ -136,6 +140,8 @@ contributions:
       display_name: "Sphere picking"
     - command: blik.filament_picking
       display_name: "Filament picking"
+    - command: blik.rotate_particles
+      display_name: "Rotate selected particles"
     - command: blik.file_reader_widget
       display_name: "File reader"
     - command: blik.bandpass_filter

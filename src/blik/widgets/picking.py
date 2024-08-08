@@ -2,7 +2,7 @@ import napari
 import numpy as np
 import pandas as pd
 from dask.array import compute
-from magicgui import magicgui
+from magicgui import magic_factory, magicgui
 from magicgui.widgets import Container
 from morphosamplers.helical_filament import HelicalFilament
 from morphosamplers.models import Sphere
@@ -515,3 +515,23 @@ class SphereWidget(Container):
 
         self.append(sphere)
         self.append(sphere_particles)
+
+
+@magic_factory(
+    auto_call=True,
+    rot={"widget_type": "Slider", "min": 0, "max": 360},
+    tilt={"widget_type": "Slider", "min": 0, "max": 360},
+    psi={"widget_type": "Slider", "min": 0, "max": 360},
+)
+def rotate_particles(
+    particles: napari.layers.Points,
+    rot: int = 0,
+    tilt: int = 0,
+    psi: int = 0,
+) -> None:
+    """Quick and dirty rotation setter based on RELION convention."""
+    if particles.metadata.get("experiment_id", None) is None:
+        raise ValueError("The selected layer is not a blik Particles layer.")
+    ori = Rotation.from_euler("ZYZ", (rot, tilt, psi), degrees=True)
+    particles.features.loc[list(particles.selected_data), "orientation"] = ori
+    particles.events.features()
