@@ -11,7 +11,7 @@
 [![codecov](https://codecov.io/gh/brisvag/blik/branch/main/graph/badge.svg)](https://codecov.io/gh/brisvag/blik)
 
 
-![blik showcase](https://user-images.githubusercontent.com/23482191/161224963-ad746a06-c2e5-46fe-a13b-f356bc4ad72b.png)
+![blik showcase](https://private-user-images.githubusercontent.com/23482191/361246457-b7447060-7ccd-4a8c-a41c-55c1678bf089.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjQ2MDQ0OTksIm5iZiI6MTcyNDYwNDE5OSwicGF0aCI6Ii8yMzQ4MjE5MS8zNjEyNDY0NTctYjc0NDcwNjAtN2NjZC00YThjLWE0MWMtNTVjMTY3OGJmMDg5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA4MjUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwODI1VDE2NDMxOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTRkZTAxMmU0MjViNjA4NTRmMWRlYzRhYmJkYjNkNWRiNjcxZjRjYWI1MWJkYmMxZmFiZjZmNzFhZTE0ODkwY2MmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.ye5hVTZ-yociOCArw2_KSlvde1MZCQuVYH2LQgul4B0)
 
 **`blik`** is a tool for visualising and interacting with cryo-ET and subtomogram averaging data. It leverages the fast, multi-dimensional [napari viewer](https://napari.org) and the scientific python stack.
 
