@@ -27,6 +27,8 @@ jobs:
 
   test:
     name: ${{ matrix.platform }} (${{ matrix.python-version }})
+    env:
+      PYVISTA_OFF_SCREEN: True
     runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
@@ -44,19 +46,17 @@ jobs:
           cache-dependency-path: "pyproject.toml"
           cache: "pip"
 
-      - name: Set up QT libraries
-        uses: tlambert03/setup-qt-libs@v1
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        with:
+          qt: true
+          wm: herbstluftwm
 
       # if running a cron job, we add the --pre flag to test against pre-releases
       - name: Install dependencies
         run: |
           python -m pip install -U pip
           python -m pip install .[test] ${{ github.event_name == 'schedule' && '--pre' || ''  }}
-
-      - name: Test
-        uses: aganders3/headless-gui@v2
-        with:
-          run: pytest --color=yes --cov --cov-report=xml --cov-report=term-missing
 
       # If something goes wrong, we can open an issue in the repo
       - name: Report --pre Failures
