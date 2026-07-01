@@ -73,7 +73,7 @@ jobs:
           update_existing: true
 
       - name: Coverage
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
 
   docs:
     name: Generate Docs
